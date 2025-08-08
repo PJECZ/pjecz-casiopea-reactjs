@@ -150,14 +150,6 @@ if (activeView === 'list') {
                           <Typography variant="subtitle1" sx={{ color: '#555' }}>{format(new Date(item.inicio), "d 'de' MMMM 'del' yyyy 'a las' HH:mm", { locale: es })}</Typography>
                         </Grid>
 
-                        {/* <Grid size={{ md: 2, xs: 12 }} textAlign={'center'}>
-                          <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Hora:</Typography>
-                        </Grid>
-
-                        <Grid size={{ md: 2, xs: 12 }}>
-                          <Typography variant="subtitle1" sx={{ color: '#555' }}>{format(new Date(item.inicio), 'HH:mm', { locale: es })}</Typography>
-                        </Grid>  */}
-
                         <Grid size={{ md: 3, xs: 12 }} textAlign={'center'}>
                             <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Oficina:</Typography>
                         </Grid>
@@ -206,7 +198,7 @@ if (activeView === 'list') {
 
                       <CardActions>
                         {item.puede_cancelarse && (
-                          <Button sx={{ mt: 1}} variant="outlined" color="error" fullWidth>Cancelar</Button>
+                          <Button sx={{ mt: 1}} variant="outlined" color="error" fullWidth onClick={() => handleOpenDialog(item.id)}>Cancelar</Button>
                         )}
                       </CardActions>
 
