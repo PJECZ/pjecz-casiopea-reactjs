@@ -39,6 +39,23 @@ const ConfirmarRegistro: React.FC = () => {
     }
   }, [location.search]);
 
+  // Maneja la navegación asegurando que siempre se pasen id y cadena_validar
+  const handleCrearContrasena = () => {
+    let id = usuario.id;
+    let cadena = usuario.cadena_validar;
+    if (!cadena) {
+      const params = new URLSearchParams(location.search);
+      cadena = params.get('cadena_validar') || '';
+    }
+    // Log temporal para depuración
+    console.log('NAVEGAR A CrearContrasena con:', { id, cadena_validar: cadena });
+    if (!id || !cadena) {
+      alert('Faltan datos para crear la contraseña.');
+      return;
+    }
+    navigate('/CrearContrasena', { state: { id, cadena_validar: cadena } });
+  };
+
   return (
     <Box sx={{ py: 6, px: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card
@@ -105,7 +122,7 @@ const ConfirmarRegistro: React.FC = () => {
           {usuario ? (
             <Button
               variant="contained"
-              onClick={() => navigate('/CrearContrasena', { state: { id: usuario.id, cadena_validar: usuario.cadena_validar } })}
+              onClick={() => handleCrearContrasena()}
               sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
               fullWidth
               size="large"

@@ -55,14 +55,14 @@ const CrearContrasena: React.FC = () => {
     if (!password || !confirmPassword) {
       setMensaje("Por favor ingresa y confirma tu contraseña.");
       setSuccess(false); // Indica que la operación no fue exitosa
-      setLoading(false); // Indica que la operación no fue exitosa
+      setLoading(false);
       return;
     }
     // Validar que el password y el confirmPassword coincidan
     if (password !== confirmPassword) {
       setMensaje("Las contraseñas no coinciden.");
       setSuccess(false); // Indica que la operación no fue exitosa
-      setLoading(false); // Indica que la operación no fue exitosa  
+      setLoading(false); 
       return;
     }
     setLoading(true); // Indica que la operación está en curso
@@ -89,6 +89,14 @@ const CrearContrasena: React.FC = () => {
           Crear nueva contraseña
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
+        {/* DEBUG: Mostrar datos de validación usados para crear la contraseña */}
+        <Box mb={2} width="100%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
+          <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
+            (Debug) Datos de validación:
+          </Typography>
+          <Typography variant="body2" color="text.secondary">id: <b>{id}</b></Typography>
+          <Typography variant="body2" color="text.secondary">cadena_validar: <b>{cadena_validar}</b></Typography>
+        </Box>
         <form style={{ width: '100%' }} onSubmit={handleSubmit} autoComplete="off">
           <TextField
             label="Contraseña"
