@@ -20,9 +20,31 @@ const CrearContrasena: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Validar que el id y la cadena_validar no estén vacíos
+  // Redirigir de forma segura si faltan parámetros, usando useEffect
+  // Si faltan parámetros, muestra mensaje y botón para ir al inicio
   if (!id || !cadena_validar) {
-    navigate("/");
-    return null;
+    return (
+      <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+        <Card sx={{ maxWidth: 420, borderRadius: 4, boxShadow: 3, p: 3, mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Avatar sx={{ bgcolor: 'error.light', color: 'error.dark', width: 64, height: 64, mb: 2 }}>
+            <ErrorOutline fontSize="large" />
+          </Avatar>
+          <Typography variant="h6" fontWeight={600} sx={{ color: 'error.main', mb: 2, textAlign: 'center' }}>
+            No se puede crear la contraseña<br/>Faltan datos de validación.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ borderRadius: 2, backgroundColor: '#65815c', fontWeight: 600 }}
+            fullWidth
+            size="large"
+            onClick={() => navigate("/")}
+          >
+            Ir al inicio
+          </Button>
+        </Card>
+      </Box>
+    );
   }
   const handleSubmit = async (e: React.FormEvent) => {
     // Validar que el password y el confirmPassword no estén vacíos
