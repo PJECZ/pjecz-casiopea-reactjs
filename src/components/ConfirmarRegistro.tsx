@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid, Button } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid, Button, Badge } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 import { ArrowRightIcon } from "@mui/x-date-pickers";
-import { KeyOutlined } from "@mui/icons-material";
+import { Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -43,7 +43,7 @@ const ConfirmarRegistro: React.FC = () => {
     <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card
         sx={{
-          maxWidth: 450,
+          maxWidth: 550,
           borderRadius: 4,
           boxShadow: 3,
           overflow: 'hidden',
@@ -64,30 +64,29 @@ const ConfirmarRegistro: React.FC = () => {
           </Typography>
         </Box>
         {usuario && (
-          <Box sx={{ mb: 3, p:2, border: '1px solid #d3e0d1', borderRadius: 2, background: '#f7faf5', boxShadow: 2 }}>
+          <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1 }}>Datos del usuario:</Typography>
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography variant="body2"><b>Nombre:</b> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Person /> Nombre: {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><b>Correo:</b> {usuario.email}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Email /> Correo: {usuario.email}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><b>CURP:</b> {usuario.curp}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Badge /> CURP: {usuario.curp}</Typography>
                 <Divider sx={{ mb: 1 }} />
               </Grid>
               <Grid size={12}>
-                <Typography variant="body2"><b>Teléfono:</b> {usuario.telefono}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Phone /> Teléfono: {usuario.telefono}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><b>ID:</b> {usuario.id}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Key /> ID: {usuario.id}</Typography>
                 <Divider sx={{ mb: 1 }} />
               </Grid>
             </Grid>
             <Button 
               variant="contained" 
-              color="primary" 
               onClick={() => navigate('/CrearContrasena')} 
-              sx={{ mt: 2, borderRadius: 2 }} 
+              sx={{ mt: 2, borderRadius: 2, color: '#fff', backgroundColor: '#65815c' }} 
               fullWidth 
               size="large"
               startIcon={<KeyOutlined />}
