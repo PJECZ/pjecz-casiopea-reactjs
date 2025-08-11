@@ -1,70 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
-import { terminarRegistro } from "../actions/AuthActions";
+import { confirmarCuenta } from "../actions/AuthActions";
 import axios from "axios";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
   const [mensaje, setMensaje] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(true);
-  const [mostrarFormulario, setMostrarFormulario] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>("");
-  const [enviando, setEnviando] = useState<boolean>(false);
-  const [id, setId] = useState<string>("");
   const [cadenaValidar, setCadenaValidar] = useState<string>("");
   const [usuario, setUsuario] = useState<any>(null);
 
-  /* useEffect para validar el registro */
+  /* Mostrar datos de usuario al obtener el id y cadena_validar desde el enlace  y funcion confirmarCuenta */
   useEffect(() => {
-    /* Validar los parámetros del enlace */
     const params = new URLSearchParams(location.search);
-    /* Obtener los parámetros del enlace */
-    const idParam = params.get("id");
-    /* Obtener el parámetro cadena_validar */
     const cadena_validar = params.get("cadena_validar");
-
-    /* Validar que los parámetros del enlace sean correctos */
-    if (idParam && cadena_validar) {
-      /* Asignar los parámetros a las variables */
-      setId(idParam);
+    if (cadena_validar) {
       setCadenaValidar(cadena_validar);
-      /* Validar el registro */
-      axios.post("/api/v5/cit_clientes_registros/validar", {
-        id: idParam,
-        cadena_validar,
-      })
+      confirmarCuenta(cadena_validar)
         .then((res) => {
-          /* Validar que el registro sea correcto */
-          if (res.data && res.data.data) {
-            /* Asignar los datos del usuario */
-            setUsuario(res.data.data);
-            /* Mostrar mensaje de éxito */
-            setMensaje("¡Registro validado exitosamente! Revisa tus datos antes de finalizar el registro.");
-            /* Mostrar el formulario */
-            setMostrarFormulario(true); // Si quieres mostrar el formulario después
-          } else {
-            /* Mostrar mensaje de error */
-            setMensaje("No se encontraron datos de usuario para mostrar.");
-          }
+          setUsuario(res.data.data);
+          setMensaje("Registro confirmado exitosamente");
         })
         .catch((err) => {
-          /* Validar que el registro sea correcto */
-          if (err.response && err.response.data && err.response.data.error) {
-            /* Mostrar mensaje de error */
-            setMensaje(`Error: ${err.response.data.error}`);
-          } else {
-            /* Mostrar mensaje de error */
-            setMensaje("Error al validar el registro.");
-          }
+          setMensaje("Error al confirmar el registro");
         })
         .finally(() => {
-          /* Finalizar el registro */
           setCargando(false);
         });
     } else {
-      /* Mostrar mensaje de error */
-      setMensaje("Parámetros inválidos en el enlace.");
+      setMensaje("Parámetros inválidos");
       setCargando(false);
     }
   }, [location.search]);
@@ -86,8 +51,6 @@ const ConfirmarRegistro: React.FC = () => {
           <Typography variant="body2"><b>Correo:</b> {usuario.email}</Typography>
           <Typography variant="body2"><b>CURP:</b> {usuario.curp}</Typography>
           <Typography variant="body2"><b>Teléfono:</b> {usuario.telefono}</Typography>
-          <Typography variant="body2"><b>ID:</b> {id}</Typography>
-          <Typography variant="body2"><b>Cadena validar:</b> {cadenaValidar}</Typography>
         </Box>
       )}
     </Box>
