@@ -40,20 +40,10 @@ const ConfirmarRegistro: React.FC = () => {
   }, [location.search]);
 
   return (
-    <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
-      <Avatar
-        sx={{
-          bgcolor: '#65815c',
-          color: '#fff',
-          width: 64,
-          height: 64,
-        }}
-      >
-        <CheckCircle fontSize="large" />
-      </Avatar>
+    <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>   
       <Card
         sx={{
-          maxWidth: 550,
+          maxWidth: 650,
           borderRadius: 4,
           boxShadow: 3,
           overflow: 'hidden',
@@ -63,13 +53,23 @@ const ConfirmarRegistro: React.FC = () => {
         }}
       >
         <Box textAlign="center" mb={2}>
+          <Avatar
+          sx={{
+            bgcolor: '#65815c',
+            color: '#fff',
+            width: 64,
+            height: 64,
+          }}
+          >
+            <CheckCircle fontSize="large" />
+          </Avatar>
           <Typography variant="h4" fontWeight={600} sx={{ color: '#65815c', mb: 1 }}>
             Confirmación de registro
           </Typography>
           <Divider sx={{ my: 2 }} />
         </Box>
         <Box textAlign="center" mb={2}>
-          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#65815c' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
+          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#363636' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
             {cargando ? "Validando..." : mensaje}
           </Typography>
         </Box>
