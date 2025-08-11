@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 
 const ConfirmarRegistro: React.FC = () => {
@@ -38,24 +38,48 @@ const ConfirmarRegistro: React.FC = () => {
   }, [location.search]);
 
   return (
-    <Box sx={{ mt: 6, maxWidth: 400, mx: "auto" }}>
-      <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#65815c', fontSize: '1.5rem' }}>
-        Confirmación de registro
-      </Typography>
-      <Typography variant="body1" align="center" mb={2} sx={{ color: '#65815c', fontSize: '1rem' }}>
-        {cargando ? "Validando..." : mensaje}
-      </Typography>
-
-      {/* Mostrar datos del usuario si existen */}
-      {usuario && (
-        <Box sx={{ mb: 3, p:2, border: '1px solid #d3e0d1', borderRadius: 2, background: '#f7faf5' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c' }}>Datos del usuario:</Typography>
-          <Typography variant="body2"><b>Nombre:</b> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
-          <Typography variant="body2"><b>Correo:</b> {usuario.email}</Typography>
-          <Typography variant="body2"><b>CURP:</b> {usuario.curp}</Typography>
-          <Typography variant="body2"><b>Teléfono:</b> {usuario.telefono}</Typography>
+    <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+      <Card
+        sx={{
+          maxWidth: 450,
+          borderRadius: 4,
+          boxShadow: 3,
+          overflow: 'hidden',
+          background: 'linear-gradient(to right, #fff, #f5f5f5)',
+          p: 3,
+          border: '3px dashed #b1c89e',
+          mt: 2
+        }}
+      >
+        <Box textAlign="center" mb={2}>
+          <Typography variant="h4" fontWeight={600} sx={{ color: '#486238', mb: 1 }}>
+            Confirmación de registro
+          </Typography>
+          <Divider sx={{ my: 2 }} />
         </Box>
-      )}
+        <Box textAlign="center" mb={2}>
+          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#486238' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
+            {cargando ? "Validando..." : mensaje}
+          </Typography>
+        </Box>
+        {usuario && (
+          <Box sx={{ mb: 3, p:2, border: '1px solid #d3e0d1', borderRadius: 2, background: '#f7faf5' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1 }}>Datos del usuario:</Typography>
+            <Divider sx={{ mb: 1 }} />
+            <Grid container spacing={1}>
+              <Grid size={12}>
+                <Typography variant="body2"><b>Nombre:</b> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Typography variant="body2"><b>Correo:</b> {usuario.email}</Typography>
+                <Typography variant="body2"><b>CURP:</b> {usuario.curp}</Typography>
+              </Grid>
+              <Grid size={12}>
+                <Typography variant="body2"><b>Teléfono:</b> {usuario.telefono}</Typography>
+                <Typography variant="body2"><b>ID:</b> {usuario.id}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      </Card>
     </Box>
   );
 };
