@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid, Button, Badge } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid, Button, Badge, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 import { ArrowRightIcon } from "@mui/x-date-pickers";
-import { BadgeOutlined, Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
+import { AccessTime, BadgeOutlined, CheckCircle, Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -41,6 +41,16 @@ const ConfirmarRegistro: React.FC = () => {
 
   return (
     <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+      <Avatar
+        sx={{
+          bgcolor: '#65815c',
+          color: '#fff',
+          width: 64,
+          height: 64,
+        }}
+      >
+        <CheckCircle fontSize="large" />
+      </Avatar>
       <Card
         sx={{
           maxWidth: 550,
@@ -53,13 +63,13 @@ const ConfirmarRegistro: React.FC = () => {
         }}
       >
         <Box textAlign="center" mb={2}>
-          <Typography variant="h4" fontWeight={600} sx={{ color: '#486238', mb: 1 }}>
+          <Typography variant="h4" fontWeight={600} sx={{ color: '#65815c', mb: 1 }}>
             Confirmación de registro
           </Typography>
           <Divider sx={{ my: 2 }} />
         </Box>
         <Box textAlign="center" mb={2}>
-          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#486238' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
+          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#65815c' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
             {cargando ? "Validando..." : mensaje}
           </Typography>
         </Box>
@@ -69,13 +79,13 @@ const ConfirmarRegistro: React.FC = () => {
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Person /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Typography variant="body2"><Person /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Email /> {usuario.email}</Typography>
+                <Typography variant="body2"><Email /> {usuario.email}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><BadgeOutlined /> {usuario.curp}</Typography>
+                <Typography variant="body2"><BadgeOutlined /> {usuario.curp}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Phone /> {usuario.telefono}</Typography>
+                <Typography variant="body2"><Phone /> {usuario.telefono}</Typography>
               </Grid>
             </Grid>
             <Button 
