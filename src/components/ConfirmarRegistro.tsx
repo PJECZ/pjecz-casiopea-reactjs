@@ -40,66 +40,91 @@ const ConfirmarRegistro: React.FC = () => {
   }, [location.search]);
 
   return (
-    <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>   
+    <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card
         sx={{
-          maxWidth: 650,
+          maxWidth: 450,
           borderRadius: 4,
           boxShadow: 3,
           overflow: 'hidden',
-          background: 'linear-gradient(to right, #fff, #f5f5f5)',
           p: 3,
-          mt: 2
+          mt: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
-        <Box textAlign="center" mb={2}>
+        <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
-          sx={{
-            bgcolor: '#65815c',
-            color: '#fff',
-            width: 64,
-            height: 64,
-          }}
+            sx={{
+              bgcolor: usuario ? 'success.light' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? 'success.dark' : (cargando ? '#fff' : 'error.dark'),
+              width: 64,
+              height: 64,
+              mb: 2,
+            }}
           >
-            <CheckCircle fontSize="large" />
+            {cargando ? <AccessTime fontSize="large" /> : usuario ? <CheckCircle fontSize="large" /> : <BadgeOutlined fontSize="large" />}
           </Avatar>
-          <Typography variant="h4" fontWeight={600} sx={{ color: '#65815c', mb: 1 }}>
-            Confirmación de registro
+          <Typography
+            variant="h5"
+            align="center"
+            color="text.primary"
+            fontWeight={600}
+            sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
+          >
+            {cargando ? 'Validando registro...' : usuario ? '¡Registro validado!' : 'Error de validación'}
           </Typography>
-          <Divider sx={{ my: 2 }} />
         </Box>
-        <Box textAlign="center" mb={2}>
-          <Typography variant="body1" sx={{ color: cargando ? '#65815c' : (usuario ? '#363636' : 'error.main'), fontWeight: 500, fontSize: '1.1rem' }}>
-            {cargando ? "Validando..." : mensaje}
-          </Typography>
-        </Box>
+        <Typography
+          variant="body1"
+          align="center"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          {cargando ? 'Por favor espera...' : mensaje}
+        </Typography>
         {usuario && (
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1 }}>Datos del usuario:</Typography>
+          <Box mb={2} width="100%">
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography variant="body2"><Person /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><Email /> {usuario.email}</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><BadgeOutlined /> {usuario.curp}</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2"><Phone /> {usuario.telefono}</Typography>
+                <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
               </Grid>
             </Grid>
-            <Button 
-              variant="contained" 
-              onClick={() => navigate('/CrearContrasena')} 
-              sx={{ mt: 2, borderRadius: 2, color: '#fff', backgroundColor: '#65815c' }} 
-              fullWidth 
+          </Box>
+        )}
+        <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
+          {usuario ? (
+            <Button
+              variant="contained"
+              onClick={() => navigate('/CrearContrasena')}
+              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
+              fullWidth
               size="large"
               startIcon={<KeyOutlined />}
             >
               Crear contraseña
             </Button>
-          </Box>
-        )}
+          ) : !cargando && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/')}
+              sx={{ borderRadius: 2, fontWeight: 600 }}
+              fullWidth
+              size="large"
+            >
+              Ir al inicio
+            </Button>
+          )}
+        </Box>
       </Card>
     </Box>
   );
