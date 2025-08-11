@@ -19,30 +19,41 @@ const CrearContrasena: React.FC = () => {
   const [success, setSuccess] = useState<boolean|null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Validar que el id y la cadena_validar no estén vacíos
+  if (!id || !cadena_validar) {
+    navigate("/");
+    return;
+  }
   const handleSubmit = async (e: React.FormEvent) => {
+    // Validar que el password y el confirmPassword no estén vacíos
     e.preventDefault();
+    setLoading(true);
     setMensaje("");
+    // Validar que el password y el confirmPassword no estén vacíos
     if (!password || !confirmPassword) {
       setMensaje("Por favor ingresa y confirma tu contraseña.");
-      setSuccess(false);
+      setSuccess(false); // Indica que la operación no fue exitosa
+      setLoading(false); // Indica que la operación no fue exitosa
       return;
     }
+    // Validar que el password y el confirmPassword coincidan
     if (password !== confirmPassword) {
       setMensaje("Las contraseñas no coinciden.");
-      setSuccess(false);
+      setSuccess(false); // Indica que la operación no fue exitosa
+      setLoading(false); // Indica que la operación no fue exitosa  
       return;
     }
-    setLoading(true);
+    setLoading(true); // Indica que la operación está en curso
     try {
       const res = await terminarRegistro({ id, cadena_validar, password });
       setMensaje(res.message || "¡Contraseña creada exitosamente!");
-      setSuccess(true);
-      setTimeout(() => navigate("/"), 2000);
+      setSuccess(true); // Indica que la operación fue exitosa
+      setTimeout(() => navigate("/", { state: { id, cadena_validar } }), 2000);
     } catch (err: any) {
       setMensaje(err.message || "No se pudo crear la contraseña.");
-      setSuccess(false);
+      setSuccess(false); // Indica que la operación no fue exitosa
     } finally {
-      setLoading(false);
+      setLoading(false); // Indica que la operación terminó
     }
   };
 
