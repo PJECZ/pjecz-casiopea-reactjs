@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
-import { confirmarCuenta } from "../actions/AuthActions";
-import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
+import { validarUsuario } from "../actions/AuthActions";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mensaje, setMensaje] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(true);
-  const [cadenaValidar, setCadenaValidar] = useState<string>("");
   const [usuario, setUsuario] = useState<any>(null);
 
   /* Mostrar datos de usuario al obtener el id y cadena_validar desde el enlace  y funcion confirmarCuenta */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const id = params.get("id");
     const cadena_validar = params.get("cadena_validar");
-    if (cadena_validar) {
-      setCadenaValidar(cadena_validar);
-      confirmarCuenta(cadena_validar)
+    if (id && cadena_validar) {
+      validarUsuario({ id, cadena_validar })
         .then((res) => {
-          setUsuario(res.data.data);
-          setMensaje("Registro confirmado exitosamente");
+          if (res.success) {
+            setUsuario(res.data);
+            setMensaje(res.message || "Cuenta validada exitosamente");
+          } else {
+            setMensaje(res.message || "No se pudo validar la cuenta");
+          }
         })
         .catch((err) => {
-          setMensaje("Error al confirmar el registro");
+          setMensaje(err.message || "Error al validar la cuenta");
         })
         .finally(() => {
           setCargando(false);

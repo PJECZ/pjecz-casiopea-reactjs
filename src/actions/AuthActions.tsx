@@ -81,16 +81,6 @@ export async function forgotPasswordValidate(id: string, cadena_validar: string)
   return res.json();
 }
 
-// --- Confirmar cuenta funcion ---
-export async function confirmarCuenta(cadena_validar: string) {
-  const res = await fetch(`${API_BASE}/api/v5/cit_clientes_registros/confirmar?cadena_validar=${encodeURIComponent(cadena_validar)}`, {
-    method: 'GET',
-    headers: { 'Accept': 'application/json' },
-  });
-  if (!res.ok) throw new Error('Error al confirmar cuenta');
-  return res.json();
-}
-
 // --- Validar registro de usuario ---
 export type ValidarUsuarioRequest = {
   id: string;
