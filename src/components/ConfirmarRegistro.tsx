@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography, Card, Divider, Grid, Button, Badge } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 import { ArrowRightIcon } from "@mui/x-date-pickers";
-import { Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
+import { BadgeOutlined, Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -69,18 +69,13 @@ const ConfirmarRegistro: React.FC = () => {
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Person /> Nombre: {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Person /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Email /> Correo: {usuario.email}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Email /> {usuario.email}</Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Badge /> CURP: {usuario.curp}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><BadgeOutlined /> {usuario.curp}</Typography>
                 <Divider sx={{ mb: 1 }} />
-              </Grid>
-              <Grid size={12}>
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Phone /> Teléfono: {usuario.telefono}</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#65815c' }}><Key /> ID: {usuario.id}</Typography>
-                <Divider sx={{ mb: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 'bold'}}><Phone /> {usuario.telefono}</Typography>
               </Grid>
             </Grid>
             <Button 
