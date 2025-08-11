@@ -11,6 +11,7 @@ import SessionExpiredDialog from './components/SessionExpiredDialog';
 import ForgotPassword from './components/OlvidoContrasena';
 import ValidatePassword from './components/ValidatePassword';
 import ConfirmarRegistro from './components/ConfirmarRegistro';
+import CrearContrasena from './components/CrearContrasena';
 
 interface AppRoutesProps {
   showNewAppointmentForm: boolean;
@@ -29,6 +30,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ showNewAppointmentForm, setShowNe
         <Route path="/validate-password" element={<ValidatePassword />} />
         {/* <Route path='/confirmar' element={<ConfirmarRegistro />} /> */}
         <Route path='/cit_clientes_registros/confirmar' element={<ConfirmarRegistro />} />
+        <Route path='/CrearContrasena' element={<CrearContrasena />} />
         <Route
           path="*"
           element={

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography, Card, Divider, Grid, Button, Badge, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 import { ArrowRightIcon } from "@mui/x-date-pickers";
-import { AccessTime, BadgeOutlined, CheckCircle, Email, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
+import { AccessTime, BadgeOutlined, CheckCircle, Email, HomeFilled, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -43,7 +43,7 @@ const ConfirmarRegistro: React.FC = () => {
     <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card
         sx={{
-          maxWidth: 450,
+          maxWidth: 600,
           borderRadius: 4,
           boxShadow: 3,
           overflow: 'hidden',
@@ -73,7 +73,7 @@ const ConfirmarRegistro: React.FC = () => {
             fontWeight={600}
             sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
           >
-            {cargando ? 'Validando registro...' : usuario ? '¡Registro validado!' : 'Error de validación'}
+            {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Error de validación'}
           </Typography>
         </Box>
         <Typography
@@ -105,7 +105,7 @@ const ConfirmarRegistro: React.FC = () => {
           {usuario ? (
             <Button
               variant="contained"
-              onClick={() => navigate('/CrearContrasena')}
+              onClick={() => navigate('/CrearContrasena', { state: { id: usuario.id, cadena_validar: usuario.cadena_validar } })}
               sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
               fullWidth
               size="large"
@@ -120,6 +120,7 @@ const ConfirmarRegistro: React.FC = () => {
               sx={{ borderRadius: 2, fontWeight: 600 }}
               fullWidth
               size="large"
+              startIcon={<HomeFilled />}
             >
               Ir al inicio
             </Button>
