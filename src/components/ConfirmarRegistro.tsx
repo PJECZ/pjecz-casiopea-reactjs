@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid, Button } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
+import { ArrowRightIcon } from "@mui/x-date-pickers";
+import { KeyOutlined } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -47,7 +49,6 @@ const ConfirmarRegistro: React.FC = () => {
           overflow: 'hidden',
           background: 'linear-gradient(to right, #fff, #f5f5f5)',
           p: 3,
-          border: '3px dashed #b1c89e',
           mt: 2
         }}
       >
@@ -63,20 +64,36 @@ const ConfirmarRegistro: React.FC = () => {
           </Typography>
         </Box>
         {usuario && (
-          <Box sx={{ mb: 3, p:2, border: '1px solid #d3e0d1', borderRadius: 2, background: '#f7faf5' }}>
+          <Box sx={{ mb: 3, p:2, border: '1px solid #d3e0d1', borderRadius: 2, background: '#f7faf5', boxShadow: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1 }}>Datos del usuario:</Typography>
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
                 <Typography variant="body2"><b>Nombre:</b> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Divider sx={{ mb: 1 }} />
                 <Typography variant="body2"><b>Correo:</b> {usuario.email}</Typography>
+                <Divider sx={{ mb: 1 }} />
                 <Typography variant="body2"><b>CURP:</b> {usuario.curp}</Typography>
+                <Divider sx={{ mb: 1 }} />
               </Grid>
               <Grid size={12}>
                 <Typography variant="body2"><b>Teléfono:</b> {usuario.telefono}</Typography>
+                <Divider sx={{ mb: 1 }} />
                 <Typography variant="body2"><b>ID:</b> {usuario.id}</Typography>
+                <Divider sx={{ mb: 1 }} />
               </Grid>
             </Grid>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => navigate('/CrearContrasena')} 
+              sx={{ mt: 2, borderRadius: 2 }} 
+              fullWidth 
+              size="large"
+              startIcon={<KeyOutlined />}
+            >
+              Crear contraseña
+            </Button>
           </Box>
         )}
       </Card>
