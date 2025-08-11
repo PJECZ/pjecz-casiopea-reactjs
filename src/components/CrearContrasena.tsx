@@ -22,7 +22,7 @@ const CrearContrasena: React.FC = () => {
   // Validar que el id y la cadena_validar no estén vacíos
   if (!id || !cadena_validar) {
     navigate("/");
-    return;
+    return null;
   }
   const handleSubmit = async (e: React.FormEvent) => {
     // Validar que el password y el confirmPassword no estén vacíos
