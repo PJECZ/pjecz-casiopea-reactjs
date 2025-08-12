@@ -96,6 +96,9 @@ const CrearContrasena: React.FC = () => {
           <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
             Favor de crear una contraseña para poder acceder a su cuenta
           </Typography>
+          <Typography variant="subtitle2" color="error" fontWeight={700}>
+            La contraseña debe tener de 8 a 24 caracteres, comenzando con una letra y contener por lo menos una mayúscula y un número.
+          </Typography>
         </Box>
         <form style={{ width: '100%' }} onSubmit={handleSubmit} autoComplete="off">
           <TextField
@@ -106,7 +109,6 @@ const CrearContrasena: React.FC = () => {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            helperText="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
             slotProps={{
               input: {
                 endAdornment: (
@@ -136,10 +138,22 @@ const CrearContrasena: React.FC = () => {
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             required
-            helperText="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
             slotProps={{
               input: {
-                autoComplete: 'off'
+                autoComplete: 'off',
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      sx={{ color: '#65815c' }}
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               },
               inputLabel: {
                 shrink: true,
