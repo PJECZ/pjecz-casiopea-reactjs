@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Button, TextField, Avatar, CircularProgress } from "@mui/material";
-import { KeyOutlined, CheckCircle, ErrorOutline } from "@mui/icons-material";
+import { Box, Typography, Card, Divider, Button, TextField, Avatar, CircularProgress, InputAdornment, IconButton } from "@mui/material";
+import { KeyOutlined, CheckCircle, ErrorOutline, Visibility, VisibilityOff } from "@mui/icons-material";
 import { terminarRegistro } from "../actions/AuthActions";
 
 const CrearContrasena: React.FC = () => {
@@ -18,6 +18,8 @@ const CrearContrasena: React.FC = () => {
   const [mensaje, setMensaje] = useState("");
   const [success, setSuccess] = useState<boolean|null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Validar que el id y la cadena_validar no estén vacíos
   // Redirigir de forma segura si faltan parámetros, usando useEffect
@@ -89,32 +91,60 @@ const CrearContrasena: React.FC = () => {
           Crear nueva contraseña
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
-        {/* DEBUG: Mostrar datos de validación usados para crear la contraseña */}
+        {/* Mostrar mensaje para crear contraseña */}
         <Box mb={2} width="100%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
           <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
-            (Debug) Datos de validación:
+            Favor de crear una contraseña para poder acceder a su cuenta
           </Typography>
-          <Typography variant="body2" color="text.secondary">id: <b>{id}</b></Typography>
-          <Typography variant="body2" color="text.secondary">cadena_validar: <b>{cadena_validar}</b></Typography>
         </Box>
         <form style={{ width: '100%' }} onSubmit={handleSubmit} autoComplete="off">
           <TextField
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             fullWidth
             margin="normal"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
+            helperText="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      sx={{ color: '#65815c' }}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+              inputLabel: {
+                shrink: true,
+              },
+            }}
           />
           <TextField
             label="Confirmar contraseña"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             fullWidth
             margin="normal"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             required
+            helperText="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+            slotProps={{
+              input: {
+                autoComplete: 'off'
+              },
+              inputLabel: {
+                shrink: true,
+              }
+            }}    
           />
           {mensaje && (
             <Typography variant="body2" sx={{ color: success === true ? 'success.main' : 'error.main', mt: 1, textAlign: 'center' }}>{mensaje}</Typography>

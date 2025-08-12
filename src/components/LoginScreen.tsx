@@ -285,7 +285,7 @@ const LoginScreen = () => {
                       inputLabel: {
                         shrink: true,
                       }
-                  }}           
+                    }}           
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
                     sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
