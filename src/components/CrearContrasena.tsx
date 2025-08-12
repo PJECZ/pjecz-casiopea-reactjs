@@ -92,7 +92,7 @@ const CrearContrasena: React.FC = () => {
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
         {/* Mostrar mensaje para crear contraseña */}
-        <Box mb={2} width="80%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
+        <Box mb={2} width="95%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
           <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
             Validar correo electrónico y definir contraseña
           </Typography>
