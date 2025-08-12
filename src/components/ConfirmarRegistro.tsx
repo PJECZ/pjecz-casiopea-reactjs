@@ -11,6 +11,7 @@ const ConfirmarRegistro: React.FC = () => {
   const [mensaje, setMensaje] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(true);
   const [usuario, setUsuario] = useState<any>(null);
+  const [tipoError, setTipoError] = useState<string>("");
 
   /* Mostrar datos de usuario al obtener el id y cadena_validar desde el enlace  y funcion confirmarCuenta */
   useEffect(() => {
@@ -23,21 +24,67 @@ const ConfirmarRegistro: React.FC = () => {
           if (res.success) {
             setUsuario(res.data);
             setMensaje(res.message || "Cuenta validada exitosamente");
+            setTipoError("");
           } else {
-            setMensaje(res.message || "No se pudo validar la cuenta");
+            // Determinar el tipo de error basado en el mensaje de respuesta
+            const mensajeError = res.message || "No se pudo validar la cuenta";
+            setMensaje(mensajeError);
+            
+            if (mensajeError.toLowerCase().includes("ya validada") || 
+                mensajeError.toLowerCase().includes("ya confirmada") ||
+                mensajeError.toLowerCase().includes("ya registrada")) {
+              setTipoError("ya_validada");
+            } else if (mensajeError.toLowerCase().includes("expirado") || 
+                       mensajeError.toLowerCase().includes("vencido")) {
+              setTipoError("enlace_expirado");
+            } else if (mensajeError.toLowerCase().includes("no encontrado") ||
+                       mensajeError.toLowerCase().includes("no existe")) {
+              setTipoError("usuario_no_encontrado");
+            } else {
+              setTipoError("error_general");
+            }
           }
         })
         .catch((err) => {
-          setMensaje(err.message || "Error al validar la cuenta");
+          const mensajeError = err.message || "Error al validar la cuenta";
+          setMensaje(mensajeError);
+          
+          // Clasificar errores de conexión o del servidor
+          if (err.code === "NETWORK_ERROR" || mensajeError.toLowerCase().includes("conexión")) {
+            setTipoError("error_conexion");
+          } else {
+            setTipoError("error_servidor");
+          }
         })
         .finally(() => {
           setCargando(false);
         });
     } else {
-      setMensaje("Parámetros inválidos");
+      setMensaje("El enlace de validación no es válido o está incompleto");
+      setTipoError("parametros_invalidos");
       setCargando(false);
     }
   }, [location.search]);
+
+  // Función para obtener el título del error según el tipo
+  const obtenerTituloError = () => {
+    switch (tipoError) {
+      case "ya_validada":
+        return "Cuenta ya validada";
+      case "enlace_expirado":
+        return "Enlace expirado";
+      case "usuario_no_encontrado":
+        return "Usuario no encontrado";
+      case "error_conexion":
+        return "Error de conexión";
+      case "error_servidor":
+        return "Error del servidor";
+      case "parametros_invalidos":
+        return "Enlace inválido";
+      default:
+        return "Error de validación";
+    }
+  };
 
   // Maneja la navegación asegurando que siempre se pasen id y cadena_validar
   const handleCrearContrasena = () => {
@@ -90,7 +137,7 @@ const ConfirmarRegistro: React.FC = () => {
             fontWeight={600}
             sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
           >
-            {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Error de validación'}
+            {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : obtenerTituloError()}
           </Typography>
         </Box>
         <Typography
