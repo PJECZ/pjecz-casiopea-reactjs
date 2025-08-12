@@ -92,11 +92,11 @@ const CrearContrasena: React.FC = () => {
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
         {/* Mostrar mensaje para crear contraseña */}
-        <Box mb={2} width="100%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
+        <Box mb={2} width="80%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
           <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
-            Favor de crear una contraseña para poder acceder a su cuenta
+            Validar correo electrónico y definir contraseña
           </Typography>
-          <Typography variant="subtitle2" color="error" fontWeight={700}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>
             La contraseña debe tener de 8 a 24 caracteres, comenzando con una letra y contener por lo menos una mayúscula y un número.
           </Typography>
         </Box>
