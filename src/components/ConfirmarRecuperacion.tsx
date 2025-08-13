@@ -4,277 +4,162 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Card, 
-  CardContent, 
   Typography, 
-  Alert, 
-  CircularProgress, 
   Button,
+  Avatar,
   Divider,
-  Chip
+  Grid
 } from '@mui/material';
 import { 
-  CheckCircle as CheckCircleIcon, 
+  CheckCircle,
   Error as ErrorIcon,
-  Person as PersonIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Badge as BadgeIcon
+  Person,
+  Email,
+  Phone,
+  BadgeOutlined,
+  HomeFilled,
+  KeyOutlined,
+  AccessTime
 } from '@mui/icons-material';
 import { forgotPasswordValidate } from '../actions/AuthActions';
 
-interface UserData {
-  id: string;
-  nombres: string;
-  apellido_primero: string;
-  apellido_segundo: string;
-  curp: string;
-  telefono: string;
-  email: string;
-  expiracion: string;
-  cadena_validar: string;
-  mensajes_cantidad: number;
-  ya_registrado: boolean;
-  creado: string;
-}
-
-interface ValidationResponse {
-  success: boolean;
-  message: string;
-  data: UserData;
-}
 
 const ConfirmarRecuperacion: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [validationResult, setValidationResult] = useState<ValidationResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [usuario, setUsuario] = useState<any>(null);
+  const [mensaje, setMensaje] = useState<string>("");
 
   useEffect(() => {
-    const validateRecovery = async () => {
-      try {
-        const id = searchParams.get('id');
-        const cadenaValidar = searchParams.get('cadena_validar');
-
-        if (!id || !cadenaValidar) {
-          setError('Parámetros de validación faltantes en la URL');
-          setLoading(false);
-          return;
-        }
-
-        console.log('Validando recuperación con:', { id, cadenaValidar });
-        
-        const result = await forgotPasswordValidate(id, cadenaValidar);
-        setValidationResult(result);
-        setError(null);
-      } catch (err) {
-        console.error('Error al validar recuperación:', err);
-        setError(err instanceof Error ? err.message : 'Error desconocido al validar la recuperación');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    validateRecovery();
+    const id = searchParams.get('id');
+    const cadena_validar = searchParams.get('cadena_validar');
+    
+    if (id && cadena_validar) {
+      forgotPasswordValidate(id, cadena_validar)
+        .then((res) => {
+          if (res.success) {
+            setUsuario(res.data);
+            setMensaje(res.message || 'Recuperación validada exitosamente');
+          } else {
+            setMensaje(res.message || 'No se pudo validar la recuperación');
+          }
+        })
+        .catch((err) => {
+          setMensaje(err.message || 'Error al validar la recuperación');
+        })
+        .finally(() => {
+          setCargando(false);
+        });
+    } else {
+      setMensaje('Parámetros inválidos');
+      setCargando(false);
+    }
   }, [searchParams]);
 
-  const handleContinue = () => {
-    // Redirigir a crear nueva contraseña con los parámetros necesarios
-    if (validationResult?.data) {
-      navigate(`/CrearContrasena?id=${validationResult.data.id}&cadena_validar=${validationResult.data.cadena_validar}`);
+  const handleCrearContrasena = () => {
+    let id = usuario.id;
+    let cadena = usuario.cadena_validar;
+    if (!cadena) {
+      cadena = searchParams.get('cadena_validar') || '';
     }
+    console.log('NAVEGAR A CrearContrasena con:', { id, cadena_validar: cadena });
+    if (!id || !cadena) {
+      alert('Faltan datos para crear la contraseña.');
+      return;
+    }
+    navigate('/CrearContrasena', { state: { id, cadena_validar: cadena } });
   };
 
-  const handleBackToLogin = () => {
-    navigate('/');
-  };
 
-  if (loading) {
-    return (
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: '100vh',
-          bgcolor: '#f5f5f5',
-          p: 3
-        }}
-      >
-        <CircularProgress size={60} sx={{ color: '#045e2c', mb: 2 }} />
-        <Typography variant="h6" color="textSecondary">
-          Validando recuperación de contraseña...
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '100vh',
-        bgcolor: '#f5f5f5',
-        p: 3
-      }}
-    >
-      <Card sx={{ maxWidth: 600, width: '100%', boxShadow: 3 }}>
-        <CardContent sx={{ p: 4 }}>
-          {error ? (
-            <>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <ErrorIcon sx={{ color: 'error.main', fontSize: 40, mr: 2 }} />
-                <Typography variant="h5" color="error.main" fontWeight="bold">
-                  Error de Validación
-                </Typography>
-              </Box>
-              
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {error}
-              </Alert>
-              
-              <Button 
-                variant="contained" 
-                onClick={handleBackToLogin}
-                sx={{ 
-                  bgcolor: '#045e2c', 
-                  '&:hover': { bgcolor: '#034a24' },
-                  width: '100%'
-                }}
-              >
-                Volver al Login
-              </Button>
-            </>
-          ) : validationResult?.success ? (
-            <>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <CheckCircleIcon sx={{ color: 'success.main', fontSize: 40, mr: 2 }} />
-                <Typography variant="h5" color="success.main" fontWeight="bold">
-                  Validación Exitosa
-                </Typography>
-              </Box>
-
-              <Alert severity="success" sx={{ mb: 3 }}>
-                {validationResult.message || 'La recuperación de contraseña ha sido validada correctamente'}
-              </Alert>
-
-              {validationResult.data && (
-                <>
-                  <Typography variant="h6" sx={{ mb: 2, color: '#045e2c' }}>
-                    Datos del Usuario
-                  </Typography>
-                  
-                  <Box sx={{ mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <PersonIcon sx={{ color: '#045e2c', mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>Nombre:</strong> {validationResult.data.nombres} {validationResult.data.apellido_primero} {validationResult.data.apellido_segundo}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <BadgeIcon sx={{ color: '#045e2c', mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>CURP:</strong> {validationResult.data.curp}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <EmailIcon sx={{ color: '#045e2c', mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>Email:</strong> {validationResult.data.email}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <PhoneIcon sx={{ color: '#045e2c', mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>Teléfono:</strong> {validationResult.data.telefono}
-                      </Typography>
-                    </Box>
-
-                    <Divider sx={{ my: 2 }} />
-                    
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                      <Chip 
-                        label={`ID: ${validationResult.data.id}`} 
-                        size="small" 
-                        variant="outlined" 
-                      />
-                      <Chip 
-                        label={`Creado: ${new Date(validationResult.data.creado).toLocaleDateString()}`} 
-                        size="small" 
-                        variant="outlined" 
-                      />
-                      <Chip 
-                        label={`Expira: ${new Date(validationResult.data.expiracion).toLocaleDateString()}`} 
-                        size="small" 
-                        variant="outlined" 
-                        color={new Date(validationResult.data.expiracion) > new Date() ? 'success' : 'error'}
-                      />
-                    </Box>
-                  </Box>
-                </>
-              )}
-
-              <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <Button 
-                  variant="contained" 
-                  onClick={handleContinue}
-                  sx={{ 
-                    bgcolor: '#045e2c', 
-                    '&:hover': { bgcolor: '#034a24' },
-                    flex: 1
-                  }}
-                >
-                  Crear Nueva Contraseña
-                </Button>
-                
-                <Button 
-                  variant="outlined" 
-                  onClick={handleBackToLogin}
-                  sx={{ 
-                    borderColor: '#045e2c', 
-                    color: '#045e2c',
-                    '&:hover': { borderColor: '#034a24', bgcolor: '#f8f9fa' },
-                    flex: 1
-                  }}
-                >
-                  Volver al Login
-                </Button>
-              </Box>
-            </>
-          ) : (
-            <>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <ErrorIcon sx={{ color: 'warning.main', fontSize: 40, mr: 2 }} />
-                <Typography variant="h5" color="warning.main" fontWeight="bold">
-                  Validación Fallida
-                </Typography>
-              </Box>
-              
-              <Alert severity="warning" sx={{ mb: 3 }}>
-                {validationResult?.message || 'No se pudo validar la recuperación de contraseña'}
-              </Alert>
-              
-              <Button 
-                variant="contained" 
-                onClick={handleBackToLogin}
-                sx={{ 
-                  bgcolor: '#045e2c', 
-                  '&:hover': { bgcolor: '#034a24' },
-                  width: '100%'
-                }}
-              >
-                Volver al Login
-              </Button>
-            </>
+    <Box sx={{ py: 6, px: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+      <Card
+        sx={{
+          maxWidth: 600,
+          borderRadius: 4,
+          boxShadow: 3,
+          overflow: 'hidden',
+          p: 3,
+          mt: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
+          <Avatar
+            sx={{
+              bgcolor: usuario ? 'success.light' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? 'success.dark' : (cargando ? '#fff' : 'error.dark'),
+              width: 64,
+              height: 64,
+              mb: 2,
+            }}
+          >
+            {cargando ? <AccessTime fontSize="large" /> : usuario ? <CheckCircle fontSize="large" /> : <ErrorIcon fontSize="large" />}
+          </Avatar>
+          <Typography
+            variant="h5"
+            align="center"
+            color="text.primary"
+            fontWeight={600}
+            sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
+          >
+            {cargando ? 'Validando recuperación...' : usuario ? 'Confirmación de recuperación' : 'Error en validación'}
+          </Typography>
+        </Box>
+        <Typography
+          variant="body1"
+          align="center"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          {cargando ? 'Por favor espera...' : mensaje}
+        </Typography>
+        {usuario && (
+          <Box mb={2} width="100%">
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
+            <Divider sx={{ mb: 1 }} />
+            <Grid container spacing={1}>
+              <Grid size={12}>
+                <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+        <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
+          {usuario ? (
+            <Button
+              variant="contained"
+              onClick={() => handleCrearContrasena()}
+              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
+              fullWidth
+              size="large"
+              startIcon={<KeyOutlined />}
+            >
+              Crear nueva contraseña
+            </Button>
+          ) : !cargando && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/')}
+              sx={{ borderRadius: 2, fontWeight: 600 }}
+              fullWidth
+              size="large"
+              startIcon={<HomeFilled />}
+            >
+              Ir al inicio
+            </Button>
           )}
-        </CardContent>
+        </Box>
       </Card>
     </Box>
   );

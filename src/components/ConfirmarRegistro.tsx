@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid, Button, Badge, Avatar } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid, Button, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
-import { ArrowRightIcon } from "@mui/x-date-pickers";
-import { AccessTime, BadgeOutlined, CheckCircle, Email, HomeFilled, Key, KeyOutlined, Person, Phone } from "@mui/icons-material";
+import { AccessTime, BadgeOutlined, CheckCircle, Email, HomeFilled, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
