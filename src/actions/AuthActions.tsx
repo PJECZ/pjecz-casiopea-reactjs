@@ -71,7 +71,26 @@ export async function forgotPassword(email: string) {
 }
 
 // --- Olvido de contraseña validar ---
-export async function forgotPasswordValidate(id: string, cadena_validar: string) {
+export type RecuperacionValidarResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    nombres: string;
+    apellido_primero: string;
+    apellido_segundo: string;
+    curp: string;
+    telefono: string;
+    email: string;
+    expiracion: string;
+    cadena_validar: string;
+    mensajes_cantidad: number;
+    ya_registrado: boolean;
+    creado: string;
+  };
+};
+
+export async function forgotPasswordValidate(id: string, cadena_validar: string): Promise<RecuperacionValidarResponse> {
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/validar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
