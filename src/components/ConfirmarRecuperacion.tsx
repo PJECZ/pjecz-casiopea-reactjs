@@ -95,7 +95,7 @@ const ConfirmarRecuperacion: React.FC = () => {
       alert('Faltan datos para crear la contraseña.');
       return;
     }
-    navigate('/CrearContrasena', { state: { id, cadena_validar: cadena } });
+    navigate('/CrearContrasena', { state: { id, cadena_validar: cadena, isRecuperacion: true } });
   };
 
 

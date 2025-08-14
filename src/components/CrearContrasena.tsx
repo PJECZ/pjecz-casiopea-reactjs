@@ -2,16 +2,21 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography, Card, Divider, Button, TextField, Avatar, CircularProgress, InputAdornment, IconButton } from "@mui/material";
 import { KeyOutlined, CheckCircle, ErrorOutline, Visibility, VisibilityOff } from "@mui/icons-material";
-import { terminarRegistro } from "../actions/AuthActions";
+import { terminarRegistro, terminarRecuperacion } from "../actions/AuthActions";
 
 const CrearContrasena: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   // Obtener id y cadena_validar desde location.state o query params
-  const state = location.state as { id?: string; cadena_validar?: string };
+  const state = location.state as { id?: string; cadena_validar?: string; isRecuperacion?: boolean };
   const params = new URLSearchParams(location.search);
   const id = state?.id || params.get("id") || "";
   const cadena_validar = state?.cadena_validar || params.get("cadena_validar") || "";
+  
+  // Detectar si viene de recuperación de contraseña o registro
+  // Si viene de ConfirmarRecuperacion, será recuperación
+  const isRecuperacion = state?.isRecuperacion || location.pathname.includes('recuperacion') || 
+                        document.referrer.includes('ConfirmarRecuperacion');
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -69,8 +74,16 @@ const CrearContrasena: React.FC = () => {
     }
     setLoading(true); // Indica que la operación está en curso
     try {
-      const res = await terminarRegistro({ id, cadena_validar, password });
-      setMensaje(res.message || "¡Contraseña creada exitosamente!");
+      let res;
+      if (isRecuperacion) {
+        // Usar endpoint de recuperación de contraseña
+        res = await terminarRecuperacion({ id, cadena_validar, password });
+        setMensaje(res.message || "¡Contraseña recuperada exitosamente!");
+      } else {
+        // Usar endpoint de registro de usuario
+        res = await terminarRegistro({ id, cadena_validar, password });
+        setMensaje(res.message || "¡Contraseña creada exitosamente!");
+      }
       setSuccess(true); // Indica que la operación fue exitosa
       setTimeout(() => navigate("/", { state: { id, cadena_validar } }), 2500);
     } catch (err: any) {
@@ -88,13 +101,13 @@ const CrearContrasena: React.FC = () => {
           {success === true ? <CheckCircle fontSize="large" /> : success === false ? <ErrorOutline fontSize="large" /> : <KeyOutlined fontSize="large" />}
         </Avatar>
         <Typography variant="h5" fontWeight={600} sx={{ color: '#65815c', mb: 1, textAlign: 'center' }}>
-          Crear nueva contraseña
+          {isRecuperacion ? 'Recuperar contraseña' : 'Crear nueva contraseña'}
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
         {/* Mostrar mensaje para crear contraseña */}
         <Box mb={2} width="95%" sx={{ background: '#f9fbe7', borderRadius: 2, p: 2, border: '1px dashed #bdbdbd' }}>
           <Typography variant="subtitle2" color="warning.main" fontWeight={700}>
-            Validar correo electrónico y definir contraseña
+            {isRecuperacion ? 'Recuperación de contraseña' : 'Validar correo electrónico y definir contraseña'}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>
             La contraseña debe tener de 8 a 24 caracteres, comenzando con una letra y contener por lo menos una mayúscula y un número.

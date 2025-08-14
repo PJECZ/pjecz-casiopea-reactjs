@@ -160,3 +160,45 @@ export async function terminarRegistro(payload: TerminarRegistroRequest): Promis
   if (!res.ok) throw new Error('Error al terminar registro');
   return res.json();
 }
+
+// --- Terminar recuperación de contraseña ---
+export type TerminarRecuperacionRequest = {
+  id: string;
+  cadena_validar: string;
+  password: string;
+};
+
+export type TerminarRecuperacionResponse = {
+  success: boolean;
+  message: string;
+};
+
+export async function terminarRecuperacion(payload: TerminarRecuperacionRequest): Promise<TerminarRecuperacionResponse> {
+  console.log('terminarRecuperacion - Enviando:', payload);
+  
+  const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/terminar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  
+  console.log('terminarRecuperacion - Status:', res.status, res.statusText);
+  
+  // Intentar obtener la respuesta JSON incluso si hay error HTTP
+  let responseData;
+  try {
+    responseData = await res.json();
+    console.log('terminarRecuperacion - Respuesta JSON:', responseData);
+  } catch (jsonError) {
+    console.error('terminarRecuperacion - Error al parsear JSON:', jsonError);
+    throw new Error(`Error de respuesta del servidor: ${res.status} ${res.statusText}`);
+  }
+  
+  // Si hay error HTTP pero tenemos datos JSON, usar esos datos
+  if (!res.ok) {
+    console.error('terminarRecuperacion - Error HTTP con datos:', responseData);
+    throw new Error(responseData?.message || `Error al terminar recuperación de contraseña: ${res.status}`);
+  }
+  
+  return responseData;
+}
