@@ -145,23 +145,7 @@ const ConfirmarRecuperacion: React.FC = () => {
         >
           {cargando ? 'Por favor espera...' : mensaje}
         </Typography>
-        {usuario && (
-          <Box mb={2} width="100%">
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
-            <Divider sx={{ mb: 1 }} />
-            <Grid container spacing={1}>
-              <Grid size={12}>
-                <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        )}
+
         <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
           {usuario ? (
             <Button
