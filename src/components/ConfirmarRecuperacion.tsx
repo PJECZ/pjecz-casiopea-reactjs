@@ -28,7 +28,7 @@ const ConfirmarRecuperacion: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [cargando, setCargando] = useState(true);
-  const [usuario, setUsuario] = useState<any>(null);
+  const [usuario, setUsuario] = useState<RecuperacionValidarResponse['data'] | null>(null);
   const [mensaje, setMensaje] = useState<string>("");
 
   useEffect(() => {
@@ -44,14 +44,26 @@ const ConfirmarRecuperacion: React.FC = () => {
           console.log('Respuesta completa del servidor:', res);
           console.log('res.success:', res.success);
           console.log('res.data:', res.data);
+          console.log('Tipo de res:', typeof res);
+          console.log('Propiedades de res:', Object.keys(res));
           
-          if (res.success) {
-            setUsuario(res.data);
-            setMensaje(res.message || 'Recuperación validada exitosamente');
-            console.log('Usuario establecido:', res.data);
+          // Verificar si la respuesta tiene la estructura esperada
+          if (res && typeof res === 'object') {
+            if (res.success === true && res.data) {
+              setUsuario(res.data);
+              setMensaje(res.message || 'Recuperación validada exitosamente');
+              console.log('Usuario establecido:', res.data);
+            } else if (res.success === false) {
+              setMensaje(res.message || 'No se pudo validar la recuperación');
+              console.log('Validación falló:', res.message);
+            } else {
+              // Caso donde la respuesta no tiene la estructura esperada
+              console.warn('Estructura de respuesta inesperada:', res);
+              setMensaje('Respuesta del servidor en formato inesperado');
+            }
           } else {
-            setMensaje(res.message || 'No se pudo validar la recuperación');
-            console.log('Validación falló:', res.message);
+            console.error('Respuesta no es un objeto válido:', res);
+            setMensaje('Respuesta inválida del servidor');
           }
         })
         .catch((err) => {
@@ -69,6 +81,10 @@ const ConfirmarRecuperacion: React.FC = () => {
   }, [searchParams]);
 
   const handleCrearContrasena = () => {
+    if (!usuario) {
+      alert('No hay datos de usuario disponibles.');
+      return;
+    }
     let id = usuario.id;
     let cadena = usuario.cadena_validar;
     if (!cadena) {

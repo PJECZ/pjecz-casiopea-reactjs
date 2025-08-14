@@ -91,13 +91,37 @@ export type RecuperacionValidarResponse = {
 };
 
 export async function forgotPasswordValidate(id: string, cadena_validar: string): Promise<RecuperacionValidarResponse> {
+  console.log('forgotPasswordValidate - Enviando:', { id, cadena_validar });
+  
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/validar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ id, cadena_validar }),
   });
-  if (!res.ok) throw new Error('Error al validar recuperación de contraseña');
-  return res.json();
+  
+  console.log('forgotPasswordValidate - Status:', res.status, res.statusText);
+  
+  // Intentar obtener la respuesta JSON incluso si hay error HTTP
+  let responseData;
+  try {
+    responseData = await res.json();
+    console.log('forgotPasswordValidate - Respuesta JSON:', responseData);
+  } catch (jsonError) {
+    console.error('forgotPasswordValidate - Error al parsear JSON:', jsonError);
+    throw new Error(`Error de respuesta del servidor: ${res.status} ${res.statusText}`);
+  }
+  
+  // Si hay error HTTP pero tenemos datos JSON, usar esos datos
+  if (!res.ok) {
+    console.error('forgotPasswordValidate - Error HTTP con datos:', responseData);
+    // Si la respuesta tiene estructura de error pero con datos útiles, intentar usarla
+    if (responseData && typeof responseData === 'object') {
+      return responseData;
+    }
+    throw new Error(responseData?.message || `Error al validar recuperación de contraseña: ${res.status}`);
+  }
+  
+  return responseData;
 }
 
 // --- Validar registro de usuario ---
