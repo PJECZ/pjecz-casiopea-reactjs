@@ -85,7 +85,7 @@ const CrearContrasena: React.FC = () => {
         setMensaje(res.message || "¡Contraseña creada exitosamente!");
       }
       setSuccess(true); // Indica que la operación fue exitosa
-      setTimeout(() => navigate("/", { state: { id, cadena_validar } }), 2500);
+      setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       setMensaje(err.message || "No se pudo crear la contraseña.");
       setSuccess(false); // Indica que la operación no fue exitosa
