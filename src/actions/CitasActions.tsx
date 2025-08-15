@@ -24,7 +24,7 @@ export type OficinaServicio = {
 };
 
 // --- Api Base ---
-const API_BASE = "http://172.30.14.65:8001";
+const API_BASE = "";
 
 // --- Funcion ---
 function getToken() {
