@@ -1,7 +1,7 @@
 // src/actions/AuthActions.tsx
 // Acciones relacionadas con autenticación: login, olvido de contraseña, registro, confirmación de cuenta
 
-const API_BASE = "";
+const API_BASE = "http://172.30.14.65:8001";
 
 // --- LOGIN ---
 export async function login(username: string, password: string) {
