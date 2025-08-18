@@ -1,10 +1,12 @@
 // src/actions/AuthActions.tsx
 // Acciones relacionadas con autenticación: login, olvido de contraseña, registro, confirmación de cuenta
 
-const API_BASE = "http://172.30.14.65:8001";
+import { getApiBase } from '../config/apiConfig';
+
 
 // --- LOGIN ---
 export async function login(username: string, password: string) {
+  const API_BASE = await getApiBase();
   const params = new URLSearchParams();
   params.append('username', username);
   params.append('password', password);
@@ -50,6 +52,7 @@ export type RegistroUsuarioResponse = {
 
 // --- Registro de usuario funcion ---
 export async function registrarUsuario(payload: RegistroUsuarioRequest): Promise<RegistroUsuarioResponse> {
+  const API_BASE = await getApiBase();
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_registros/solicitar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -61,6 +64,7 @@ export async function registrarUsuario(payload: RegistroUsuarioRequest): Promise
 
 // --- Olvido de contraseña solicitud ---
 export async function forgotPassword(email: string) {
+  const API_BASE = await getApiBase();
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/solicitar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -91,6 +95,7 @@ export type RecuperacionValidarResponse = {
 };
 
 export async function forgotPasswordValidate(id: string, cadena_validar: string): Promise<RecuperacionValidarResponse> {
+  const API_BASE = await getApiBase();
   console.log('forgotPasswordValidate - Enviando:', { id, cadena_validar });
   
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/validar`, {
@@ -135,6 +140,7 @@ export type ValidarUsuarioResponse = RegistroUsuarioResponse;
 
 // --- Validar registro de usuario funcion ---
 export async function validarUsuario(payload: ValidarUsuarioRequest): Promise<ValidarUsuarioResponse> {
+  const API_BASE = await getApiBase();
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_registros/validar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -152,6 +158,7 @@ export type TerminarRegistroRequest = {
 };
 
 export async function terminarRegistro(payload: TerminarRegistroRequest): Promise<RegistroUsuarioResponse> {
+  const API_BASE = await getApiBase();
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_registros/terminar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -174,6 +181,7 @@ export type TerminarRecuperacionResponse = {
 };
 
 export async function terminarRecuperacion(payload: TerminarRecuperacionRequest): Promise<TerminarRecuperacionResponse> {
+  const API_BASE = await getApiBase();
   console.log('terminarRecuperacion - Enviando:', payload);
   
   const res = await fetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/terminar`, {

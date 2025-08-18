@@ -1,6 +1,8 @@
 
 // Acciones relacionadas con citas: obtener, crear, cancelar
 
+import { getApiBase } from '../config/apiConfig';
+
 // --- Tipo Oficina ---
 export type Oficina = {
   clave: string;
@@ -23,8 +25,7 @@ export type OficinaServicio = {
   oficina_descripcion_corta: string;
 };
 
-// --- Api Base ---
-const API_BASE = "http://172.30.14.65:8001";
+// --- Api Base (ahora se obtiene dinámicamente) ---
 
 // --- Funcion ---
 function getToken() {
@@ -64,6 +65,7 @@ export type CrearCitaRequest = {
 
 // --- Obtener oficinas ---
 export async function getOficinas(oficina_clave?: string): Promise<{ data: Oficina[] }> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const params = new URLSearchParams();
   if (oficina_clave) params.append('oficina_clave', oficina_clave);
@@ -76,6 +78,7 @@ export async function getOficinas(oficina_clave?: string): Promise<{ data: Ofici
 
 // --- Obtener oficinas paginado ---
 export async function getOficinasPaginado(limit = 10, offset = 0, domicilio_clave?: string, oficina_clave?: string) {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const params = new URLSearchParams();
   params.append('limit', limit.toString());
@@ -91,6 +94,7 @@ export async function getOficinasPaginado(limit = 10, offset = 0, domicilio_clav
 
 // --- Obtener servicios ---
 export async function getServicios(): Promise<{ data: Servicio[] }> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(`${API_BASE}/api/v5/cit_servicios`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -101,6 +105,7 @@ export async function getServicios(): Promise<{ data: Servicio[] }> {
 
 // --- Obtener servicios por oficina ---
 export async function getServiciosPorOficina(oficinaClave: string): Promise<OficinaServicio[]> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(
     `${API_BASE}/api/v5/cit_oficinas_servicios?oficina_clave=${oficinaClave}`,
@@ -116,6 +121,7 @@ export async function getServiciosPorOficina(oficinaClave: string): Promise<Ofic
 
 // --- Obtener fechas disponibles ---
 export async function getFechasDisponibles(oficinaClave: string, tramiteClave: string) {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(
     `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&tramite=${tramiteClave}`,
@@ -129,6 +135,7 @@ export async function getFechasDisponibles(oficinaClave: string, tramiteClave: s
 
 // --- Obtener horas disponibles ---
 export async function getHorasDisponibles(oficinaClave: string, servicioClave: string, fecha: string) {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(
     `${API_BASE}/api/v5/cit_horas_disponibles?fecha=${fecha}&oficina_clave=${oficinaClave}&cit_servicio_clave=${servicioClave}`,
@@ -142,6 +149,7 @@ export async function getHorasDisponibles(oficinaClave: string, servicioClave: s
 
 // --- Obtener citas ---
 export async function getCitas(): Promise<Cita[]> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(`${API_BASE}/api/v5/cit_citas`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -153,6 +161,7 @@ export async function getCitas(): Promise<Cita[]> {
 
 // --- Crear cita ---
 export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(`${API_BASE}/api/v5/cit_citas/crear`, {
     method: 'POST',
@@ -177,6 +186,7 @@ export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
 
 // --- Cancelar cita ---
 export async function cancelarCita(citaId: string): Promise<Cita> {
+  const API_BASE = await getApiBase();
   const token = getToken();
   const res = await fetch(`${API_BASE}/api/v5/cit_citas/cancelar?cit_cita_id=${citaId}`, {
     method: 'PATCH',
