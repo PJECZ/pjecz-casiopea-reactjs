@@ -186,7 +186,6 @@ export type TerminarRecuperacionResponse = {
 
 export async function terminarRecuperacion(payload: TerminarRecuperacionRequest): Promise<TerminarRecuperacionResponse> {
   const API_BASE = await getApiBase();
-  console.log('terminarRecuperacion - Enviando:', payload);
   
   const res = await authFetch(`${API_BASE}/api/v5/cit_clientes_recuperaciones/terminar`, {
     method: 'POST',
@@ -194,21 +193,16 @@ export async function terminarRecuperacion(payload: TerminarRecuperacionRequest)
     body: JSON.stringify(payload),
   });
   
-  console.log('terminarRecuperacion - Status:', res.status, res.statusText);
-  
   // Intentar obtener la respuesta JSON incluso si hay error HTTP
   let responseData;
   try {
     responseData = await res.json();
-    console.log('terminarRecuperacion - Respuesta JSON:', responseData);
   } catch (jsonError) {
-    console.error('terminarRecuperacion - Error al parsear JSON:', jsonError);
     throw new Error(`Error de respuesta del servidor: ${res.status} ${res.statusText}`);
   }
   
   // Si hay error HTTP pero tenemos datos JSON, usar esos datos
   if (!res.ok) {
-    console.error('terminarRecuperacion - Error HTTP con datos:', responseData);
     throw new Error(responseData?.message || `Error al terminar recuperación de contraseña: ${res.status}`);
   }
   

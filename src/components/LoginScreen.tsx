@@ -108,7 +108,6 @@ const LoginScreen = () => {
           telefono: telefono.trim(),
           email: email.trim(),
         };
-        console.log('Datos de registro enviados:', payload);
         const resp = await registrarUsuario(payload);
         setIsLoading(false);
         if (resp.success) {

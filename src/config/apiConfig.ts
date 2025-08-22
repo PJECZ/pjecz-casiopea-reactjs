@@ -47,12 +47,9 @@ async function findAvailableApiBase(): Promise<string> {
     return currentApiBase;
   }
 
-  console.log('Verificando disponibilidad de APIs...');
   
   for (const baseUrl of API_BASE_OPTIONS) {
-    console.debug(`Verificando ${baseUrl}...`);
     if (await checkApiAvailability(baseUrl)) {
-      console.log(`API disponible en: ${baseUrl}`);
       currentApiBase = baseUrl;
       lastCheckTime = now;
       return baseUrl;
@@ -85,7 +82,6 @@ export async function refreshApiBase(): Promise<string> {
 export function addApiBaseOption(baseUrl: string): void {
   if (!API_BASE_OPTIONS.includes(baseUrl)) {
     API_BASE_OPTIONS.unshift(baseUrl); // Agregar al inicio (mayor prioridad)
-    console.log(`Nueva opción de API agregada: ${baseUrl}`);
   }
 }
 

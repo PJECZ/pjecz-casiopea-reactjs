@@ -67,7 +67,6 @@ const HomePage: React.FC = () => {
       setCitas(prev => prev.filter(cita => cita.id !== id));
       setOpenDialog(false);
     } catch (error) {
-      console.log('No se pudo cancelar la cita: ' + (error as Error).message);
       setOpenDialog(false);
     }
     setLoadingCancelId(null);

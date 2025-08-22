@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid, Button, Avatar, Paper } from "@mui/material";
+import { Box, Typography, Card, Divider, Grid, Button, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
 import { AccessTime, BadgeOutlined, CheckCircle, Email, HomeFilled, KeyOutlined, Person, Phone } from "@mui/icons-material";
 
@@ -26,6 +26,7 @@ const ConfirmarRegistro: React.FC = () => {
       validarUsuario({ id, cadena_validar })
         .then((res) => {
           if (res.success) {
+            // Resetear flag en caso de éxito para permitir reintento
             setUsuario(res.data);
             setMensaje(res.message || "Cuenta validada exitosamente");
           } else {
@@ -34,13 +35,14 @@ const ConfirmarRegistro: React.FC = () => {
         })
         .catch((err) => {
           setMensaje(err.message || "Error al validar la cuenta");
-          // Resetear flag en caso de error para permitir reintento
           validacionEjecutada.current = false;
         })
         .finally(() => {
           setCargando(false);
         });
     } else {
+      // Resetear flag en caso de error para permitir reintento
+      
       setMensaje("Parámetros inválidos");
       setCargando(false);
     }
@@ -54,8 +56,6 @@ const ConfirmarRegistro: React.FC = () => {
       const params = new URLSearchParams(location.search);
       cadena = params.get('cadena_validar') || '';
     }
-    // Log temporal para depuración
-    console.log('NAVEGAR A CrearContrasena con:', { id, cadena_validar: cadena });
     if (!id || !cadena) {
       alert('Faltan datos para crear la contraseña.');
       return;
@@ -64,129 +64,93 @@ const ConfirmarRegistro: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        height: '100%',
-        backgroundImage: "url('/images/bg3.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'repeat',
-        backgroundAttachment: { xs: 'scroll', sm: 'fixed' },
-        backgroundBlendMode: 'overlay',
-        backgroundOpacity: 0.4,
-        backgroundColor: 'rgba(0, 0, 0, 0.12)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        p: { xs: 0, sm: 2 },
-      }}
-    >
-      {/* Capa oscura y blur sobre la imagen de fondo */}
-      <Box sx={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.38)', backdropFilter: 'blur(4px)' }} />
-      <Paper elevation={2} sx={{
-        // zIndex: 1,
-        maxWidth: { xs: 380, sm: 460 },
-        width: '100%',
-        p: { xs: 2, sm: 4 },
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgb(236, 236, 236)',
-        borderRadius: 3,
-        mx: { xs: 1, sm: 'auto' },
-        my: { xs: 4, sm: 2, md: 1 }
-      }}>
-        <Box sx={{ py: 6, px: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
-          <Card
+    <Box sx={{ py: 6, px: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+      <Card
+        sx={{
+          maxWidth: 600,
+          borderRadius: 4,
+          boxShadow: 3,
+          overflow: 'hidden',
+          p: 3,
+          mt: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
+          <Avatar
             sx={{
-              maxWidth: 600,
-              borderRadius: 4,
-              boxShadow: 3,
-              overflow: 'hidden',
-              p: 3,
-              mt: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              bgcolor: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
+              width: 64,
+              height: 64,
+              mb: 2,
             }}
           >
-            <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
-              <Avatar
-                sx={{
-                  bgcolor: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.light'),
-                  color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
-                  width: 64,
-                  height: 64,
-                  mb: 2,
-                }}
-              >
-                {cargando ? <AccessTime fontSize="large" /> : usuario ? <CheckCircle fontSize="large" /> : <BadgeOutlined fontSize="large" />}
-              </Avatar>
-              <Typography
-                variant="h5"
-                align="center"
-                color="text.primary"
-                fontWeight={600}
-                sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
-              >
-                {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Cuenta ya validada'}
-              </Typography>
-            </Box>
-            <Typography
-              variant="body1"
-              align="center"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              {cargando ? 'Por favor espera...' : mensaje}
-            </Typography>
-            {usuario && (
-              <Box mb={2} width="100%">
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Grid container spacing={1}>
-                  <Grid size={12}>
-                    <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-            )}
-            <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
-              {usuario ? (
-                <Button
-                  variant="contained"
-                  onClick={() => handleCrearContrasena()}
-                  sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
-                  fullWidth
-                  size="large"
-                  startIcon={<KeyOutlined />}
-                >
-                  Crear contraseña
-                </Button>
-              ) : !cargando && (
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/')}
-                  sx={{ borderRadius: 2, fontWeight: 600 }}
-                  fullWidth
-                  size="large"
-                  startIcon={<HomeFilled />}
-                >
-                  Ir al inicio
-                </Button>
-              )}
-            </Box>
-          </Card>
+            {cargando ? <AccessTime fontSize="large" /> : usuario ? <CheckCircle fontSize="large" /> : <BadgeOutlined fontSize="large" />}
+          </Avatar>
+          <Typography
+            variant="h5"
+            align="center"
+            color="text.primary"
+            fontWeight={600}
+            sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
+          >
+            {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Cuenta ya validada'}
+          </Typography>
         </Box>
-      </Paper>
+        <Typography
+          variant="body1"
+          align="center"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          {cargando ? 'Por favor espera...' : mensaje}
+        </Typography>
+        {usuario && (
+          <Box mb={2} width="100%">
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
+            <Divider sx={{ mb: 1 }} />
+            <Grid container spacing={1}>
+              <Grid size={12}>
+                <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+        <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
+          {usuario ? (
+            <Button
+              variant="contained"
+              onClick={() => handleCrearContrasena()}
+              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
+              fullWidth
+              size="large"
+              startIcon={<KeyOutlined />}
+            >
+              Crear contraseña
+            </Button>
+          ) : !cargando && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/')}
+              sx={{ borderRadius: 2, fontWeight: 600 }}
+              fullWidth
+              size="large"
+              startIcon={<HomeFilled />}
+            >
+              Ir al inicio
+            </Button>
+          )}
+        </Box>
+      </Card>
     </Box>
   );
 };

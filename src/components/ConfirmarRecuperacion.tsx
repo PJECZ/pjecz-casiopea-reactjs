@@ -29,46 +29,29 @@ const ConfirmarRecuperacion: React.FC = () => {
     const id = searchParams.get('id');
     const cadena_validar = searchParams.get('cadena_validar');
     
-    console.log('Parámetros de URL:', { id, cadena_validar });
-    
     if (id && cadena_validar) {
-      console.log('Llamando a forgotPasswordValidate con:', { id, cadena_validar });
       forgotPasswordValidate(id, cadena_validar)
         .then((res) => {
-          console.log('Respuesta completa del servidor:', res);
-          console.log('res.success:', res.success);
-          console.log('res.data:', res.data);
-          console.log('Tipo de res:', typeof res);
-          console.log('Propiedades de res:', Object.keys(res));
-          
-          // Verificar si la respuesta tiene la estructura esperada
           if (res && typeof res === 'object') {
             if (res.success === true && res.data) {
               setUsuario(res.data);
               setMensaje(res.message || 'Recuperación validada exitosamente');
-              console.log('Usuario establecido:', res.data);
             } else if (res.success === false) {
               setMensaje(res.message || 'No se pudo validar la recuperación');
-              console.log('Validación falló:', res.message);
             } else {
-              // Caso donde la respuesta no tiene la estructura esperada
-              console.warn('Estructura de respuesta inesperada:', res);
               setMensaje('Respuesta del servidor en formato inesperado');
             }
           } else {
-            console.error('Respuesta no es un objeto válido:', res);
             setMensaje('Respuesta inválida del servidor');
           }
         })
         .catch((err) => {
-          console.error('Error en validación:', err);
           setMensaje(err.message || 'Error al validar la recuperación');
         })
         .finally(() => {
           setCargando(false);
         });
     } else {
-      console.log('Parámetros faltantes - id:', id, 'cadena_validar:', cadena_validar);
       setMensaje('Parámetros inválidos');
       setCargando(false);
     }
@@ -84,7 +67,6 @@ const ConfirmarRecuperacion: React.FC = () => {
     if (!cadena) {
       cadena = searchParams.get('cadena_validar') || '';
     }
-    console.log('NAVEGAR A CrearContrasena con:', { id, cadena_validar: cadena });
     if (!id || !cadena) {
       alert('Faltan datos para crear la contraseña.');
       return;
