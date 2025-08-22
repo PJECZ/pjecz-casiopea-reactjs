@@ -112,8 +112,8 @@ const ConfirmarRecuperacion: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
             sx={{
-              bgcolor: usuario ? 'info.light' : (cargando ? '#65815c' : 'error.light'),
-              color: usuario ? 'info.dark' : (cargando ? '#fff' : 'error.dark'),
+              bgcolor: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
               width: 64,
               height: 64,
               mb: 2,
