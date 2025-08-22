@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import LoginScreen from './components/LoginScreen';
 import HomeScreen from './components/HomePage';
 import NewAppointment from './components/NewAppointment';
-import ProfilePage from './components/ProfilePage';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import { Box } from '@mui/material';
@@ -41,7 +40,6 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ showNewAppointmentForm, setShowNe
                   <Routes>
                     <Route path="/homepage" element={<HomeScreen />} />
                     <Route path="/new-appointment" element={<NewAppointment />} />
-                    <Route path="/perfil" element={<ProfilePage />} />
                   </Routes>
                 </Box>
               </>
