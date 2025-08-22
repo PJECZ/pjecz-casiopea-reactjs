@@ -115,7 +115,7 @@ const CrearContrasena: React.FC = () => {
             {isRecuperacion ? 'Recuperación de contraseña' : 'Validar correo electrónico y definir contraseña'}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>
-            La contraseña debe tener de 8 a 24 caracteres, llevar letra, mayúscula y número.
+            La contraseña debe tener de 8 a 24 caracteres, debe contener al menos una letra, una mayúscula y un número.
           </Typography>
         </Box>
         <form style={{ width: '100%' }} onSubmit={handleSubmit} autoComplete="off">
