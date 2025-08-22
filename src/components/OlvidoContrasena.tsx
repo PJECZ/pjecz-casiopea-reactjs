@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Alert, Stack, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { forgotPassword } from '../actions/AuthActions';
@@ -12,7 +12,22 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const navigate = useNavigate();
+
+  // Efecto para manejar el countdown y redirección automática
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (success && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (success && countdown === 0) {
+      navigate('/');
+    }
+    return () => clearTimeout(timer);
+  }, [success, countdown, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +49,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     try {
       const response = await forgotPassword(email);
       setMessage(response?.message || 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña.');
+      
+      // Limpiar el formulario y activar el estado de éxito
+      setEmail('');
+      setConfirmEmail('');
+      setSuccess(true);
+      setCountdown(3);
     } catch (err: any) {
       setError(err?.message || 'Error al solicitar recuperación de contraseña');
     } finally {
@@ -108,6 +129,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   fullWidth
                   required
                   autoFocus
+                  disabled={success}
                   slotProps={{
                     input: {
                       autoComplete: 'off'
@@ -128,6 +150,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   }}
                   fullWidth
                   required
+                  disabled={success}
                   slotProps={{
                     input: {
                       autoComplete: 'off'
@@ -139,18 +162,33 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   placeholder='Confirmar su correo electrónico'   
                 />
                 {error && <Alert severity="error">{error}</Alert>}
-                {message && <Alert severity="success">{message}</Alert>}
+                {message && !success && <Alert severity="info">{message}</Alert>}
+                {success && (
+                  <Alert severity="success">
+                    {message}
+                    <br />
+                    <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      Redirigiendo al login en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+                    </Typography>
+                  </Alert>
+                )}
                 <Button 
                   type="submit" 
                   variant="contained" 
                   color="primary" 
-                  disabled={loading} 
+                  disabled={loading || success} 
                   fullWidth
                   sx={{ backgroundColor: '#65815c', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
                 >
-                  {loading ? 'Enviando...' : 'Recuperar contraseña'}
+                  {loading ? 'Enviando...' : success ? 'Recuperación enviada' : 'Recuperar contraseña'}
                 </Button>
-                <Button variant="text"  onClick={handleBack} fullWidth sx={{ mt: -1, color: '#65815c' , fontWeight: 'bold' }}>
+                <Button 
+                  variant="text"  
+                  onClick={handleBack} 
+                  disabled={success}
+                  fullWidth 
+                  sx={{ mt: -1, color: '#65815c' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
+                >
                   Volver al inicio de sesión
                 </Button>
               </Stack>

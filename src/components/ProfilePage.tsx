@@ -70,7 +70,7 @@ const ProfilePage: React.FC = () => {
             </Button>
           </Grid>
           {message && (
-            <Typography variant="body2" color="success.main" sx={{ mt: 1, textAlign: 'center' }}>{message}</Typography>
+            <Typography variant="body2" color="info.main" sx={{ mt: 1, textAlign: 'center' }}>{message}</Typography>
           )}
         </Grid>
         </Paper>

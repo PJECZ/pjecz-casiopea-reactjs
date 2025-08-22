@@ -11,6 +11,7 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Typography,
 } from '@mui/material';
 // Importa íconos y utilidades de Material UI y React Router
 import AddIcon from '@mui/icons-material/Add';
@@ -127,14 +128,22 @@ const Navbar: React.FC<NavbarProps> = ({
             <IconButton
               onClick={event => setProfileMenuAnchor(event.currentTarget)}
               size="large"
-              sx={{ color: '#486238', backgroundColor: '#e9f3e2', ml: 1 }}
+              sx={{ color: '#486238', backgroundColor: '#e9f3e2', ml: 1, borderRadius: 2 }}
             >
               {loadingLogout ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                // Mostrar iniciales del nombre del usuario
-                <Avatar sx={{ bgcolor: '#b1c89e', color: '#486238' }}>
-                </Avatar>
+                // Mostrar correo del usuario
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="body2" sx={{ color: '#486238', fontWeight: 500 }}>
+                    {/* Mostrar correo del usuario */}
+                    {localStorage.getItem('email')}
+                  </Typography>
+                  <Avatar sx={{ bgcolor: '#b1c89e', color: '#486238', width: 32, height: 32 }}>
+                    {/* Mostrar inicial del correo */}
+                    {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
+                  </Avatar>
+                </Box>
               )}
             </IconButton>
             <Menu
@@ -144,7 +153,7 @@ const Navbar: React.FC<NavbarProps> = ({
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <MenuItem
+              {/* <MenuItem
                 onClick={() => {
                   setProfileMenuAnchor(null);
                   navigate('/perfil');
@@ -154,7 +163,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   <AccountCircle />
                 </ListItemIcon>
                 Ver mi perfil
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem
                 onClick={() => {
                   setProfileMenuAnchor(null);
@@ -162,6 +171,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   setLoadingLogout(true);
                   setTimeout(() => {
                     localStorage.removeItem('access_token');
+                    localStorage.removeItem('email');
                     setLoadingLogout(false);
                     navigate('/');
                   }, 1200);
@@ -179,7 +189,23 @@ const Navbar: React.FC<NavbarProps> = ({
       </Toolbar>
       {/* Drawer para menú lateral en móvil */}
       <Drawer anchor="left" open={openDrawer} onClose={() => setOpenDrawer(false)}>
-        <Box sx={{ width: 240 }} role="presentation" onClick={() => setOpenDrawer(false)}>
+        <Box sx={{ width: 260 }} role="presentation" onClick={() => setOpenDrawer(false)}>
+          {/* Información del usuario en la parte superior del drawer */}
+          <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Avatar sx={{ bgcolor: '#b1c89e', color: '#486238', width: 40, height: 40 }}>
+                {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
+              </Avatar>
+              <Box flex={1}>
+                <Typography variant="body2" sx={{ color: '#486238', fontWeight: 600, fontSize: '0.875rem' }}>
+                  Usuario
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem', wordBreak: 'break-word' }}>
+                  {localStorage.getItem('email')}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
           <List>
             {/* Opción para ver citas */}
             <ListItem disablePadding>
@@ -206,6 +232,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 setLoadingLogout(true);
                 setTimeout(() => {
                   localStorage.removeItem('access_token');
+                  localStorage.removeItem('email');
                   setLoadingLogout(false);
                   navigate('/');
                 }, 1200);

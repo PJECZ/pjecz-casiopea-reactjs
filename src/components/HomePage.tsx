@@ -4,7 +4,7 @@ import { Cancel, EventBusy, Alarm } from '@mui/icons-material';
 import { Assignment as AssignmentIcon } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { getOficinas, getServicios, getCitas, cancelarCita, Oficina, Servicio, Cita } from '../services/api';
+import { getOficinas, getServicios, getCitas, cancelarCita, Oficina, Servicio, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import EditDocumentIcon from '@mui/icons-material/EditDocument';
@@ -31,10 +31,10 @@ const HomePage: React.FC = () => {
     getOficinas(token)
       .then(res => setOficinas(res.data))
       .catch(() => setApiError('No se pudieron cargar las oficinas.'));
-    getServicios(token)
+    getServicios()
       .then(res => setServicios(res.data))
       .catch(() => setApiError('No se pudieron cargar los servicios.'));
-    getCitas(token)
+    getCitas()
       .then(setCitas)
       .catch(() => setCitas([]))
       .finally(() => setLoadingCitas(false));
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) throw new Error('No hay token de autenticación');
-      await cancelarCita(token, id);
+      await cancelarCita(id);
       setCitas(prev => prev.filter(cita => cita.id !== id));
       setOpenDialog(false);
     } catch (error) {

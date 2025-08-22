@@ -3,6 +3,20 @@
 
 import { getApiBase } from '../config/apiConfig';
 
+// Utilidad para fetch autenticado que maneja 401
+export async function authFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+  const res = await fetch(input, init);
+  if (res.status === 401) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('email');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('sessionExpired'));
+    }
+    throw new Error('Sesión expirada. Por favor inicia sesión de nuevo.');
+  }
+  return res;
+}
+
 // --- Tipo Oficina ---
 export type Oficina = {
   clave: string;
@@ -69,7 +83,7 @@ export async function getOficinas(oficina_clave?: string): Promise<{ data: Ofici
   const token = getToken();
   const params = new URLSearchParams();
   if (oficina_clave) params.append('oficina_clave', oficina_clave);
-  const res = await fetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Error al cargar oficinas");
@@ -85,7 +99,7 @@ export async function getOficinasPaginado(limit = 10, offset = 0, domicilio_clav
   params.append('offset', offset.toString());
   if (domicilio_clave) params.append('domicilio_clave', domicilio_clave);
   if (oficina_clave) params.append('oficina_clave', oficina_clave);
-  const res = await fetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('No se pudieron cargar las oficinas');
@@ -96,7 +110,7 @@ export async function getOficinasPaginado(limit = 10, offset = 0, domicilio_clav
 export async function getServicios(): Promise<{ data: Servicio[] }> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(`${API_BASE}/api/v5/cit_servicios`, {
+  const res = await authFetch(`${API_BASE}/api/v5/cit_servicios`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Error al cargar servicios");
@@ -107,7 +121,7 @@ export async function getServicios(): Promise<{ data: Servicio[] }> {
 export async function getServiciosPorOficina(oficinaClave: string): Promise<OficinaServicio[]> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(
+  const res = await authFetch(
     `${API_BASE}/api/v5/cit_oficinas_servicios?oficina_clave=${oficinaClave}`,
     {
       headers: { Authorization: `Bearer ${token}` },
@@ -123,7 +137,7 @@ export async function getServiciosPorOficina(oficinaClave: string): Promise<Ofic
 export async function getFechasDisponibles(oficinaClave: string, tramiteClave: string) {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(
+  const res = await authFetch(
     `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&tramite=${tramiteClave}`,
     {
       headers: { Authorization: `Bearer ${token}` },
@@ -137,7 +151,7 @@ export async function getFechasDisponibles(oficinaClave: string, tramiteClave: s
 export async function getHorasDisponibles(oficinaClave: string, servicioClave: string, fecha: string) {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(
+  const res = await authFetch(
     `${API_BASE}/api/v5/cit_horas_disponibles?fecha=${fecha}&oficina_clave=${oficinaClave}&cit_servicio_clave=${servicioClave}`,
     {
       headers: { Authorization: `Bearer ${token}` },
@@ -151,7 +165,7 @@ export async function getHorasDisponibles(oficinaClave: string, servicioClave: s
 export async function getCitas(): Promise<Cita[]> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(`${API_BASE}/api/v5/cit_citas`, {
+  const res = await authFetch(`${API_BASE}/api/v5/cit_citas`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Error al cargar citas');
@@ -163,7 +177,7 @@ export async function getCitas(): Promise<Cita[]> {
 export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(`${API_BASE}/api/v5/cit_citas/crear`, {
+  const res = await authFetch(`${API_BASE}/api/v5/cit_citas/crear`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -188,7 +202,7 @@ export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
 export async function cancelarCita(citaId: string): Promise<Cita> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await fetch(`${API_BASE}/api/v5/cit_citas/cancelar?cit_cita_id=${citaId}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/cit_citas/cancelar?cit_cita_id=${citaId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

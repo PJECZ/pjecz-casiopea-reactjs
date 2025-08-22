@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography, Card, Divider, Grid, Button, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
@@ -10,13 +10,19 @@ const ConfirmarRegistro: React.FC = () => {
   const [mensaje, setMensaje] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(true);
   const [usuario, setUsuario] = useState<any>(null);
+  const validacionEjecutada = useRef<boolean>(false);
 
   /* Mostrar datos de usuario al obtener el id y cadena_validar desde el enlace  y funcion confirmarCuenta */
   useEffect(() => {
+    // Evitar múltiples ejecuciones (especialmente por React.StrictMode)
+    if (validacionEjecutada.current) return;
+    
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
     const cadena_validar = params.get("cadena_validar");
+    
     if (id && cadena_validar) {
+      validacionEjecutada.current = true;
       validarUsuario({ id, cadena_validar })
         .then((res) => {
           if (res.success) {
@@ -28,6 +34,8 @@ const ConfirmarRegistro: React.FC = () => {
         })
         .catch((err) => {
           setMensaje(err.message || "Error al validar la cuenta");
+          // Resetear flag en caso de error para permitir reintento
+          validacionEjecutada.current = false;
         })
         .finally(() => {
           setCargando(false);
@@ -73,8 +81,8 @@ const ConfirmarRegistro: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
             sx={{
-              bgcolor: usuario ? 'success.light' : (cargando ? '#65815c' : 'error.light'),
-              color: usuario ? 'success.dark' : (cargando ? '#fff' : 'error.dark'),
+              bgcolor: usuario ? 'info.light' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? 'info.dark' : (cargando ? '#fff' : 'error.dark'),
               width: 64,
               height: 64,
               mb: 2,

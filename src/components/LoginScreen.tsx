@@ -61,8 +61,9 @@ const LoginScreen = () => {
       try {
         // Llama a la API de login
         const data = await login(email.trim(), password.trim());
-        // Guarda el token en localStorage
+        // Guarda el token y email en localStorage
         localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('email', email.trim());
         // Espera 1.2 segundos para mostrar el loader y dar feedback visual
         setTimeout(() => {
           setIsLoading(false);
@@ -98,7 +99,7 @@ const LoginScreen = () => {
       }
       try {
         // Llama a la API de registro
-        const { registrarUsuario } = await import('../services/api');
+        const { registrarUsuario } = await import('../actions/AuthActions');
         const payload = {
           nombres: nombres.trim(),
           apellido_primero: apellidoPrimero.trim(),

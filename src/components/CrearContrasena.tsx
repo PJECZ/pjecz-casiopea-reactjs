@@ -54,25 +54,30 @@ const CrearContrasena: React.FC = () => {
     );
   }
   const handleSubmit = async (e: React.FormEvent) => {
-    // Validar que el password y el confirmPassword no estén vacíos
     e.preventDefault();
+    
+    // Evitar múltiples envíos mientras se procesa
+    if (loading) return;
+    
     setLoading(true);
     setMensaje("");
+    setSuccess(null);
+    
     // Validar que el password y el confirmPassword no estén vacíos
     if (!password || !confirmPassword) {
       setMensaje("Por favor ingresa y confirma tu contraseña.");
-      setSuccess(false); // Indica que la operación no fue exitosa
+      setSuccess(false);
       setLoading(false);
       return;
     }
+    
     // Validar que el password y el confirmPassword coincidan
     if (password !== confirmPassword) {
       setMensaje("Las contraseñas no coinciden.");
-      setSuccess(false); // Indica que la operación no fue exitosa
+      setSuccess(false);
       setLoading(false); 
       return;
     }
-    setLoading(true); // Indica que la operación está en curso
     try {
       let res;
       if (isRecuperacion) {
@@ -97,7 +102,7 @@ const CrearContrasena: React.FC = () => {
   return (
     <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card sx={{ maxWidth: 600, borderRadius: 4, boxShadow: 3, p: 3, mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ bgcolor: success === true ? 'success.light' : (success === false ? 'error.light' : '#65815c'), color: success === true ? 'success.dark' : (success === false ? 'error.dark' : '#fff'), width: 64, height: 64, mb: 2 }}>
+        <Avatar sx={{ bgcolor: success === true ? 'info.light' : (success === false ? 'error.light' : '#65815c'), color: success === true ? 'info.dark' : (success === false ? 'error.dark' : '#fff'), width: 64, height: 64, mb: 2 }}>
           {success === true ? <CheckCircle fontSize="large" /> : success === false ? <ErrorOutline fontSize="large" /> : <KeyOutlined fontSize="large" />}
         </Avatar>
         <Typography variant="h5" fontWeight={600} sx={{ color: '#65815c', mb: 1, textAlign: 'center' }}>
@@ -110,7 +115,7 @@ const CrearContrasena: React.FC = () => {
             {isRecuperacion ? 'Recuperación de contraseña' : 'Validar correo electrónico y definir contraseña'}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>
-            La contraseña debe tener de 8 a 24 caracteres, comenzando con una letra y contener por lo menos una mayúscula y un número.
+            La contraseña debe tener de 8 a 24 caracteres, llevar letra, mayúscula y número.
           </Typography>
         </Box>
         <form style={{ width: '100%' }} onSubmit={handleSubmit} autoComplete="off">
@@ -174,7 +179,7 @@ const CrearContrasena: React.FC = () => {
             }}    
           />
           {mensaje && (
-            <Typography variant="body2" sx={{ color: success === true ? 'success.main' : 'error.main', mt: 1, textAlign: 'center' }}>{mensaje}</Typography>
+            <Typography variant="body2" sx={{ color: success === true ? 'info.main' : 'error.main', mt: 1, textAlign: 'center' }}>{mensaje}</Typography>
           )}
           <Button
             type="submit"

@@ -349,7 +349,7 @@ const TaskList: React.FC = () => {
                 {/* Selector de hora disponible */}
                 <Box flex={1}>
                   <Typography variant="subtitle1" fontWeight="bold" mb={1} sx={{ color: '#648059' }}>Selecciona una hora</Typography>
-                  <Card variant="outlined" sx={{ p: 1, minHeight: 300 }}>
+                  <Card variant="outlined" sx={{ p: 1}}>
                     {loadingHoras ? (
                       // Estado de carga para las horas
                       <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={180}>
@@ -382,7 +382,7 @@ const TaskList: React.FC = () => {
               </Stack>
               {/* Mensajes de error y éxito */}
               {error && <Alert severity="error">{error}</Alert>}
-              {successMsg && <Alert severity="success">{successMsg}</Alert>}
+              {successMsg && <Alert severity="info">{successMsg}</Alert>}
               <Divider sx={{ my: 2 }} />
               {/* Botón de envío del formulario */}
               <Button

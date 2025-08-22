@@ -7,16 +7,10 @@ import {
   Typography, 
   Button,
   Avatar,
-  Divider,
-  Grid
 } from '@mui/material';
 import { 
   CheckCircle,
   Error as ErrorIcon,
-  Person,
-  Email,
-  Phone,
-  BadgeOutlined,
   HomeFilled,
   KeyOutlined,
   AccessTime
@@ -118,8 +112,8 @@ const ConfirmarRecuperacion: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
             sx={{
-              bgcolor: usuario ? 'success.light' : (cargando ? '#65815c' : 'error.light'),
-              color: usuario ? 'success.dark' : (cargando ? '#fff' : 'error.dark'),
+              bgcolor: usuario ? 'info.light' : (cargando ? '#65815c' : 'error.light'),
+              color: usuario ? 'info.dark' : (cargando ? '#fff' : 'error.dark'),
               width: 64,
               height: 64,
               mb: 2,
