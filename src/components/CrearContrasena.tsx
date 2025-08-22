@@ -179,7 +179,17 @@ const CrearContrasena: React.FC = () => {
             }}    
           />
           {mensaje && (
-            <Typography variant="body2" sx={{ color: success === true ? 'info.main' : 'error.main', mt: 1, textAlign: 'center' }}>{mensaje}</Typography>
+            <Box sx={{ 
+              backgroundColor: success === true ? '#1976d2' : '#c23636', 
+              color: '#fcfcfc', 
+              p: 1, 
+              borderRadius: 1, 
+              fontSize: 14, 
+              mb: 2, 
+              width: '100%' 
+            }}>
+              {mensaje}
+            </Box>
           )}
           <Button
             type="submit"
