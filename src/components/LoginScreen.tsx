@@ -430,9 +430,17 @@ const LoginScreen = () => {
               </FormControl>
             )}
 
-            {/* Mensaje de error en caso de validación o error de login/registro */}
+            {/* Mensaje de error o éxito en caso de validación o login/registro */}
             {errorMessage && (
-              <Box sx={{ backgroundColor: '#c23636', color: '#fcfcfc', p: 1, borderRadius: 1, fontSize: 14, mb: 2, width: '100%' }}>
+              <Box sx={{ 
+                backgroundColor: messageType === 'success' ? '#1976d2' : '#c23636', 
+                color: '#fcfcfc', 
+                p: 1, 
+                borderRadius: 1, 
+                fontSize: 14, 
+                mb: 2, 
+                width: '100%' 
+              }}>
                 {errorMessage}
               </Box>
             )}
