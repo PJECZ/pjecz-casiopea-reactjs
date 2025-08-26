@@ -211,10 +211,11 @@ const LoginScreen = () => {
         my: { xs: 4, sm: 2, md: 1 }
       }}>
         {/* Logo institucional */}
-        <Box display="flex" justifyContent="center" alignItems="center" >
-          <Box textAlign="left">
-            <img src="/images/logo2.png" alt="Logo Sistema Citas" style={{ maxWidth: 200, minWidth: 100, height: 'auto' }} />
-          </Box>
+        <Box textAlign="center">
+          <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 300, height: 'auto', display: 'block', margin: '0 auto' }} />
+        </Box>
+        <Box textAlign="center" sx={{ mb: 2 }}>
+          <img src="/images/logo_transparente.png" alt="Logo Sistema Citas" style={{ maxWidth: 200, minWidth: 100, height: 'auto', display: 'block', margin: '0 auto' }} />
         </Box>
 
         <Box display="flex" justifyContent="center" mb={3}>
@@ -471,9 +472,9 @@ const LoginScreen = () => {
           </Grid>
         </Box>
         {/* Logo institucional */}
-        <Box textAlign="center">
+        {/* <Box textAlign="center">
           <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 220, height: 'auto' }} />
-        </Box>
+        </Box> */}
       </Paper>
     </Box>
   );

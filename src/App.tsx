@@ -1,14 +1,12 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AppointmentProvider } from './context/AppointmentContext';
+import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 
 const App: React.FC = () => {
   const [showNewAppointmentForm, setShowNewAppointmentForm] = React.useState(false);
   const [showForgotPassword, setShowForgotPassword] = React.useState(false);
   return (
-    <AppointmentProvider>
-      <BrowserRouter>
+    <BrowserRouter>
         <AppRoutes
           showNewAppointmentForm={showNewAppointmentForm}
           setShowNewAppointmentForm={setShowNewAppointmentForm}
@@ -16,7 +14,6 @@ const App: React.FC = () => {
           setShowForgotPassword={setShowForgotPassword}
         />
       </BrowserRouter>
-    </AppointmentProvider>
   );
 };
 

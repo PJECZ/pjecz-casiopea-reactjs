@@ -8,7 +8,6 @@ import Navbar from './components/Navbar';
 import { Box } from '@mui/material';
 import SessionExpiredDialog from './components/SessionExpiredDialog';
 import ForgotPassword from './components/OlvidoContrasena';
-import ValidatePassword from './components/ValidatePassword';
 import ConfirmarRegistro from './components/ConfirmarRegistro';
 import CrearContrasena from './components/CrearContrasena';
 import ConfirmarRecuperacion from './components/ConfirmarRecuperacion';
@@ -26,7 +25,6 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ showNewAppointmentForm, setShowNe
       <Routes>
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPassword onBack={() => setShowForgotPassword(false)} />} />
-        <Route path="/validate-password" element={<ValidatePassword />} />
         <Route path='/cit_clientes_registros/confirmar' element={<ConfirmarRegistro />} />
         <Route path='/CrearContrasena' element={<CrearContrasena />} />
         <Route path='/cit_clientes_recuperaciones/confirmar' element={<ConfirmarRecuperacion />} />
