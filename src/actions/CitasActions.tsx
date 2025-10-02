@@ -92,10 +92,13 @@ export type CrearCitaRequest = {
 };
 
 // --- Obtener Distritos Judiciales ---
-export async function getDistritos(): Promise<{ data: Distrito[] }> {
+export async function getDistritos(limit = 100, offset = 0): Promise<{ data: Distrito[] }> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await authFetch(`${API_BASE}/api/v5/distritos`, {
+  const params = new URLSearchParams();
+  params.append('limit', limit.toString());
+  params.append('offset', offset.toString());
+  const res = await authFetch(`${API_BASE}/api/v5/distritos?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Error al cargar distritos judiciales");
