@@ -59,6 +59,7 @@ const TaskList: React.FC = () => {
   const [horas, setHoras] = useState<string[]>([]);
   const [loadingHoras, setLoadingHoras] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   // Cargar distritos al montar el componente
   useEffect(() => {
@@ -173,15 +174,18 @@ const TaskList: React.FC = () => {
       });
   }, [oficina, tramite, fecha]);
 
-  // Redirigir a /homepage después de éxito al agendar cita
+  // Redirigir a /homepage después de éxito al agendar cita con countdown
   useEffect(() => {
-    if (successMsg) {
-      const timeout = setTimeout(() => {
-        navigate('/homepage');
+    let timer: NodeJS.Timeout;
+    if (successMsg && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
       }, 1000);
-      return () => clearTimeout(timeout);
+    } else if (successMsg && countdown === 0) {
+      navigate('/homepage');
     }
-  }, [successMsg, navigate]);
+    return () => clearTimeout(timer);
+  }, [successMsg, countdown, navigate]);
 
   // Detecta si el trámite seleccionado es de expedientes
   const isExpedientesTramite = () => {
@@ -220,6 +224,7 @@ const TaskList: React.FC = () => {
       // Llama a la API para crear la cita
       await createCita(payload);
       setSuccessMsg('¡Cita agendada correctamente!');
+      setCountdown(3); // Reiniciar countdown
       setOficina(null);
       setTramite('');
       setNotas('');
@@ -253,6 +258,7 @@ const TaskList: React.FC = () => {
                   labelId="distrito-label"
                   value={distrito}
                   label="Distrito"
+                  displayEmpty
                   onChange={e => setDistrito(e.target.value)}
                   startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>}
                   disabled={loadingDistritos || !!errorDistritos}
@@ -420,7 +426,14 @@ const TaskList: React.FC = () => {
               </Stack>
               {/* Mensajes de error y éxito */}
               {error && <Alert severity="error">{error}</Alert>}
-              {successMsg && <Alert severity="info">{successMsg}</Alert>}
+              {successMsg && (
+                <Alert severity="success">
+                  {successMsg}
+                  <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                    Redirigiendo en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+                  </Typography>
+                </Alert>
+              )}
               <Divider sx={{ my: 2 }} />
               {/* Botón de envío del formulario */}
               <Button
