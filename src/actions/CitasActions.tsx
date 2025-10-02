@@ -17,6 +17,12 @@ export async function authFetch(input: RequestInfo, init?: RequestInit): Promise
   return res;
 }
 
+// --- Tipo Distrito ---
+export type Distrito = {
+  clave: string;
+  descripcion: string;
+};
+
 // --- Tipo Oficina ---
 export type Oficina = {
   clave: string;
@@ -76,6 +82,30 @@ export type CrearCitaRequest = {
   oficina_clave: string;
   notas: string;
 };
+
+// --- Obtener Distritos Judiciales ---
+export async function getDistritos(): Promise<{ data: Distrito[] }> {
+  const API_BASE = await getApiBase();
+  const token = getToken();
+  const res = await authFetch(`${API_BASE}/api/v5/distritos`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Error al cargar distritos judiciales");
+  return res.json();
+}
+
+// --- Obtener distritos por clave ---
+export async function getDistritosPorClave(distrito_clave: string): Promise<{ data: Distrito[] }> {
+  const API_BASE = await getApiBase();
+  const token = getToken();
+  const params = new URLSearchParams();
+  if(distrito_clave) params.append('distrito_clave', distrito_clave);
+  const res = await authFetch(`${API_BASE}/api/v5/distritos?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Error al cargar distritos judiciales");
+  return res.json();
+}
 
 // --- Obtener oficinas ---
 export async function getOficinas(oficina_clave?: string): Promise<{ data: Oficina[] }> {

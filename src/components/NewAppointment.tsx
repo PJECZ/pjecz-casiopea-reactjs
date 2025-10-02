@@ -15,13 +15,15 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { AccessTime, Assignment } from '@mui/icons-material';
 import NotesIcon from '@mui/icons-material/Notes';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita } from '../actions/CitasActions';
+import { getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
 
 
 // Definición de distritos y tipos para las oficinas y servicios
-const distritos: Record<string, string> = { CJS: 'Ciudad Judicial de Saltillo' };
-const codigoDistrito = 'CJS';
-const distrito = distritos[codigoDistrito];
+const distritos: Record<string, string> = {};
+const codigoDistrito = localStorage.getItem('distrito_clave');
+const distrito = distritos[codigoDistrito || ''];
+
+console.log(distrito);
 
 type Oficina = { clave: string; descripcion: string; domicilio_clave: string };
 type OficinaServicio = { cit_servicio_clave: string; cit_servicio_descripcion: string };
@@ -29,6 +31,7 @@ type OficinaServicio = { cit_servicio_clave: string; cit_servicio_descripcion: s
 // Componente principal para agendar citas
 const TaskList: React.FC = () => {
   // Estados para los campos del formulario y mensajes
+  const [distrito, setDistrito] = useState(codigoDistrito || ''); // Distrito seleccionado
   const [oficina, setOficina] = useState<Oficina | string | null>(null); // Oficina seleccionada
   const [tramite, setTramite] = useState(''); // Trámite/servicio seleccionado
   const [notas, setNotas] = useState(''); // Notas adicionales
@@ -38,6 +41,11 @@ const TaskList: React.FC = () => {
   const [error, setError] = useState<string | null>(null); // Mensaje de error general
   const [successMsg, setSuccessMsg] = useState<string | null>(null); // Mensaje de éxito
   const navigate = useNavigate(); // Hook para navegación
+
+  // Estados para la carga de distritos
+  const [distritos, setDistritos] = useState<Distrito[]>([]);
+  const [loadingDistritos, setLoadingDistritos] = useState(true);
+  const [errorDistritos, setErrorDistritos] = useState<string | null>(null);
 
   // Estados para la carga de oficinas
   const [oficinas, setOficinas] = useState<Oficina[]>([]);
@@ -64,7 +72,7 @@ const TaskList: React.FC = () => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
     setLoadingOficinas(true);
-    getOficinas(codigoDistrito)
+    getOficinas(codigoDistrito || '')
       .then(res => {
         const oficinas = Array.isArray(res) ? res : (res.data || []);
         setOficinas(oficinas);
@@ -220,18 +228,31 @@ const TaskList: React.FC = () => {
           {/* Formulario controlado */}
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
-              {/* Campo solo lectura para mostrar la ciudad judicial */}
-              <TextField
-                label="Ciudad Judicial"
-                value={distrito}
-                disabled
-                fullWidth
-                slotProps={{
-                  input: {
-                    startAdornment: <InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>
-                  }
-                }}
-              />
+              {/* Selector de distrito */}
+              <FormControl fullWidth>
+                <InputLabel id="distrito-label">Distrito</InputLabel>
+                <Select
+                  labelId="distrito-label"
+                  value={distrito}
+                  label="Distrito"
+                  displayEmpty
+                  onChange={e => setDistrito(e.target.value)}
+                  startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>}
+                  disabled={loadingDistritos || !!errorDistritos}
+                >
+                  {/* Opción inicial (placeholder) */}
+                  <MenuItem value="" disabled>
+                    <em style={{ color: 'gray.200' }}>{loadingDistritos ? 'Cargando distritos...' : errorDistritos ? errorDistritos : 'Seleccione un distrito'}</em>
+                  </MenuItem>
+                  {/* Lista de distritos */}
+                  {distritos.map((distritoItem) => (
+                    <MenuItem key={distritoItem.clave} value={distritoItem.clave}>
+                      {distritoItem.descripcion}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
               {/* Selector de oficina */}
               <FormControl fullWidth>
                 <InputLabel id="oficina-label">Oficina</InputLabel>
