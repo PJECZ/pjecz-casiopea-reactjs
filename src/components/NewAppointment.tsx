@@ -15,23 +15,16 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { AccessTime, Assignment } from '@mui/icons-material';
 import NotesIcon from '@mui/icons-material/Notes';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
+import { getDistritos, getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
 
-
-// Definición de distritos y tipos para las oficinas y servicios
-const distritos: Record<string, string> = {};
-const codigoDistrito = localStorage.getItem('distrito_clave');
-const distrito = distritos[codigoDistrito || ''];
-
-console.log(distrito);
-
-type Oficina = { clave: string; descripcion: string; domicilio_clave: string };
+// Tipos para las oficinas y servicios
+type Oficina = { clave: string; descripcion: string; descripcion_corta: string; domicilio_clave: string; domicilio_completo: string; domicilio_edificio: string; es_jurisdiccional: boolean };
 type OficinaServicio = { cit_servicio_clave: string; cit_servicio_descripcion: string };
 
 // Componente principal para agendar citas
 const TaskList: React.FC = () => {
   // Estados para los campos del formulario y mensajes
-  const [distrito, setDistrito] = useState(codigoDistrito || ''); // Distrito seleccionado
+  const [distrito, setDistrito] = useState(''); // Distrito seleccionado
   const [oficina, setOficina] = useState<Oficina | string | null>(null); // Oficina seleccionada
   const [tramite, setTramite] = useState(''); // Trámite/servicio seleccionado
   const [notas, setNotas] = useState(''); // Notas adicionales
@@ -67,12 +60,37 @@ const TaskList: React.FC = () => {
   const [loadingHoras, setLoadingHoras] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
-  // Cargar oficinas al montar el componente
+  // Cargar distritos al montar el componente
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
+    setLoadingDistritos(true);
+    getDistritos()
+      .then(res => {
+        const distritosData = Array.isArray(res) ? res : (res.data || []);
+        setDistritos(distritosData);
+        setLoadingDistritos(false);
+      })
+      .catch(() => {
+        setErrorDistritos('No se pudieron cargar los distritos.');
+        setLoadingDistritos(false);
+      });
+  }, []);
+
+  // Cargar oficinas cuando se selecciona un distrito
+  useEffect(() => {
+    if (!distrito) {
+      setOficinas([]);
+      setLoadingOficinas(false);
+      return;
+    }
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
     setLoadingOficinas(true);
-    getOficinas(codigoDistrito || '')
+    setErrorOficinas(null);
+    // Resetear oficina seleccionada cuando cambia el distrito
+    setOficina(null);
+    getOficinas(distrito)
       .then(res => {
         const oficinas = Array.isArray(res) ? res : (res.data || []);
         setOficinas(oficinas);
@@ -82,7 +100,7 @@ const TaskList: React.FC = () => {
         setErrorOficinas('No se pudieron cargar las oficinas.');
         setLoadingOficinas(false);
       });
-  }, []);
+  }, [distrito]);
 
   // Cargar servicios válidos para la oficina seleccionada
   useEffect(() => {
@@ -246,7 +264,7 @@ const TaskList: React.FC = () => {
                   {/* Lista de distritos */}
                   {distritos.map((distritoItem) => (
                     <MenuItem key={distritoItem.clave} value={distritoItem.clave}>
-                      {distritoItem.descripcion}
+                      {distritoItem.nombre}
                     </MenuItem>
                   ))}
                 </Select>
@@ -262,7 +280,7 @@ const TaskList: React.FC = () => {
                   displayEmpty
                   onChange={e => setOficina(e.target.value === '' ? null : e.target.value)}
                   startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><BusinessIcon /></InputAdornment>}
-                  disabled={loadingOficinas || !!errorOficinas}
+                  disabled={!distrito || loadingOficinas || !!errorOficinas}
                 >
                   {/* Opción inicial (placeholder) */}
                   <MenuItem value="" disabled>

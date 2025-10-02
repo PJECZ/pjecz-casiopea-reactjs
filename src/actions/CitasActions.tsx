@@ -20,14 +20,22 @@ export async function authFetch(input: RequestInfo, init?: RequestInit): Promise
 // --- Tipo Distrito ---
 export type Distrito = {
   clave: string;
-  descripcion: string;
+  nombre: string;
+  nombre_corto: string;
+  es_distrito_judicial: boolean;
+  es_distrito: boolean;
+  es_jurisdiccional: boolean;
 };
 
 // --- Tipo Oficina ---
 export type Oficina = {
   clave: string;
   descripcion: string;
+  descripcion_corta: string;
   domicilio_clave: string;
+  domicilio_completo: string;
+  domicilio_edificio: string;
+  es_jurisdiccional: boolean;
 };
 
 // --- Tipo Servicio ---
@@ -94,24 +102,23 @@ export async function getDistritos(): Promise<{ data: Distrito[] }> {
   return res.json();
 }
 
-// --- Obtener distritos por clave ---
-export async function getDistritosPorClave(distrito_clave: string): Promise<{ data: Distrito[] }> {
+// --- Obtener distrito por clave ---
+export async function getDistritoPorClave(distrito_clave: string): Promise<{ data: Distrito }> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const params = new URLSearchParams();
-  if(distrito_clave) params.append('distrito_clave', distrito_clave);
-  const res = await authFetch(`${API_BASE}/api/v5/distritos?${params.toString()}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/distritos/${distrito_clave}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Error al cargar distritos judiciales");
+  if (!res.ok) throw new Error("Error al cargar el distrito");
   return res.json();
 }
 
 // --- Obtener oficinas ---
-export async function getOficinas(oficina_clave?: string): Promise<{ data: Oficina[] }> {
+export async function getOficinas(distrito_clave?: string, oficina_clave?: string): Promise<{ data: Oficina[] }> {
   const API_BASE = await getApiBase();
   const token = getToken();
   const params = new URLSearchParams();
+  if (distrito_clave) params.append('distrito_clave', distrito_clave);
   if (oficina_clave) params.append('oficina_clave', oficina_clave);
   const res = await authFetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
