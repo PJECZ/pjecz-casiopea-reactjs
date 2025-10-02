@@ -235,7 +235,6 @@ const TaskList: React.FC = () => {
                   labelId="distrito-label"
                   value={distrito}
                   label="Distrito"
-                  displayEmpty
                   onChange={e => setDistrito(e.target.value)}
                   startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>}
                   disabled={loadingDistritos || !!errorDistritos}
