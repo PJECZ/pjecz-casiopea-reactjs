@@ -15,7 +15,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { AccessTime, Assignment } from '@mui/icons-material';
 import NotesIcon from '@mui/icons-material/Notes';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getDistritos, getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
+import { getDistritos, getOficinasFiltradas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
 
 // Tipos para las oficinas y servicios
 type Oficina = { clave: string; descripcion: string; descripcion_corta: string; domicilio_clave: string; domicilio_completo: string; domicilio_edificio: string; es_jurisdiccional: boolean };
@@ -64,7 +64,11 @@ const TaskList: React.FC = () => {
   // Cargar distritos al montar el componente
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (!token) return;
+    if (!token) {
+      setErrorDistritos('No hay sesión activa.');
+      setLoadingDistritos(false);
+      return;
+    }
     setLoadingDistritos(true);
     getDistritos()
       .then(res => {
@@ -72,7 +76,8 @@ const TaskList: React.FC = () => {
         setDistritos(distritosData);
         setLoadingDistritos(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Error al cargar distritos:', err);
         setErrorDistritos('No se pudieron cargar los distritos.');
         setLoadingDistritos(false);
       });
@@ -86,19 +91,24 @@ const TaskList: React.FC = () => {
       return;
     }
     const token = localStorage.getItem('access_token');
-    if (!token) return;
+    if (!token) {
+      setErrorOficinas('No hay sesión activa.');
+      setLoadingOficinas(false);
+      return;
+    }
     setLoadingOficinas(true);
     setErrorOficinas(null);
     // Resetear oficina seleccionada cuando cambia el distrito
     setOficina(null);
-    getOficinas(distrito)
+    getOficinasFiltradas(distrito)
       .then(res => {
-        const oficinas = Array.isArray(res) ? res : (res.data || []);
-        setOficinas(oficinas);
+        const oficinasData = Array.isArray(res) ? res : (res.data || []);
+        setOficinas(oficinasData);
         setLoadingOficinas(false);
       })
-      .catch(() => {
-        setErrorOficinas('No se pudieron cargar las oficinas.');
+      .catch((err) => {
+        console.error('Error al cargar oficinas:', err);
+        setErrorOficinas('No se pudieron cargar las oficinas para este distrito.');
         setLoadingOficinas(false);
       });
   }, [distrito]);
@@ -393,7 +403,7 @@ const TaskList: React.FC = () => {
                 {/* Selector de hora disponible */}
                 <Box flex={1}>
                   <Typography variant="subtitle1" fontWeight="bold" mb={1} sx={{ color: '#648059' }}>Selecciona una hora</Typography>
-                  <Card variant="outlined" sx={{ p: 1}}>
+                  <Card variant="outlined" sx={{ p: 1, height: 280, overflowY: 'auto' }}>
                     {loadingHoras ? (
                       // Estado de carga para las horas
                       <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={180}>

@@ -4,7 +4,7 @@ import { Cancel, EventBusy, Alarm } from '@mui/icons-material';
 import { Assignment as AssignmentIcon } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { getOficinas, getServicios, getCitas, cancelarCita, Oficina, Servicio, Cita } from '../actions/CitasActions';
+import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import EditDocumentIcon from '@mui/icons-material/EditDocument';
@@ -21,19 +21,8 @@ const HomePage: React.FC = () => {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [loadingCancelId, setLoadingCancelId] = useState<string | null>(null);
 
-  const [oficinas, setOficinas] = useState<Oficina[]>([]);
-  const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-    getOficinas(token)
-      .then(res => setOficinas(res.data))
-      .catch(() => setApiError('No se pudieron cargar las oficinas.'));
-    getServicios()
-      .then(res => setServicios(res.data))
-      .catch(() => setApiError('No se pudieron cargar los servicios.'));
     getCitas()
       .then(setCitas)
       .catch(() => setCitas([]))

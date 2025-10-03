@@ -58,7 +58,10 @@ export type OficinaServicio = {
 // --- Funcion ---
 function getToken() {
   const token = localStorage.getItem('access_token');
-  if (!token) throw new Error('No hay token de autenticación');
+  if (!token) {
+    console.error('No se encontró token en localStorage');
+    throw new Error('No hay token de autenticación');
+  }
   return token;
 }
 
@@ -91,42 +94,25 @@ export type CrearCitaRequest = {
   notas: string;
 };
 
-// --- Obtener Distritos Judiciales ---
-export async function getDistritos(limit = 100, offset = 0): Promise<{ data: Distrito[] }> {
+// --- Obtener todos los distritos ---
+export async function getDistritos(): Promise<{ data: Distrito[] }> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const params = new URLSearchParams();
-  params.append('limit', limit.toString());
-  params.append('offset', offset.toString());
-  const res = await authFetch(`${API_BASE}/api/v5/distritos?${params.toString()}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/distritos`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Error al cargar distritos judiciales");
+  if (!res.ok) throw new Error("No se pudieron cargar distritos");
   return res.json();
 }
 
-// --- Obtener distrito por clave ---
-export async function getDistritoPorClave(distrito_clave: string): Promise<{ data: Distrito }> {
+// Obtener las oficinas filtradas por el distrito seleccionado --
+export async function getOficinasFiltradas(distrito_clave: string): Promise<{ data: Oficina[] }> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await authFetch(`${API_BASE}/api/v5/distritos/${distrito_clave}`, {
+  const res = await authFetch(`${API_BASE}/api/v5/oficinas?distrito_clave=${distrito_clave}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Error al cargar el distrito");
-  return res.json();
-}
-
-// --- Obtener oficinas ---
-export async function getOficinas(distrito_clave?: string, oficina_clave?: string): Promise<{ data: Oficina[] }> {
-  const API_BASE = await getApiBase();
-  const token = getToken();
-  const params = new URLSearchParams();
-  if (distrito_clave) params.append('distrito_clave', distrito_clave);
-  if (oficina_clave) params.append('oficina_clave', oficina_clave);
-  const res = await authFetch(`${API_BASE}/api/v5/oficinas?${params.toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Error al cargar oficinas");
+  if (!res.ok) throw new Error("No se pudieron cargar oficinas");
   return res.json();
 }
 
@@ -153,7 +139,7 @@ export async function getServicios(): Promise<{ data: Servicio[] }> {
   const res = await authFetch(`${API_BASE}/api/v5/cit_servicios`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Error al cargar servicios");
+  if (!res.ok) throw new Error("No se pudieron cargar servicios");
   return res.json() as Promise<{ data: Servicio[] }>;
 }
 
@@ -167,7 +153,7 @@ export async function getServiciosPorOficina(oficinaClave: string): Promise<Ofic
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  if (!res.ok) throw new Error("Error al cargar servicios por oficina");
+  if (!res.ok) throw new Error("No se pudieron cargar servicios por oficina");
   const data = await res.json();
   // Siempre retorna un array, ya sea data o el objeto completo
   return Array.isArray(data) ? data : (data.data || []);
@@ -183,7 +169,7 @@ export async function getFechasDisponibles(oficinaClave: string, tramiteClave: s
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  if (!res.ok) throw new Error("Error al cargar fechas disponibles");
+  if (!res.ok) throw new Error("No se pudieron cargar fechas disponibles");
   return res.json();
 }
 
@@ -197,7 +183,7 @@ export async function getHorasDisponibles(oficinaClave: string, servicioClave: s
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  if (!res.ok) throw new Error("Error al cargar horas disponibles");
+  if (!res.ok) throw new Error("No se pudieron cargar horas disponibles");
   return res.json();
 }
 
@@ -208,7 +194,7 @@ export async function getCitas(): Promise<Cita[]> {
   const res = await authFetch(`${API_BASE}/api/v5/cit_citas`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error('Error al cargar citas');
+  if (!res.ok) throw new Error('No se pudieron cargar citas');
   const data = await res.json();
   return data.data as Cita[];
 }
@@ -251,7 +237,7 @@ export async function cancelarCita(citaId: string): Promise<Cita> {
   });
   const data = await res.json();
   if (!res.ok || !data.success) {
-    throw new Error(data?.message || 'Error al cancelar la cita');
+    throw new Error(data?.message || 'No se pudo cancelar la cita');
   }
   return data.data as Cita;
 }
