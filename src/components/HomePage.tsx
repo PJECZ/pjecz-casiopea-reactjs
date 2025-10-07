@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Card, CardContent, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, Stack, DialogActions, Divider, Grow, CircularProgress, Avatar, Tooltip, Grid, CardActions } from '@mui/material';
-import { Cancel, EventBusy, Alarm } from '@mui/icons-material';
-import { Assignment as AssignmentIcon } from '@mui/icons-material';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions } from '@mui/material';
+import { EventBusy} from '@mui/icons-material';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
-import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import BusinessIcon from '@mui/icons-material/Business';
 
 
 const HomePage: React.FC = () => {
