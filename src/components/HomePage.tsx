@@ -46,20 +46,17 @@ const HomePage: React.FC = () => {
   };
 
   
-  // Funcion para manejar la cancelación de la cita
-  const handleCancelAppointment = async (id: string) => {
-    setLoadingCancelId(id);
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) throw new Error('No hay token de autenticación');
-      await cancelarCita(id);
-      setCitas(prev => prev.filter(cita => cita.id !== id));
-      setOpenDialog(false);
-    } catch (error) {
-      setOpenDialog(false);
-    }
-    setLoadingCancelId(null);
-  };
+// Funcion para manejar la cancelación de la cita
+const handleCancelAppointment = async (id: string) => { 
+  setLoadingCancelId(id); 
+  try { 
+      const token = localStorage.getItem('access_token'); 
+      if (!token) throw new Error('No hay token de autenticación'); 
+      await cancelarCita(id); setCitas(prev => prev.filter(cita => cita.id !== id)); 
+      setOpenDialog(false); 
+  } catch (error) { 
+      setOpenDialog(false); } setLoadingCancelId(null); 
+};
 
 // Renderizado de la vista de la lista de citas
 if (activeView === 'list') {
@@ -218,7 +215,12 @@ if (activeView === 'list') {
             
         {/* Fin de la pantalla de citas */}
         <Box mt={4} textAlign="center">
-          <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="xs">
+          <Dialog 
+            open={openDialog} 
+            onClose={loadingConfirm ? undefined : handleCloseDialog} 
+            fullWidth 
+            maxWidth="xs"
+          >
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box display="flex" alignItems="center">
                 <EventBusy sx={{ color: 'error.main', mr: 1.5 }} />
@@ -226,7 +228,11 @@ if (activeView === 'list') {
                   Cancelar Cita
                 </Typography>
               </Box>
-              <IconButton onClick={handleCloseDialog} sx={{ color: 'text.secondary' }}>
+              <IconButton 
+                onClick={handleCloseDialog} 
+                sx={{ color: 'text.secondary' }}
+                disabled={loadingConfirm}
+              >
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
@@ -265,14 +271,18 @@ if (activeView === 'list') {
             </DialogContent>
             {/* Fin del dialogo de cancelar cita */}
             <DialogActions sx={{ justifyContent: 'flex-end', px: 3, pb: 3 }}>
-              <Button onClick={handleCloseDialog} variant="outlined" color="inherit">
+              <Button 
+                onClick={handleCloseDialog} 
+                variant="outlined" 
+                color="inherit"
+                disabled={loadingConfirm}
+              >
                 Cancelar
               </Button>
               <Button
                 onClick={async () => {
                   if (selectedAppointmentId !== null) {
                     setLoadingConfirm(true);
-                    // Esperar 2 segundos para mostrar el loader
                     setTimeout(async () => {
                       await handleCancelAppointment(selectedAppointmentId);
                       setLoadingConfirm(false);
@@ -282,11 +292,15 @@ if (activeView === 'list') {
                 }}
                 variant="contained"
                 color="error"
-                sx={{ ml: 2 }}
+                sx={{ ml: 2, minWidth: 120 }}
                 autoFocus
                 disabled={loadingConfirm}
               >
-                {loadingConfirm ? <CircularProgress size={22} color="inherit" /> : "Confirmar"}
+                {loadingConfirm ? (
+                  <CircularProgress size={22} color="inherit" />
+                ) : (
+                  "Confirmar"
+                )}
               </Button>
               
             </DialogActions>

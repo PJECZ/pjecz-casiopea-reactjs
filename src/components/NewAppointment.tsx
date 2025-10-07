@@ -18,21 +18,34 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { getDistritos, getOficinasFiltradas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
 
 // Tipos para las oficinas y servicios
-type Oficina = { clave: string; descripcion: string; descripcion_corta: string; domicilio_clave: string; domicilio_completo: string; domicilio_edificio: string; es_jurisdiccional: boolean };
-type OficinaServicio = { cit_servicio_clave: string; cit_servicio_descripcion: string };
+type Oficina = { 
+  clave: string; 
+  descripcion: string; 
+  descripcion_corta: string; 
+  domicilio_clave: string; 
+  domicilio_completo: string; 
+  domicilio_edificio: string; 
+  es_jurisdiccional: boolean 
+};
+type OficinaServicio = { 
+  cit_servicio_clave: string; 
+  cit_servicio_descripcion: string 
+};
 
 // Componente principal para agendar citas
-const TaskList: React.FC = () => {
+const NewAppointment: React.FC = () => {
   // Estados para los campos del formulario y mensajes
   const [distrito, setDistrito] = useState(''); // Distrito seleccionado
-  const [oficina, setOficina] = useState<Oficina | string | null>(null); // Oficina seleccionada
+  const [oficina, setOficina] = useState<Oficina | null>(null); // Oficina seleccionada
   const [tramite, setTramite] = useState(''); // Trámite/servicio seleccionado
   const [notas, setNotas] = useState(''); // Notas adicionales
   const [expedientes, setExpedientes] = useState<string[]>(['']); // Inputs para expedientes separados
   const [fecha, setFecha] = useState<Dayjs | null>(null); // Fecha seleccionada
   const [hora, setHora] = useState(''); // Hora seleccionada
+  
   const [error, setError] = useState<string | null>(null); // Mensaje de error general
   const [successMsg, setSuccessMsg] = useState<string | null>(null); // Mensaje de éxito
+  const [countdown, setCountdown] = useState(3); // Contador para el envío
   const navigate = useNavigate(); // Hook para navegación
 
   // Estados para la carga de distritos
@@ -58,130 +71,78 @@ const TaskList: React.FC = () => {
   // Estados para horas disponibles y envío
   const [horas, setHoras] = useState<string[]>([]);
   const [loadingHoras, setLoadingHoras] = useState(false);
+  
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [countdown, setCountdown] = useState(3);
 
-  // Cargar distritos al montar el componente
+  // Carga inicial de distritos
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setErrorDistritos('No hay sesión activa.');
-      setLoadingDistritos(false);
-      return;
-    }
     setLoadingDistritos(true);
     getDistritos()
-      .then(res => {
-        const distritosData = Array.isArray(res) ? res : (res.data || []);
-        setDistritos(distritosData);
-        setLoadingDistritos(false);
-      })
-      .catch((err) => {
-        console.error('Error al cargar distritos:', err);
-        setErrorDistritos('No se pudieron cargar los distritos.');
-        setLoadingDistritos(false);
-      });
+      .then(res => setDistritos(Array.isArray(res) ? res : []))
+      .catch(() => setErrorDistritos('No se pudieron cargar los distritos.'))
+      .finally(() => setLoadingDistritos(false));
   }, []);
 
   // Cargar oficinas cuando se selecciona un distrito
   useEffect(() => {
-    if (!distrito) {
-      setOficinas([]);
-      setLoadingOficinas(false);
-      return;
-    }
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setErrorOficinas('No hay sesión activa.');
-      setLoadingOficinas(false);
-      return;
-    }
+    setOficina(null);
+    setTramite('');
+    setTramites([]);
+    setFechas([]);
+    setHoras([]);
+
+    if (!distrito) return;
+
     setLoadingOficinas(true);
     setErrorOficinas(null);
-    // Resetear oficina seleccionada cuando cambia el distrito
-    setOficina(null);
     getOficinasFiltradas(distrito)
-      .then(res => {
-        const oficinasData = Array.isArray(res) ? res : (res.data || []);
-        setOficinas(oficinasData);
-        setLoadingOficinas(false);
-      })
-      .catch((err) => {
-        console.error('Error al cargar oficinas:', err);
-        setErrorOficinas('No se pudieron cargar las oficinas para este distrito.');
-        setLoadingOficinas(false);
-      });
+      .then(res => setOficinas(Array.isArray(res) ? res : []))
+      .catch(() => setErrorOficinas('No se pudieron cargar las oficinas para este distrito.'))
+      .finally(() => setLoadingOficinas(false));
   }, [distrito]);
 
-  // Cargar servicios válidos para la oficina seleccionada
+  // Cargar servicios al cambiar de oficina
   useEffect(() => {
+    setTramite('');
+    setTramites([]);
+    setFechas([]);
+    setHoras([]);
+
     if (!oficina) return;
     setLoadingTramites(true);
     setErrorTramites(null);
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setErrorTramites('No hay token de autenticación.');
-      setLoadingTramites(false);
-      return;
-    }
-    // Se usa el endpoint correcto para evitar errores de negocio en backend
-    getServiciosPorOficina(oficinaClave)
-      .then(data => {
-        setTramites(data);
-        setLoadingTramites(false);
-      })
-      .catch(() => {
-        setErrorTramites('No se pudieron cargar los trámites.');
-        setLoadingTramites(false);
-      });
+    getServiciosPorOficina(oficina.clave)
+      .then(data => setTramites(data))
+      .catch(() => setErrorTramites('No se pudieron cargar los trámites.'))
+      .finally(() => setLoadingTramites(false));
   }, [oficina]);
 
   // Cargar fechas disponibles para el trámite/oficina seleccionados
   useEffect(() => {
+    setFecha(null);
+    setFechas([]);
+    setHoras([]);
+
     if (!oficina || !tramite) return;
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
     setLoadingFechas(true);
     setErrorFechas(null);
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    getFechasDisponibles(oficinaClave, tramite)
-      .then(res => {
-        const data = Array.isArray(res) ? res : (res.data || []);
-        setFechas(data);
-        setLoadingFechas(false);
-      })
-      .catch(() => {
-        setErrorFechas('No se pudieron cargar las fechas.');
-        setLoadingFechas(false);
-      });
+    getFechasDisponibles(oficina.clave, tramite)
+      .then(res => setFechas(Array.isArray(res) ? res : []))
+      .catch(() => setErrorFechas('No se pudieron cargar las fechas.'))
+      .finally(() => setLoadingFechas(false));
   }, [oficina, tramite]);
 
   // Cargar horas disponibles para la fecha seleccionada
   useEffect(() => {
+    setHora('');
+    setHoras([]);
+
     if (!oficina || !tramite || !fecha) return;
     setLoadingHoras(true);
-    setHoras([]);
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setTimeout(() => setLoadingHoras(false), 1000);
-      return;
-    }
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    const fechaStr = typeof fecha === 'string' ? fecha : fecha.format('YYYY-MM-DD');
-    const start = Date.now();
-    getHorasDisponibles(oficinaClave, tramite, fechaStr)
-      .then(res => {
-        const data = Array.isArray(res) ? res : (res.data || []);
-        setHoras(data);
-        const elapsed = Date.now() - start;
-        const delay = Math.max(0, 1000 - elapsed);
-        setTimeout(() => setLoadingHoras(false), delay);
-      })
-      .catch(() => {
-        setError('No se pudieron cargar las horas.');
-        setTimeout(() => setLoadingHoras(false), 1000);
-      });
+    getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
+      .then(res => setHoras(Array.isArray(res) ? res : []))
+      .catch(() => setError('No se pudieron cargar las horas.'))
+      .finally(() => setLoadingHoras(false));
   }, [oficina, tramite, fecha]);
 
   // Redirigir a /homepage después de éxito al agendar cita con countdown
@@ -206,27 +167,26 @@ const TaskList: React.FC = () => {
 
   // Maneja el envío del formulario de nueva cita
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoadingSubmit(true);
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+
+    
     // Validación de campos obligatorios
     if (!oficina || !tramite || !fecha || !hora) {
       setError('Todos los campos son obligatorios.');
       return;
     }
+    
+    setLoadingSubmit(true);
+
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        setError('No hay sesión activa.');
-        return;
-      }
       // Construye el payload para la API
       const payload = {
         cit_servicio_clave: tramite,
         fecha: fecha.format('YYYY-MM-DD'),
         hora_minuto: dayjs(`${fecha.format('YYYY-MM-DD')}T${hora}`).format('HH:mm:ss'),
-        oficina_clave: typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina,
+        oficina_clave: oficina.clave,
         notas: isExpedientesTramite()
           ? expedientes.filter(e => e.trim() !== '').join(',') || 'Sin expedientes'
           : notas.trim() || 'Sin notas',
@@ -243,8 +203,9 @@ const TaskList: React.FC = () => {
       setHora('');
     } catch (e: any) {
       setError(e?.message || 'Error al agendar cita.');
+    } finally {
+      setTimeout(() => setLoadingSubmit(false), 1500);
     }
-    setTimeout(() => setLoadingSubmit(false), 1500);
   };
 
 
@@ -291,10 +252,12 @@ const TaskList: React.FC = () => {
                 <InputLabel id="oficina-label">Oficina</InputLabel>
                 <Select
                   labelId="oficina-label"
-                  value={oficina === null ? '' : (typeof oficina === 'object' ? oficina.clave : oficina)}
+                  value={oficina?.clave || ''}
                   label="Oficina"
                   displayEmpty
-                  onChange={e => setOficina(e.target.value === '' ? null : e.target.value)}
+                  onChange={e => {
+                    const selected = oficinas.find(oficina => oficina.clave === e.target.value) || null;
+                    setOficina(selected)}}
                   startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><BusinessIcon /></InputAdornment>}
                   disabled={!distrito || loadingOficinas || !!errorOficinas}
                 >
@@ -479,4 +442,4 @@ const TaskList: React.FC = () => {
   );
 };
 
-export default TaskList;
+export default NewAppointment;

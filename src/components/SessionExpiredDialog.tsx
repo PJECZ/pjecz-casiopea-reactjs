@@ -52,25 +52,22 @@ const SessionExpiredDialog: React.FC = () => {
       aria-labelledby="session-expired-dialog"
     >
       <DialogTitle>
-        <Box display="flex" justifyContent="center" mb={1}>
+        <Box display="flex" flexDirection="column" alignItems="center">
           <Avatar
             sx={{
               bgcolor: 'warning.light',
               color: 'warning.dark',
               width: 64,
               height: 64,
+              mb: 2,
             }}
           >
             <AccessTime fontSize="large" />
           </Avatar>
+          <Box component="span">
+            Sesión Expirada
+          </Box>
         </Box>
-        <Typography
-          variant="h6"
-          align="center"
-          color="text.primary"
-        >
-          Sesión Expirada
-        </Typography>
       </DialogTitle>
 
       <DialogContent>
