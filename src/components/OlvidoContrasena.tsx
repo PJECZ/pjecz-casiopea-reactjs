@@ -83,6 +83,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
           backgroundOpacity: 0.4,
           backgroundColor: 'rgba(0, 0, 0, 0.12)',
           backdropFilter: 'blur(4px)',
+          borderRadius: 3,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

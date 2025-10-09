@@ -15,29 +15,43 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { AccessTime, Assignment } from '@mui/icons-material';
 import NotesIcon from '@mui/icons-material/Notes';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getOficinas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita } from '../actions/CitasActions';
+import { getDistritos, getOficinasFiltradas, getFechasDisponibles, getHorasDisponibles, getServiciosPorOficina, createCita, Distrito } from '../actions/CitasActions';
 
-
-// Definición de distritos y tipos para las oficinas y servicios
-const distritos: Record<string, string> = { CJS: 'Ciudad Judicial de Saltillo' };
-const codigoDistrito = 'CJS';
-const distrito = distritos[codigoDistrito];
-
-type Oficina = { clave: string; descripcion: string; domicilio_clave: string };
-type OficinaServicio = { cit_servicio_clave: string; cit_servicio_descripcion: string };
+// Tipos para las oficinas y servicios
+type Oficina = { 
+  clave: string; 
+  descripcion: string; 
+  descripcion_corta: string; 
+  domicilio_clave: string; 
+  domicilio_completo: string; 
+  domicilio_edificio: string; 
+  es_jurisdiccional: boolean 
+};
+type OficinaServicio = { 
+  cit_servicio_clave: string; 
+  cit_servicio_descripcion: string 
+};
 
 // Componente principal para agendar citas
-const TaskList: React.FC = () => {
+const NewAppointment: React.FC = () => {
   // Estados para los campos del formulario y mensajes
-  const [oficina, setOficina] = useState<Oficina | string | null>(null); // Oficina seleccionada
+  const [distrito, setDistrito] = useState(''); // Distrito seleccionado
+  const [oficina, setOficina] = useState<Oficina | null>(null); // Oficina seleccionada
   const [tramite, setTramite] = useState(''); // Trámite/servicio seleccionado
   const [notas, setNotas] = useState(''); // Notas adicionales
   const [expedientes, setExpedientes] = useState<string[]>(['']); // Inputs para expedientes separados
   const [fecha, setFecha] = useState<Dayjs | null>(null); // Fecha seleccionada
   const [hora, setHora] = useState(''); // Hora seleccionada
+  
   const [error, setError] = useState<string | null>(null); // Mensaje de error general
   const [successMsg, setSuccessMsg] = useState<string | null>(null); // Mensaje de éxito
+  const [countdown, setCountdown] = useState(3); // Contador para el envío
   const navigate = useNavigate(); // Hook para navegación
+
+  // Estados para la carga de distritos
+  const [distritos, setDistritos] = useState<Distrito[]>([]);
+  const [loadingDistritos, setLoadingDistritos] = useState(true);
+  const [errorDistritos, setErrorDistritos] = useState<string | null>(null);
 
   // Estados para la carga de oficinas
   const [oficinas, setOficinas] = useState<Oficina[]>([]);
@@ -57,105 +71,92 @@ const TaskList: React.FC = () => {
   // Estados para horas disponibles y envío
   const [horas, setHoras] = useState<string[]>([]);
   const [loadingHoras, setLoadingHoras] = useState(false);
+  
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
-  // Cargar oficinas al montar el componente
+  // Carga inicial de distritos
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-    setLoadingOficinas(true);
-    getOficinas(codigoDistrito)
-      .then(res => {
-        const oficinas = Array.isArray(res) ? res : (res.data || []);
-        setOficinas(oficinas);
-        setLoadingOficinas(false);
-      })
-      .catch(() => {
-        setErrorOficinas('No se pudieron cargar las oficinas.');
-        setLoadingOficinas(false);
-      });
+    setLoadingDistritos(true);
+    getDistritos()
+      .then(res => setDistritos(Array.isArray(res) ? res : []))
+      .catch(() => setErrorDistritos('No se pudieron cargar los distritos.'))
+      .finally(() => setLoadingDistritos(false));
   }, []);
 
-  // Cargar servicios válidos para la oficina seleccionada
+  // Cargar oficinas cuando se selecciona un distrito
   useEffect(() => {
+    setOficina(null);
+    setTramite('');
+    setTramites([]);
+    setFechas([]);
+    setHoras([]);
+
+    if (!distrito) return;
+
+    setLoadingOficinas(true);
+    setErrorOficinas(null);
+    getOficinasFiltradas(distrito)
+      .then(res => setOficinas(Array.isArray(res) ? res : []))
+      .catch(() => setErrorOficinas('No se pudieron cargar las oficinas para este distrito.'))
+      .finally(() => setLoadingOficinas(false));
+  }, [distrito]);
+
+  // Cargar servicios al cambiar de oficina
+  useEffect(() => {
+    setTramite('');
+    setTramites([]);
+    setFechas([]);
+    setHoras([]);
+
     if (!oficina) return;
     setLoadingTramites(true);
     setErrorTramites(null);
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setErrorTramites('No hay token de autenticación.');
-      setLoadingTramites(false);
-      return;
-    }
-    // Se usa el endpoint correcto para evitar errores de negocio en backend
-    getServiciosPorOficina(oficinaClave)
-      .then(data => {
-        setTramites(data);
-        setLoadingTramites(false);
-      })
-      .catch(() => {
-        setErrorTramites('No se pudieron cargar los trámites.');
-        setLoadingTramites(false);
-      });
+    getServiciosPorOficina(oficina.clave)
+      .then(data => setTramites(data))
+      .catch(() => setErrorTramites('No se pudieron cargar los trámites.'))
+      .finally(() => setLoadingTramites(false));
   }, [oficina]);
 
   // Cargar fechas disponibles para el trámite/oficina seleccionados
   useEffect(() => {
+    setFecha(null);
+    setFechas([]);
+    setHoras([]);
+
     if (!oficina || !tramite) return;
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
     setLoadingFechas(true);
     setErrorFechas(null);
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    getFechasDisponibles(oficinaClave, tramite)
-      .then(res => {
-        const data = Array.isArray(res) ? res : (res.data || []);
-        setFechas(data);
-        setLoadingFechas(false);
-      })
-      .catch(() => {
-        setErrorFechas('No se pudieron cargar las fechas.');
-        setLoadingFechas(false);
-      });
+    getFechasDisponibles(oficina.clave, tramite)
+      .then(res => setFechas(Array.isArray(res) ? res : []))
+      .catch(() => setErrorFechas('No se pudieron cargar las fechas.'))
+      .finally(() => setLoadingFechas(false));
   }, [oficina, tramite]);
 
   // Cargar horas disponibles para la fecha seleccionada
   useEffect(() => {
+    setHora('');
+    setHoras([]);
+
     if (!oficina || !tramite || !fecha) return;
     setLoadingHoras(true);
-    setHoras([]);
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setTimeout(() => setLoadingHoras(false), 1000);
-      return;
-    }
-    const oficinaClave = typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina;
-    const fechaStr = typeof fecha === 'string' ? fecha : fecha.format('YYYY-MM-DD');
-    const start = Date.now();
-    getHorasDisponibles(oficinaClave, tramite, fechaStr)
-      .then(res => {
-        const data = Array.isArray(res) ? res : (res.data || []);
-        setHoras(data);
-        const elapsed = Date.now() - start;
-        const delay = Math.max(0, 1000 - elapsed);
-        setTimeout(() => setLoadingHoras(false), delay);
-      })
-      .catch(() => {
-        setError('No se pudieron cargar las horas.');
-        setTimeout(() => setLoadingHoras(false), 1000);
-      });
+    getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
+      .then(res => setHoras(Array.isArray(res) ? res : []))
+      .catch(() => setError('No se pudieron cargar las horas.'))
+      .finally(() => setLoadingHoras(false));
   }, [oficina, tramite, fecha]);
 
-  // Redirigir a /homepage después de éxito al agendar cita
+  // Redirigir a /homepage después de éxito al agendar cita con countdown
   useEffect(() => {
-    if (successMsg) {
-      const timeout = setTimeout(() => {
-        navigate('/homepage');
+    let timer: NodeJS.Timeout;
+    if (successMsg && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
       }, 1000);
-      return () => clearTimeout(timeout);
+    } else if (successMsg && countdown === 0) {
+      navigate('/homepage');
     }
-  }, [successMsg, navigate]);
+    return () => clearTimeout(timer);
+  }, [successMsg, countdown, navigate]);
 
   // Detecta si el trámite seleccionado es de expedientes
   const isExpedientesTramite = () => {
@@ -166,27 +167,26 @@ const TaskList: React.FC = () => {
 
   // Maneja el envío del formulario de nueva cita
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoadingSubmit(true);
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+
+    
     // Validación de campos obligatorios
     if (!oficina || !tramite || !fecha || !hora) {
       setError('Todos los campos son obligatorios.');
       return;
     }
+    
+    setLoadingSubmit(true);
+
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        setError('No hay sesión activa.');
-        return;
-      }
       // Construye el payload para la API
       const payload = {
         cit_servicio_clave: tramite,
         fecha: fecha.format('YYYY-MM-DD'),
         hora_minuto: dayjs(`${fecha.format('YYYY-MM-DD')}T${hora}`).format('HH:mm:ss'),
-        oficina_clave: typeof oficina === 'object' && oficina !== null ? oficina.clave : oficina,
+        oficina_clave: oficina.clave,
         notas: isExpedientesTramite()
           ? expedientes.filter(e => e.trim() !== '').join(',') || 'Sin expedientes'
           : notas.trim() || 'Sin notas',
@@ -194,6 +194,7 @@ const TaskList: React.FC = () => {
       // Llama a la API para crear la cita
       await createCita(payload);
       setSuccessMsg('¡Cita agendada correctamente!');
+      setCountdown(3); // Reiniciar countdown
       setOficina(null);
       setTramite('');
       setNotas('');
@@ -202,8 +203,9 @@ const TaskList: React.FC = () => {
       setHora('');
     } catch (e: any) {
       setError(e?.message || 'Error al agendar cita.');
+    } finally {
+      setTimeout(() => setLoadingSubmit(false), 1500);
     }
-    setTimeout(() => setLoadingSubmit(false), 1500);
   };
 
 
@@ -220,29 +222,44 @@ const TaskList: React.FC = () => {
           {/* Formulario controlado */}
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
-              {/* Campo solo lectura para mostrar la ciudad judicial */}
-              <TextField
-                label="Ciudad Judicial"
-                value={distrito}
-                disabled
-                fullWidth
-                slotProps={{
-                  input: {
-                    startAdornment: <InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>
-                  }
-                }}
-              />
+              {/* Selector de distrito */}
+              <FormControl fullWidth>
+                <InputLabel id="distrito-label">Distrito</InputLabel>
+                <Select
+                  labelId="distrito-label"
+                  value={distrito}
+                  label="Distrito"
+                  displayEmpty
+                  onChange={e => setDistrito(e.target.value)}
+                  startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><LocationCityIcon sx={{ color: '#648059' }} /></InputAdornment>}
+                  disabled={loadingDistritos || !!errorDistritos}
+                >
+                  {/* Opción inicial (placeholder) */}
+                  <MenuItem value="" disabled>
+                    <em style={{ color: 'gray.200' }}>{loadingDistritos ? 'Cargando distritos...' : errorDistritos ? errorDistritos : 'Seleccione un distrito'}</em>
+                  </MenuItem>
+                  {/* Lista de distritos */}
+                  {distritos.map((distritoItem) => (
+                    <MenuItem key={distritoItem.clave} value={distritoItem.clave}>
+                      {distritoItem.nombre}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
               {/* Selector de oficina */}
               <FormControl fullWidth>
                 <InputLabel id="oficina-label">Oficina</InputLabel>
                 <Select
                   labelId="oficina-label"
-                  value={oficina === null ? '' : (typeof oficina === 'object' ? oficina.clave : oficina)}
+                  value={oficina?.clave || ''}
                   label="Oficina"
                   displayEmpty
-                  onChange={e => setOficina(e.target.value === '' ? null : e.target.value)}
+                  onChange={e => {
+                    const selected = oficinas.find(oficina => oficina.clave === e.target.value) || null;
+                    setOficina(selected)}}
                   startAdornment={<InputAdornment position="start" sx={{ color: '#648059' }}><BusinessIcon /></InputAdornment>}
-                  disabled={loadingOficinas || !!errorOficinas}
+                  disabled={!distrito || loadingOficinas || !!errorOficinas}
                 >
                   {/* Opción inicial (placeholder) */}
                   <MenuItem value="" disabled>
@@ -349,7 +366,7 @@ const TaskList: React.FC = () => {
                 {/* Selector de hora disponible */}
                 <Box flex={1}>
                   <Typography variant="subtitle1" fontWeight="bold" mb={1} sx={{ color: '#648059' }}>Selecciona una hora</Typography>
-                  <Card variant="outlined" sx={{ p: 1}}>
+                  <Card variant="outlined" sx={{ p: 1, height: 280, overflowY: 'auto' }}>
                     {loadingHoras ? (
                       // Estado de carga para las horas
                       <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={180}>
@@ -382,7 +399,14 @@ const TaskList: React.FC = () => {
               </Stack>
               {/* Mensajes de error y éxito */}
               {error && <Alert severity="error">{error}</Alert>}
-              {successMsg && <Alert severity="info">{successMsg}</Alert>}
+              {successMsg && (
+                <Alert severity="success">
+                  {successMsg}
+                  <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                    Redirigiendo en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+                  </Typography>
+                </Alert>
+              )}
               <Divider sx={{ my: 2 }} />
               {/* Botón de envío del formulario */}
               <Button
@@ -418,4 +442,4 @@ const TaskList: React.FC = () => {
   );
 };
 
-export default TaskList;
+export default NewAppointment;
