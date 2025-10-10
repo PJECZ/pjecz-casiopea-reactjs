@@ -3,26 +3,25 @@
 
 /**
  * Lista de posibles URLs base para la API, ordenadas por prioridad
+ * Se obtienen desde variables de entorno (.env)
  */
 const API_BASE_OPTIONS = [
-  "http://172.30.14.65:8001",
-  "http://127.0.0.1:8001",
-  "http://localhost:8001", 
-  // Agregar más opciones según sea necesario
-]; 
+  process.env.REACT_APP_API_URL_BASE,
+].filter((url): url is string => !!url); // Filtrar valores undefined/null
 
 /* URL base actual para la API (se determina dinámicamente) */
 let currentApiBase: string | null = null;
 
 /* Cache para evitar múltiples verificaciones de conectividad */
 let lastCheckTime = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+const CACHE_DURATION = parseInt(process.env.REACT_APP_API_CACHE_DURATION || '300000', 10);
 
 /* Verifica si una URL base está disponible */
 async function checkApiAvailability(baseUrl: string): Promise<boolean> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 segundos timeout
+    const timeout = parseInt(process.env.REACT_APP_API_TIMEOUT || '3000', 10);
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     const response = await fetch(`${baseUrl}/docs`, {
       method: 'HEAD',
@@ -92,3 +91,173 @@ export function getApiBaseOptions(): string[] {
 
 /* Inicializar la detección automática al cargar el módulo */
 findAvailableApiBase().catch(console.error);
+
+/**
+ * Objeto request con métodos HTTP similares a axios pero usando Fetch API
+ */
+const request = {
+  /**
+   * GET request sin autenticación
+   */
+  get: async (url: string) => {
+    const baseUrl = await getApiBase();
+    const response = await fetch(`${baseUrl}${url}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * GET request con autenticación
+   */
+  getAuth: async (url: string, token?: string) => {
+    const baseUrl = await getApiBase();
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${baseUrl}${url}`, {
+      method: 'GET',
+      headers,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * GET request con parámetros y autenticación
+   */
+  getParams: async (url: string, params?: Record<string, any>, token?: string) => {
+    const baseUrl = await getApiBase();
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Construir query string desde params
+    let fullUrl = `${baseUrl}${url}`;
+    if (params) {
+      const queryString = new URLSearchParams(
+        Object.entries(params).reduce((acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = String(value);
+          }
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString();
+      
+      if (queryString) {
+        fullUrl += `?${queryString}`;
+      }
+    }
+    
+    const response = await fetch(fullUrl, {
+      method: 'GET',
+      headers,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * POST request con autenticación
+   */
+  post: async (url: string, body?: any, token?: string) => {
+    const baseUrl = await getApiBase();
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${baseUrl}${url}`, {
+      method: 'POST',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * PUT request con autenticación
+   */
+  put: async (url: string, body?: any, token?: string) => {
+    const baseUrl = await getApiBase();
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${baseUrl}${url}`, {
+      method: 'PUT',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * DELETE request con autenticación
+   */
+  delete: async (url: string, token?: string) => {
+    const baseUrl = await getApiBase();
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${baseUrl}${url}`, {
+      method: 'DELETE',
+      headers,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+};
+
+export default request;
