@@ -18,3 +18,21 @@ REACT_APP_API_CACHE_DURATION=300000
 # Por defecto: 3 segundos (3000 ms)
 REACT_APP_API_TIMEOUT=3000
 ```
+
+## Instalación
+
+Instalar las dependencias del proyecto:
+
+```bash
+npm install
+```
+
+## Ejecución en desarrollo
+
+Iniciar el servidor de desarrollo:
+
+```bash
+npm start
+```
+
+El servidor estará disponible en `http://localhost:3000`
