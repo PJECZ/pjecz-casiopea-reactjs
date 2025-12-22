@@ -1,26 +1,34 @@
-# Use official Node.js 22 LTS image from Docker Hub
-FROM node:22
+# Usa una imagen ligera de Node 22
+FROM node:22-slim
 
-# Default port (Cloud Run will override this via PORT env)
-ENV PORT=3000
-
-# Set working directory
+# Directorio de trabajo
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Install dependencies
+# Instalar dependencias de producción
 RUN npm install
 
-# Copy the rest of the application code
+# Copiar el resto del código
 COPY . .
 
-# Build the React application
+# Definir las variables de entorno para producción
+ENV REACT_APP_API_URL_BASE=http://localhost:9080
+ENV REACT_APP_API_CACHE_DURATION=300000
+ENV REACT_APP_API_TIMEOUT=3000
+
+# Construir la aplicación para producción
 RUN npm run build
 
-# Install serve to serve the buildd application
+# Instalar un servidor estático ligero
 RUN npm install -g serve
 
-# Start the application
-CMD ["serve", "-s", "build", "-l", "0.0.0.0:${PORT}"]
+# Cloud Run inyecta la variable PORT, pero definimos un default local
+ENV PORT=3000
+
+# Exponer el puerto (meramente informativo)
+EXPOSE 3000
+
+# Ejecutar la aplicación
+CMD exec serve -s build -l ${PORT}

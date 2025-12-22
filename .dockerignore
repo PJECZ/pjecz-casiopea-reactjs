@@ -1,0 +1,7 @@
+.git
+Dockerfile
+node_modules
+.env
+.gcloudignore
+.idea
+.vscode
