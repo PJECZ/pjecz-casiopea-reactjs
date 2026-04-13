@@ -70,10 +70,15 @@ const handleCancelAppointment = async (id: string) => {
 
 useEffect(() => {
   async function Obtener() {
-
-    await getCitas().then(resp => setCitas(resp));
-
-    setLoadingCitas(false);
+    setLoadingCitas(true);
+    try{
+      const res = await getCitas();
+      setCitas(res);
+    } catch (error) {
+      console.error('Error al obtener las citas:', error);
+    } finally {
+      setLoadingCitas(false);
+    }
   }
   Obtener();
 }, []);
@@ -81,7 +86,7 @@ useEffect(() => {
 if (loadingCitas) {
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-      <CircularProgress sx={{ color: '#486238' }} />
+      <CircularProgress sx={{ color: '#121528' }} />
     </Box>
   );
 }
@@ -161,17 +166,6 @@ return (
                 size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 display="flex"
                 justifyContent="center"
-                // sx={{
-                //   flex: '1 1 100%',
-                //   minWidth: '350px',
-                //   display: 'flex',
-                //   justifyContent: 'center',
-                //   mb: { xs: 12, md: 8 },
-                //   // '@media (min-width: 900px)': {
-                //   //   // flex: '1 1 48%',
-                //   //   maxWidth: '48%',
-                //   // },
-                // }}
               >
                 <Box justifyItems={'center'} alignItems={'center'}>
                   {/* DISEÑO ORIGINAL  CARD RESTAURADO */}
@@ -224,9 +218,9 @@ return (
                             border: '1px solid #121528'
                           }}
                         >
-                          <Grid container spacing={1.5}>
-                            <Grid size={{ md: 7, xs: 12 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Grid container spacing={1.5} justifyContent="center">
+                            <Grid size={{ md: 7, xs: 7 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
                                 <CalendarMonthIcon sx={{ fontSize: 18, color: '#121528' }} />
                                 <Box>
                                   <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600 }}>
@@ -239,11 +233,11 @@ return (
                               </Box>
                             </Grid>
 
-                            <Grid size={{ md: 5, xs: 12 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Grid size={{ md: 5, xs: 5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
                                 <AccessTime sx={{ fontSize: 18, color: '#121528' }} />
                                 <Box>
-                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600 }}>
+                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600}}>
                                     Hora
                                   </Typography>
                                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -302,10 +296,13 @@ return (
                           bgcolor: '#f8f9fa',
                           borderRadius: 2,
                           border: '1px dashed #dee2e6',
+                          display: 'flex',            // Asegura comportamiento de flexbox
+                          flexDirection: 'column',    // Alinea elementos verticalmente
+                          alignItems: 'center',       // Centra horizontalmente todo el contenido
                           textAlign: 'center'
                         }}
                       >
-                        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
                           Código de acceso
                         </Typography>
 
@@ -313,7 +310,7 @@ return (
                           alt="qr"
                           src={item.codigo_acceso_url}
                           width={200}
-                          style={{ borderRadius: 8 }}
+                          style={{ borderRadius: 8, display: 'block' }}
                         />
 
                         <Typography

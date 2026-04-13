@@ -7,6 +7,7 @@ import { getApiBase } from '../config/apiConfig';
 function getToken(): string {
   const token = localStorage.getItem('access_token');
   if (!token) {
+    window.dispatchEvent(new Event('sessionExpired'));
     console.error('No se encontró token en localStorage');
     throw new Error('No hay token de autenticación');
   }

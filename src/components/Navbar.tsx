@@ -11,24 +11,25 @@ import {
   Menu,
   MenuItem,
   Typography,
+  Button,
 } from '@mui/material';
 // Importa íconos y utilidades de Material UI y React Router
 import AddIcon from '@mui/icons-material/Add';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import MenuIcon from '@mui/icons-material/Menu';
 import Drawer from '@mui/material/Drawer';
+import Divider from '@mui/material/Divider';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
+import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
 import { useTheme, useMediaQuery } from '@mui/material'; // Para manejar estilos responsivos
 import { useLocation, useNavigate } from 'react-router-dom'; // Para navegación y ubicación
 import LogoutIcon from '@mui/icons-material/Logout';
 import CircularProgress from '@mui/material/CircularProgress';
-import { AccountCircle, PersonPinCircleOutlined } from '@mui/icons-material';
 
 // Props que recibe el Navbar para controlar el formulario de nueva cita
 type NavbarProps = {
@@ -50,6 +51,8 @@ const Navbar: React.FC<NavbarProps> = ({
   const theme = useTheme(); // Tema de MUI
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Detecta si es móvil
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null); // Anchor para el menú desplegable del perfil
+  const [menuWidth, setMenuWidth] = useState<number | null>(null);
+
 
   // Cambia la pestaña activa según la ruta actual
   useEffect(() => {
@@ -83,7 +86,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <>
             <Box display="flex" alignItems="center">
               {/* Logo */}
-              <img src="/images/logo2.png" alt="Logo" style={{ width: 70, height: 'auto', display: 'block' }} />
+              <img src="/images/logo_navbar.png" alt="Logo" style={{ width: 70, height: 'auto', display: 'block' }} />
             </Box>
             {/* Botón de menú hamburguesa para abrir el Drawer */}
             <IconButton
@@ -93,81 +96,141 @@ const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setOpenDrawer(true)}
               sx={{ ml: 2 }}
             >
-              <MenuIcon sx={{ color: '#486238' }} />
+              <MenuIcon sx={{ color: '#121528' }} />
             </IconButton>
           </>
         ) : (
           <Box display="flex" alignItems="center">
             {/* Logo */}
-            <img src="/images/logo2.png" alt="Logo" style={{ width: 70, height: 'auto', display: 'block' }} />
-            {/* Tabs de navegación para escritorio */}
-            <Tabs
-              value={!showNewAppointmentForm ? (['homepage', 'newappointment'].includes(activeTab) ? activeTab : activeTab === '' ? false : 'homepage') : false}
-              onChange={handleTabChange}
-              sx={{
-                ml: 4,
-                color: '#486238 !important',
-                '& .MuiTabs-indicator': { backgroundColor: '#486238' },
-                '& .Mui-selected': { color: '#486238 !important' },
-                '& .Mui-selected:hover': { color: '#486238 !important' },
-                '& .Mui-selected:focus': { color: '#486238 !important' }
-              }}
-            >
-              {/* Tab para crear nueva cita */}
-              <Tab icon={<AddIcon />} iconPosition="start" label="Nueva Cita" value="newappointment" />
-              {/* Tab para ver citas existentes */}
-              <Tab icon={<EventNoteIcon />} iconPosition="start" label="Mis Citas" value="homepage" />
-            </Tabs>
+            <img src="/images/logo_navbar.png" alt="Logo" style={{ width: '20%', height: 'auto', display: 'block' }} />
+            <Box sx={{ flex: 1 }}>
+              <List component="nav" sx={{ display: 'flex', justifyContent: 'center' }}>
+                
+                <ListItem disablePadding sx={{ width: 'auto' }}>
+                  <ListItemButton
+                    selected={activeTab === 'homepage'}
+                    onClick={() => {
+                      setActiveTab('homepage');
+                      setShowNewAppointmentForm(false);
+                      navigate('/homepage');
+                    }}
+                    sx={{
+                      borderRadius: 2,
+                      mx: 1,
+                      px: 2,
+                      '&.Mui-selected': {
+                        bgcolor: '#e9eef7',
+                        color: '#121528'
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <EventNoteIcon sx={{ color: '#486238' }} />
+                    </ListItemIcon>
+                    <ListItemText primary="Mis Citas" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding sx={{ width: 'auto' }}>
+                  <ListItemButton
+                    selected={activeTab === 'newappointment'}
+                    onClick={() => {
+                      setActiveTab('newappointment');
+                      setShowNewAppointmentForm(false);
+                      navigate('/new-appointment');
+                    }}
+                    sx={{
+                      borderRadius: 2,
+                      mx: 1,
+                      px: 2,
+                      '&.Mui-selected': {
+                        bgcolor: '#e9eef7',
+                        color: '#121528'
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <AddIcon sx={{ color: '#486238' }} />
+                    </ListItemIcon>
+                    <ListItemText primary="Nueva Cita" />
+                  </ListItemButton>
+                </ListItem>
+
+              </List>
+            </Box>
           </Box>
         )}
 
         {/* Botón de cerrar sesión visible solo en escritorio */}
         {!isMobile && (
           <Box>
-            <IconButton
-              onClick={event => setProfileMenuAnchor(event.currentTarget)}
+            <Button
+              onClick={event => {setProfileMenuAnchor(event.currentTarget); setMenuWidth(event.currentTarget.offsetWidth);}}
               size="large"
-              sx={{ color: '#121528', backgroundColor: '#e9f3e2', ml: 1, borderRadius: 2 }}
+              sx={{
+                display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                px: 2,
+                py: 1,
+                borderRadius: 3,
+                backgroundColor: '#f5f7fb',
+                color: '#121528',
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: '#e9eef7'
+                }
+              }}
             >
+              <Avatar
+                sx={{
+                  bgcolor: '#121528',
+                  width: 36,
+                  height: 36,
+                  fontSize: 14
+                }}
+              >
+                {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
+              </Avatar>
               {loadingLogout ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
                 // Mostrar correo del usuario
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="body2" sx={{ color: '#486238', fontWeight: 500 }}>
+                <Box sx={{
+                    display: { xs: 'none', md: 'flex' },
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    lineHeight: 1.2
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: '#121528', fontWeight: 500 }}>
                     {/* Mostrar correo del usuario */}
                     {localStorage.getItem('email')}
                   </Typography>
-                  <Avatar sx={{ bgcolor: '#b1c89e', color: '#486238', width: 32, height: 32 }}>
+                  {/* <Avatar sx={{ bgcolor: '#393b49ff', color: '#eff0efff', width: 32, height: 32 }}> */}
                     {/* Mostrar inicial del correo */}
-                    {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
-                  </Avatar>
+                    {/* {localStorage.getItem('email')?.slice(0, 1).toUpperCase()} */}
+                  {/* </Avatar> */}
                 </Box>
+
               )}
-            </IconButton>
+              {loadingLogout ? null : (
+                <KeyboardArrowDownIcon />
+              )}
+            </Button>
             <Menu
               anchorEl={profileMenuAnchor}
               open={Boolean(profileMenuAnchor)}
               onClose={() => setProfileMenuAnchor(null)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              {/* <MenuItem
-                onClick={() => {
-                  setProfileMenuAnchor(null);
-                  navigate('/perfil');
-                }}
-              >
-                <ListItemIcon>
-                  <AccountCircle />
-                </ListItemIcon>
-                Ver mi perfil
-              </MenuItem> */}
               <MenuItem
                 onClick={() => {
                   setProfileMenuAnchor(null);
                   setShowNewAppointmentForm(true);
                   setLoadingLogout(true);
+
                   setTimeout(() => {
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('email');
@@ -176,11 +239,41 @@ const Navbar: React.FC<NavbarProps> = ({
                   }, 1200);
                 }}
                 disabled={loadingLogout}
-              >
-                <ListItemIcon>
-                  <LogoutIcon />
+                sx={{
+                  py: 1.5,
+                  px: 2,
+                  borderRadius: 2,
+                  mx: 1,
+                  my: 0.5,
+                  width: menuWidth ? menuWidth - 32 : 'auto', // Ajusta el ancho del menú al ancho del botón menos el padding
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: '#fbe9e7',
+                  }
+                }}
+                >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 36,
+                    color: '#d32f2f'
+                  }}
+                >
+                  {loadingLogout ? (
+                    <CircularProgress size={18} />
+                  ) : (
+                    <LogoutIcon fontSize="small" />
+                  )}
                 </ListItemIcon>
-                Cerrar sesión
+
+                <ListItemText
+                  primary="Salir"
+                  primaryTypographyProps={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: '#121528'
+                  }}
+                />
+
               </MenuItem>
             </Menu>
           </Box>
@@ -192,7 +285,7 @@ const Navbar: React.FC<NavbarProps> = ({
           {/* Información del usuario en la parte superior del drawer */}
           <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>
             <Box display="flex" alignItems="center" gap={2}>
-              <Avatar sx={{ bgcolor: '#3c405aff', color: '#121528', width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: '#0d0e14ff', color: '#eaeaeaff', width: 40, height: 40 }}>
                 {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
               </Avatar>
               <Box flex={1}>

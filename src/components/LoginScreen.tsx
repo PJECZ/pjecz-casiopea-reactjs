@@ -153,7 +153,7 @@ const LoginScreen = () => {
           minHeight: '100vh',
           width: '100%',
           height: '100%',
-          backgroundImage: "url('/images/bg3.jpg')",
+          backgroundImage: "url('/images/bg_azul.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'repeat',
@@ -181,7 +181,7 @@ const LoginScreen = () => {
         minHeight: '100vh',
         width: '100%',
         height: '100%',
-        backgroundImage: "url('/images/bg3.jpg')",
+        backgroundImage: "url('/images/bg_azul.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'repeat',
@@ -212,10 +212,10 @@ const LoginScreen = () => {
       }}>
         {/* Logo institucional */}
         <Box textAlign="center">
-          <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 300, height: 'auto', display: 'block', margin: '0 auto' }} />
+          {/* <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 300, height: 'auto', display: 'block', margin: '0 auto' }} /> */}
         </Box>
         <Box textAlign="center" sx={{ mb: 2 }}>
-          <img src="/images/logo_transparente.png" alt="Logo Sistema Citas" style={{ maxWidth: 200, minWidth: 100, height: 'auto', display: 'block', margin: '0 auto' }} />
+          <img src="/images/logo_citas_login.png" alt="Logo Sistema Citas" style={{ maxWidth: 200, minWidth: 100, height: 'auto', display: 'block', margin: '0 auto' }} />
         </Box>
 
         <Box display="flex" justifyContent="center" mb={3}>
@@ -223,9 +223,9 @@ const LoginScreen = () => {
             <Button
               onClick={() => switchMode(true)}
               sx={{
-                borderBottom: isLogin ? '2px solid #708153' : 'none',
-                color: isLogin ? 'white' : '#65815c',
-                backgroundColor: isLogin ? '#708153' : 'transparent',
+                borderBottom: isLogin ? '2px solid #121528' : 'none',
+                color: isLogin ? 'white' : '#1c1f33ff',
+                backgroundColor: isLogin ? '#121528' : 'transparent',
               }}
             >
               Iniciar Sesión
@@ -233,9 +233,9 @@ const LoginScreen = () => {
             <Button
               onClick={() => switchMode(false)}
               sx={{
-                borderBottom: !isLogin ? '2px solid #708153' : 'none',
-                color: !isLogin ? 'white' : '#65815c',
-                backgroundColor: !isLogin ? '#708153' : 'transparent',
+                borderBottom: !isLogin ? '2px solid #121528' : 'none',
+                color: !isLogin ? 'white' : '#1c1f33ff',
+                backgroundColor: !isLogin ? '#121528' : 'transparent',
               }}
             >
               Crear Cuenta
@@ -264,7 +264,7 @@ const LoginScreen = () => {
                 }}           
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
               />
             </Grid>
 
@@ -289,7 +289,7 @@ const LoginScreen = () => {
                     }}           
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
-                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                   />
                 </Grid>
 
@@ -310,7 +310,7 @@ const LoginScreen = () => {
                     }}           
                     value={nombres}
                   onChange={(e) => setNombres(e.target.value)}
-                  sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                  sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                 />
                 </Grid>
                 <Grid container rowGap={2} spacing={1}>
@@ -330,7 +330,7 @@ const LoginScreen = () => {
                       }}           
                       value={apellidoPrimero}
                       onChange={(e) => setApellidoPrimero(e.target.value)}
-                      sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                      sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6, md: 6}} >
@@ -349,7 +349,7 @@ const LoginScreen = () => {
                       }}           
                       value={apellidoSegundo}
                       onChange={(e) => setApellidoSegundo(e.target.value)}
-                      sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                      sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                     />
                   </Grid>
                 </Grid>
@@ -369,7 +369,7 @@ const LoginScreen = () => {
                     }}           
                     value={curp}
                     onChange={(e) => setCurp(e.target.value.toUpperCase())}
-                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 12}} >
@@ -388,7 +388,7 @@ const LoginScreen = () => {
                     }}           
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
-                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                    sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                   />
                 </Grid>
               </>
@@ -403,7 +403,7 @@ const LoginScreen = () => {
                   value={password}
                   autoComplete="off"
                   onChange={(e) => setPassword(e.target.value)}
-                  sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#045e2c' } }}
+                  sx={{ mb: 2, input: { color: '#grey.700' }, label: { color: '#1c1f33ff' } }}
                   placeholder='Ingrese su contraseña'
                   label="Contraseña"
                   slotProps={{
@@ -415,7 +415,7 @@ const LoginScreen = () => {
                             onClick={() => setShowPassword(!showPassword)}
                             onMouseDown={(e) => e.preventDefault()}
                             edge="end"
-                            sx={{ color: '#65815c' }}
+                            sx={{ color: '#1c1f33ff' }}
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
@@ -450,7 +450,7 @@ const LoginScreen = () => {
               <Box display="flex" justifyContent="flex-end" mb={2}>
                 <Link
                   to="/forgot-password"
-                  style={{ color: '#65815c', textTransform: 'none', fontSize: 15 }}
+                  style={{ color: '#1c1f33ff', textTransform: 'none', fontSize: 15 }}
                   onClick={() => setShowForgotPassword(true)}
                 >
                   ¿Olvidaste tu contraseña?
@@ -464,7 +464,7 @@ const LoginScreen = () => {
               variant="contained"
               type="submit"
               disabled={isLoading}
-              sx={{ backgroundColor: '#65815c', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
+              sx={{ backgroundColor: '#121528', color: 'white', '&:hover': { backgroundColor: '#1c1f33ff', color: 'white'}, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
               startIcon={isLoading ? <Sync sx={{ animation: 'spin 1s linear infinite' }} /> : null}
             >
               {isLoading ? 'Procesando...' : isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
