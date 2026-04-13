@@ -5,7 +5,6 @@ import {
   AppBar,
   Box,
   Toolbar,
-  Button,
   Tabs,
   Tab,
   Avatar,
@@ -128,7 +127,7 @@ const Navbar: React.FC<NavbarProps> = ({
             <IconButton
               onClick={event => setProfileMenuAnchor(event.currentTarget)}
               size="large"
-              sx={{ color: '#486238', backgroundColor: '#e9f3e2', ml: 1, borderRadius: 2 }}
+              sx={{ color: '#121528', backgroundColor: '#e9f3e2', ml: 1, borderRadius: 2 }}
             >
               {loadingLogout ? (
                 <CircularProgress size={24} color="inherit" />
@@ -193,11 +192,11 @@ const Navbar: React.FC<NavbarProps> = ({
           {/* Información del usuario en la parte superior del drawer */}
           <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>
             <Box display="flex" alignItems="center" gap={2}>
-              <Avatar sx={{ bgcolor: '#b1c89e', color: '#486238', width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: '#3c405aff', color: '#121528', width: 40, height: 40 }}>
                 {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
               </Avatar>
               <Box flex={1}>
-                <Typography variant="body2" sx={{ color: '#486238', fontWeight: 600, fontSize: '0.875rem' }}>
+                <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.875rem' }}>
                   Usuario
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem', wordBreak: 'break-word' }}>
@@ -237,7 +236,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   navigate('/');
                 }, 1200);
               }}>
-                <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#486238' }} />}</ListItemIcon>
+                <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#121528' }} />}</ListItemIcon>
                 <ListItemText primary="Cerrar Sesión" />
               </ListItemButton>
             </ListItem>

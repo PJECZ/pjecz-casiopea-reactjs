@@ -3,9 +3,16 @@
 
 import { getApiBase } from '../config/apiConfig';
 
-// Utilidad para fetch autenticado que maneja 401
-export async function authFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
-  const res = await fetch(input, init);
+  // Utilidad para fetch autenticado que maneja 401
+  export async function authFetch(input: RequestInfo, init: RequestInit = {}): Promise<Response> {
+  
+  const token = localStorage.getItem('access_token') ?? localStorage.getItem('accessToken');
+  const headers = new Headers(init.headers ?? {});
+  
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  
+  const res = await fetch(input, { ...init, headers });
+
   if (res.status === 401) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('email');
