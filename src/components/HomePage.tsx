@@ -349,7 +349,7 @@ return (
         ) : (
           /* Estado vacío: se muestra cuando no hay citas */
           <Box width="100%" textAlign="center" py={6}>
-            <Avatar sx={{ bgcolor: '#b1c89e', width: 56, height: 56, margin: '0 auto' }}>
+            <Avatar sx={{ bgcolor: '#121528', width: 56, height: 56, margin: '0 auto' }}>
               <CalendarMonthIcon sx={{ color: 'white' }} />
             </Avatar>
             <Typography variant="h6" mt={2}>
