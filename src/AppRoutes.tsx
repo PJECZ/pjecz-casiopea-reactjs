@@ -6,7 +6,6 @@ import NewAppointment from './components/NewAppointment';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import { Box } from '@mui/material';
-import SessionExpiredDialog from './components/SessionExpiredDialog';
 import ForgotPassword from './components/OlvidoContrasena';
 import ConfirmarRegistro from './components/ConfirmarRegistro';
 import CrearContrasena from './components/CrearContrasena';
@@ -21,7 +20,6 @@ interface AppRoutesProps {
 const AppRoutes: React.FC<AppRoutesProps> = ({ showNewAppointmentForm, setShowNewAppointmentForm, showForgotPassword, setShowForgotPassword }) => {
   return (
     <>
-      <SessionExpiredDialog />
       <Routes>
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPassword onBack={() => setShowForgotPassword(false)} />} />
