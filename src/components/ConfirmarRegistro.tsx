@@ -81,7 +81,7 @@ const ConfirmarRegistro: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
             sx={{
-              bgcolor: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.light'),
+              bgcolor: usuario ? '#121528' : (cargando ? '#121528' : 'error.light'),
               color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
               width: 64,
               height: 64,
@@ -95,7 +95,7 @@ const ConfirmarRegistro: React.FC = () => {
             align="center"
             color="text.primary"
             fontWeight={600}
-            sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
+            sx={{ color: usuario ? '#121528' : (cargando ? '#121528' : 'error.main') }}
           >
             {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Cuenta ya validada'}
           </Typography>
@@ -110,7 +110,7 @@ const ConfirmarRegistro: React.FC = () => {
         </Typography>
         {usuario && (
           <Box mb={2} width="100%">
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#65815c', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#121528', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
             <Divider sx={{ mb: 1 }} />
             <Grid container spacing={1}>
               <Grid size={12}>
@@ -130,7 +130,7 @@ const ConfirmarRegistro: React.FC = () => {
             <Button
               variant="contained"
               onClick={() => handleCrearContrasena()}
-              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
+              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#121528', fontWeight: 600 }}
               fullWidth
               size="large"
               startIcon={<KeyOutlined />}
