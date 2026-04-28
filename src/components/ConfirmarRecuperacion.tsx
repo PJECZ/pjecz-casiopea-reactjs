@@ -106,7 +106,7 @@ const ConfirmarRecuperacion: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
           <Avatar
             sx={{
-              bgcolor: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.light'),
+              bgcolor: usuario ? '#121528' : (cargando ? '#121528' : 'error.light'),
               color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
               width: 64,
               height: 64,
@@ -120,7 +120,7 @@ const ConfirmarRecuperacion: React.FC = () => {
             align="center"
             color="text.primary"
             fontWeight={600}
-            sx={{ color: usuario ? '#65815c' : (cargando ? '#65815c' : 'error.main') }}
+            sx={{ color: usuario ? '#121528' : (cargando ? '#121528' : 'error.main') }}
           >
             {cargando ? 'Validando recuperación...' : usuario ? 'Confirmación de recuperación' : 'Error en validación'}
           </Typography>
@@ -139,7 +139,7 @@ const ConfirmarRecuperacion: React.FC = () => {
             <Button
               variant="contained"
               onClick={() => handleCrearContrasena()}
-              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#65815c', fontWeight: 600 }}
+              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#121528', fontWeight: 600 }}
               fullWidth
               size="large"
               startIcon={<KeyOutlined />}
