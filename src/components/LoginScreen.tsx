@@ -145,6 +145,21 @@ const LoginScreen = () => {
     setErrorMessage('');
   };
 
+  // Controla el scroll del body según el modo login/registro
+  React.useEffect(() => {
+    if (isLogin) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isLogin]);
+
   // Renderizado principal de la pantalla
   if (showForgotPassword) {
     return (
@@ -153,7 +168,7 @@ const LoginScreen = () => {
           minHeight: '100vh',
           width: '100%',
           height: '100%',
-          backgroundImage: "url('/images/bg_azul.png')",
+          backgroundImage: "url('/images/bg_new.jpeg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'repeat',
@@ -179,9 +194,9 @@ const LoginScreen = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        width: '100%',
-        height: '100%',
-        backgroundImage: "url('/images/bg_azul.png')",
+        width: isLogin ? '100%' : 'auto',
+        height: isLogin ? '100vh' : 'auto',
+        backgroundImage: "url('/images/bg_new.jpeg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'repeat',

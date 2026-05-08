@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Button, TextField, Select, MenuItem, FormControl, InputLabel,
@@ -20,7 +20,6 @@ import {
     getHorasDisponibles, getServiciosPorOficina, createCita, Distrito 
 } from '../actions/CitasActions';
 import CitaConfirmadaDialog from './CitaConfirmadaDialog';
-import { set } from 'lodash';
 
 // ─── Tipos y Paleta ────────────────────────────────────────
 type Oficina = { 
@@ -87,52 +86,53 @@ const NewAppointment: React.FC = () => {
 
     // ─ Datos remotos ─
     const [distritos, setDistritos] = useState<Distrito[]>([]);
-    // const [loadingDistritos, setLoadingDistritos] = useState(true);
     const [oficinas, setOficinas] = useState<Oficina[]>([]);
-    const [loadingOficinas, setLoadingOficinas] = useState(false);
     const [tramites, setTramites] = useState<OficinaServicio[]>([]);
-    const [loadingTramites, setLoadingTramites] = useState(false);
     const [fechas, setFechas] = useState<string[]>([]);
-    const [loadingFechas, setLoadingFechas] = useState(false);
     const [horas, setHoras] = useState<string[]>([]);
-    const [loadingHoras, setLoadingHoras] = useState(false);
-
+    
     // ─ Estados para el Diálogo de Confirmación ─
-    const [openConfirm, setOpenConfirm] = useState(false);
-    const [citaCreada, setCitaCreada] = useState<any>(null);
-    const [isSuccess, setIsSuccess] = useState(false);
-
+    const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
+    // const [openConfirm, setOpenConfirm] = useState(false);
+    // const [citaCreada, setCitaCreada] = useState<any>(null);
+    // const [isSuccess, setIsSuccess] = useState(false);
+    
     // ─ Submit y Mensajes ─
-    const [loading, setLoading] = useState(false);
+    const [loadingStep, setLoadingStep] = useState<'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null>(null);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
     
 
-    const isExpedientesTramite = () => {
+    const isExpedientesTramite = useMemo(() => {
         const t = tramites.find(t => t.cit_servicio_clave === tramite);
-        return t?.cit_servicio_descripcion.toLowerCase().includes('expediente');
-    };
+        return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
+    }, [tramites, tramite]);
 
-    const notasResumen   = isExpedientesTramite()
-        ? expedientes.filter(e => e.trim()).join(', ') || null
-        : notas.trim() || null;
+    const notasResumen   = useMemo(() => 
+        isExpedientesTramite
+            ? expedientes.filter(e => e.trim()).join(', ') || null
+            : notas.trim() || null,
+        [isExpedientesTramite, expedientes, notas]
+    );
 
-     const isFormComplete = oficina && tramite && fecha && hora;
+     const isFormComplete = useMemo(() => 
+        !!(oficina && tramite && fecha && hora), 
+        [oficina, tramite, fecha, hora]
+    );
 
-    const handleCloseConfirm = () => {
-        setOpenConfirm(false);
+    const handleCloseConfirm = useCallback(() => () => {
+        setDialog({ open: false, cita: null, isSuccess: false });
         // Si fue éxito, quizás quieras limpiar el formulario o redirigir
-        if (isSuccess) navigate('/homepage');
-    };
+        if (dialog?.isSuccess) navigate('/homepage');
+    }, [dialog, navigate]);
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         setError(null);
         if (!isFormComplete) return;
         setLoadingSubmit(true);
 
-        const finalNotas = isExpedientesTramite()
+        const finalNotas = isExpedientesTramite
             ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'
             : notas.trim() || 'Sin notas';
 
@@ -146,9 +146,7 @@ const NewAppointment: React.FC = () => {
             });
             const nuevaCita = res;
             // Seteamos los datos para el modal
-            setCitaCreada(nuevaCita);
-            setIsSuccess(true);
-            setOpenConfirm(true);
+            setDialog({ open: true, cita: nuevaCita, isSuccess: true });
             // setSuccessMsg('Cita agendada con éxito. Redirigiendo...');
             // setTimeout(() => navigate('/homepage'), 2500);
         } catch (e: any) {
@@ -156,13 +154,13 @@ const NewAppointment: React.FC = () => {
         } finally {
             setLoadingSubmit(false);
         }
-    };
+    }, [isFormComplete, isExpedientesTramite, expedientes, notas, tramite, fecha, hora, oficina]);
 
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
         const obtener = async () => {
-            setLoading(true);
+            setLoadingStep('distrito');
             try{
                 const res = await getDistritos()
                 setDistritos(res);
@@ -170,7 +168,7 @@ const NewAppointment: React.FC = () => {
             catch(e){
                 console.error('Error al obtener distritos:', e);
             } finally {
-                setLoading(false);
+                setLoadingStep(null);
             }
         };
         obtener();
@@ -179,48 +177,48 @@ const NewAppointment: React.FC = () => {
     useEffect(() => {
         setOficina(null); setTramite(''); setFechas([]); setHoras([]);
         if (!distrito) return;
-        setLoadingOficinas(true);
+        setLoadingStep('oficinas');
         getOficinasFiltradas(distrito)
         .then(res => setOficinas(res))
         .catch(err => console.error(err))
-        .finally(() => setLoadingOficinas(false));
+        .finally(() => setLoadingStep(null));
     }, [distrito]);
 
     useEffect(() => {
         setTramite(''); setFechas([]); setHoras([]);
         if (!oficina) return;
-        setLoadingTramites(true);
+        setLoadingStep('tramites');
         getServiciosPorOficina(oficina.clave)
         .then(res => setTramites(res))
         .catch(err => console.error(err))
-        .finally(() => setLoadingTramites(false));
+        .finally(() => setLoadingStep(null));
     }, [oficina]);
 
     useEffect(() => {
         setFecha(null); setFechas([]); setHoras([]);
         if (!oficina || !tramite) return;
-        setLoadingFechas(true);
+        setLoadingStep('fechas');
         getFechasDisponibles(oficina.clave, tramite)
         .then(res => setFechas(res))
         .catch(err => console.error(err))
-        .finally(() => setLoadingFechas(false));
+        .finally(() => setLoadingStep(null));
     }, [oficina, tramite]);
 
     useEffect(() => {
         setHora(''); setHoras([]);
         if (!oficina || !tramite || !fecha) return;
-        setLoadingHoras(true);
+        setLoadingStep('horas');
         getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
         .then(res => setHoras(res))
         .catch(err => console.error(err))
-        .finally(() => setLoadingHoras(false));
+        .finally(() => setLoadingStep(null));
     }, [oficina, tramite, fecha]);
    
-    if (loading) {
+    if (loadingSubmit || loadingStep) {
         return (
              <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
                 <CircularProgress sx={{ color: '#252b50' }} />
-                <Typography sx={{ ml: 2 }}>Cargando configuración...</Typography>
+                <Typography sx={{ ml: 2 }}>Cargando información...</Typography>
             </Box>
         );
     }
@@ -308,7 +306,7 @@ const NewAppointment: React.FC = () => {
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
-                                        {isExpedientesTramite() ? (
+                                        {isExpedientesTramite ? (
                                             <Autocomplete
                                                 multiple freeSolo options={[]}
                                                 value={expedientes}
@@ -363,7 +361,7 @@ const NewAppointment: React.FC = () => {
                                                     value={fecha}
                                                     onChange={val => setFecha(val)}
                                                     shouldDisableDate={d => !fechas.includes(d.format('YYYY-MM-DD'))}
-                                                    disabled={!tramite || loadingFechas}
+                                                    disabled={!tramite || loadingStep === 'fechas'}
                                                 />
                                             </LocalizationProvider>
                                         </Card>
@@ -372,7 +370,7 @@ const NewAppointment: React.FC = () => {
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <Typography variant="caption" fontWeight={700} color={C.dark}>HORA DISPONIBLE</Typography>
                                         <Card variant="outlined" sx={{ mt: 1, height: 338, overflowY: 'auto' }}>
-                                            {loadingHoras ? (
+                                            {loadingStep === 'horas' ? (
                                             <Box 
                                                 display="flex" 
                                                 flexDirection="column" 
@@ -381,7 +379,7 @@ const NewAppointment: React.FC = () => {
                                                 height="100%" 
                                                 p={4}
                                             >
-                                                <CircularProgress size={32} sx={{ color: '#252b50', mb: 2 }} />
+                                                <CircularProgress size={32} sx={{ color: C.dark, mb: 2 }} />
                                                 <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
                                                     CARGANDO HORARIOS...
                                                 </Typography>
@@ -451,7 +449,7 @@ const NewAppointment: React.FC = () => {
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow
-                                    label={isExpedientesTramite() ? 'Expedientes' : 'Notas'}
+                                    label={isExpedientesTramite ? 'Expedientes' : 'Notas'}
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
                                     icon={<NotesIcon sx={{ fontSize: 16 }} />}
@@ -460,7 +458,7 @@ const NewAppointment: React.FC = () => {
                                 
                                 <Box sx={{ mt: 16, px: 1 }}>
                                     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                                    {successMsg && <Alert severity="success" sx={{ mb: 2 }}>{successMsg}</Alert>}
+                                    {/* <Alert severity="success" sx={{ mb: 2 }}></Alert> */}
                                     <Button
                                         fullWidth variant="contained" size="large"
                                         onClick={handleSubmit}
@@ -476,10 +474,10 @@ const NewAppointment: React.FC = () => {
                 </Box>
                 {/* Componente de Diálogo */}
                 <CitaConfirmadaDialog
-                    open={openConfirm}
+                    open={dialog.open}
                     handleClose={handleCloseConfirm}
-                    cita={citaCreada}
-                    isSuccess={isSuccess}
+                    cita={dialog.cita}
+                    isSuccess={dialog.isSuccess}
                 />
             </Container>
         );

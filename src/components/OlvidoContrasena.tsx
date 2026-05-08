@@ -29,7 +29,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     return () => clearTimeout(timer);
   }, [success, countdown, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLElement>) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
