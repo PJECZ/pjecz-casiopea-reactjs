@@ -218,7 +218,7 @@ const NewAppointment: React.FC = () => {
         return (
              <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
                 <CircularProgress sx={{ color: '#252b50' }} />
-                <Typography sx={{ ml: 2 }}>Cargando configuración...</Typography>
+                <Typography sx={{ ml: 2 }}>Cargando información...</Typography>
             </Box>
         );
     }
