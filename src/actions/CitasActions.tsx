@@ -257,7 +257,7 @@ export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
   }
   if (!res.ok || data?.success === false || !data?.data) {
     console.error('Error en createCita:', data);
-    throw new Error(data?.message || 'No se pudo crear la cita');
+    throw new Error(data?.message || 'No se pudo crear la cita, intente de nuevo.');
   }
   return data.data as Cita;
 }
