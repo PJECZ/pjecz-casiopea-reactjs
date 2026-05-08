@@ -7,6 +7,7 @@ import { getApiBase } from '../config/apiConfig';
 function getToken(): string {
   const token = localStorage.getItem('access_token');
   if (!token) {
+    window.dispatchEvent(new Event('sessionExpired'));
     console.error('No se encontró token en localStorage');
     throw new Error('No hay token de autenticación');
   }
@@ -256,7 +257,7 @@ export async function createCita(cita: CrearCitaRequest): Promise<Cita> {
   }
   if (!res.ok || data?.success === false || !data?.data) {
     console.error('Error en createCita:', data);
-    throw new Error(data?.message || 'No se pudo crear la cita');
+    throw new Error(data?.message || 'No se pudo crear la cita, intente de nuevo.');
   }
   return data.data as Cita;
 }

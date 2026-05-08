@@ -28,10 +28,16 @@ const SessionExpiredDialog: React.FC = () => {
   // Función que maneja el cierre del diálogo y la redirección al login
   const handleClose = () => {
     setLoading(true);
+
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('email');
+
     setTimeout(() => {
       setLoading(false);
       setOpen(false);
-      navigate('/'); // Redirige al usuario a la pantalla de login
+
+      navigate('/', { replace: true }); // Redirige al usuario a la pantalla de login
+      
       // Asegura que el foco se mueve a un elemento visible fuera del modal
       setTimeout(() => {
         if (document.body) {

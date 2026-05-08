@@ -1,14 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions } from '@mui/material';
-import { EventBusy} from '@mui/icons-material';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack } from '@mui/material';
+import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
+import BusinessIcon from '@mui/icons-material/Business';
+import DescriptionIcon from '@mui/icons-material/Description';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import Assignment from '@mui/icons-material/Assignment';
+import NotesIcon from '@mui/icons-material/Notes';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+type InfoFieldProps = {
+  icon: SvgIconComponent;
+  label: string;
+  value: React.ReactNode;
+  compact?: boolean;
+};
 
-
+// ══════════════════════════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ══════════════════════════════════════════════════════════════
 const HomePage: React.FC = () => {
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingCitas, setLoadingCitas] = useState(true);
@@ -57,10 +70,15 @@ const handleCancelAppointment = async (id: string) => {
 
 useEffect(() => {
   async function Obtener() {
-
-    await getCitas().then(resp => setCitas(resp));
-
-    setLoadingCitas(false);
+    setLoadingCitas(true);
+    try{
+      const res = await getCitas();
+      setCitas(res);
+    } catch (error) {
+      console.error('Error al obtener las citas:', error);
+    } finally {
+      setLoadingCitas(false);
+    }
   }
   Obtener();
 }, []);
@@ -68,17 +86,73 @@ useEffect(() => {
 if (loadingCitas) {
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-      <CircularProgress sx={{ color: '#486238' }} />
+      <CircularProgress sx={{ color: '#121528' }} />
     </Box>
   );
 }
+
+
+// Componente para campos de información con iconos
+const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact = false }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 1.5,
+      p: compact ? 1.5 : 1.8,
+      borderRadius: 2,
+      bgcolor: '#f8f9fa',
+      border: '1px solid #e9ecef',
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        bgcolor: '#f1f3f5',
+        borderColor: '#121528',
+      }
+    }}
+  >
+    <Avatar sx={{ bgcolor: '#121528', width: 36, height: 36 }}>
+      <Icon sx={{ fontSize: 18, color: 'white' }} />
+    </Avatar>
+
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: '#6c757d',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          fontSize: '0.65rem',
+          letterSpacing: '0.5px',
+          display: 'block'
+        }}
+      >
+        {label}
+      </Typography>
+
+      {/* IMPORTANTE: evitar error de <p> */}
+      <Typography
+        variant="body2"
+        component="div"
+        sx={{
+          color: '#121528',
+          fontWeight: 500,
+          fontSize: '0.9rem',
+          lineHeight: 1.3,
+          wordBreak: 'break-word'
+        }}
+      >
+        {value || 'No especificado'}
+      </Typography>
+    </Box>
+  </Box>
+);
 return (
   <>
     {/* Contenedor principal */}
-    <Container sx={{ py: 2, px: 2 }} maxWidth="lg">
+    <Container sx={{ pt: 4}} maxWidth="xl">
       {/* Barra de título */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} px={4}>
-        <Typography variant="h6" fontWeight={600} sx={{ color: '#486238' }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" px={6} mb={4}>
+        <Typography variant="h4" fontWeight={700} sx={{ color: '#121528' }}>
           Mis Citas Agendadas
         </Typography>
       </Box>
@@ -89,95 +163,184 @@ return (
           citasOrdenadas.map((item: Cita) => (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
               <Grid
-                size={{ xs: 12, sm: 6, md: 4 }}
+                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 display="flex"
                 justifyContent="center"
-                sx={{
-                  flex: '1 1 100%',
-                  minWidth: '320px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  mb: { xs: 12, md: 8 },
-                  '@media (min-width: 900px)': {
-                    flex: '1 1 48%',
-                    maxWidth: '48%',
-                  },
-                }}
               >
                 <Box justifyItems={'center'} alignItems={'center'}>
-                  {/* DISEÑO ORIGINAL DE TU CARD RESTAURADO */}
+                  {/* DISEÑO ORIGINAL  CARD RESTAURADO */}
                   <Card
                     sx={{
+                      // width: '100%',
                       maxWidth: 450,
                       borderRadius: 4,
-                      boxShadow: 3,
+                      boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
                       overflow: 'hidden',
-                      background: 'linear-gradient(to right, #fff, #f5f5f5)',
-                      p: 3,
-                      border: '3px dashed #ccc',
+                      background: 'white'
                     }}
                   >
-                    <Box textAlign="center" mb={2}>
-                      <Typography variant="h4">Pase de entrada</Typography>
-                      <Divider sx={{ my: 2 }} />
-                    </Box>
-
-                    <Grid container spacing={1} mt={3}>
-                      <Grid size={{ md: 3, xs: 12 }} textAlign={'center'}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Fecha:</Typography>
-                      </Grid>
-                      <Grid size={{ md: 9, xs: 12 }}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }}>
-                          {format(new Date(item.inicio), "d 'de' MMMM 'del' yyyy 'a las' HH:mm", { locale: es })}
-                        </Typography>
-                      </Grid>
-
-                      <Grid size={{ md: 3, xs: 12 }} textAlign={'center'}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Oficina:</Typography>
-                      </Grid>
-                      <Grid size={{ md: 9, xs: 12 }}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }}>{item.oficina_descripcion}</Typography>
-                      </Grid>
-
-                      <Grid size={{ md: 3, xs: 12 }} textAlign={'center'}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Servicio:</Typography>
-                      </Grid>
-                      <Grid size={{ md: 9, xs: 12 }}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }}>{item.cit_servicio_descripcion}</Typography>
-                      </Grid>
-
-                      <Grid size={{ md: 3, xs: 12 }} textAlign={'center'}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }} fontWeight={'bold'}>Notas:</Typography>
-                      </Grid>
-                      <Grid size={{ md: 9, xs: 12 }}>
-                        <Typography variant="subtitle1" sx={{ color: '#555' }}>
-                          {item.notas ? item.notas.slice(0, 35) + (item.notas.length > 35 ? '...' : '') : 'Sin notas'}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-
-                    <Box my={3} display="flex" justifyContent="center">
-                      <img alt="qr" src={item.codigo_acceso_url} width={200} />
-                    </Box>
-
-                    <Typography
-                      variant="caption"
-                      display="block"
-                      textAlign="center"
-                      mt={1}
-                      onClick={() => handleOpenDialog(item.id)}
-                      sx={{ color: '#555', cursor: 'pointer' }} // Añadido cursor pointer
+                    {/* HEADER */}
+                    <Box
+                      sx={{
+                        background: 'linear-gradient(135deg, #121528 0%, #1e2442 50%, #121528 100%)',
+                        color: 'white',
+                        p: 2.5,
+                        textAlign: 'center'
+                      }}
                     >
-                      Código: <br /> {item.id}
-                    </Typography>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          bgcolor: 'rgba(255,255,255,0.15)',
+                          p: 1.2,
+                          borderRadius: '50%',
+                          mb: 1
+                        }}
+                      >
+                        <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                      </Box>
 
-                    <CardActions>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Cita Programada
+                      </Typography>
+                    </Box>
+
+                    {/* CONTENIDO */}
+                    <Box sx={{ p: 2.5 }}>
+                      <Stack spacing={1.5}>
+
+                        {/* FECHA Y HORA */}
+                        <Box
+                          sx={{
+                            p: 1.8,
+                            bgcolor: '#f0f4ff',
+                            borderRadius: 2,
+                            border: '1px solid #121528'
+                          }}
+                        >
+                          <Grid container spacing={1.5} justifyContent="center">
+                            <Grid size={{ md: 7, xs: 7 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
+                                <CalendarMonthIcon sx={{ fontSize: 18, color: '#121528' }} />
+                                <Box>
+                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600 }}>
+                                    Fecha
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                    {format(new Date(item.inicio), "dd/MM/yyyy", { locale: es })}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Grid>
+
+                            <Grid size={{ md: 5, xs: 5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
+                                <AccessTime sx={{ fontSize: 18, color: '#121528' }} />
+                                <Box>
+                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600}}>
+                                    Hora
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                    {format(new Date(item.inicio), "HH:mm")}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Box>
+
+                        {/* OFICINA */}
+                        <InfoField
+                          icon={BusinessIcon}
+                          label="Oficina"
+                          value={item.oficina_descripcion}
+                          compact
+                        />
+
+                        {/* SERVICIO */}
+                        <InfoField
+                          icon={Assignment}
+                          label="Servicio"
+                          value={item.cit_servicio_descripcion}
+                          compact
+                        />
+
+                        {/* NOTAS */}
+                        <InfoField
+                          // icon={NotesIcon}
+                          // label="Notas"
+                          icon={item?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
+                              ? DescriptionIcon 
+                              : NoteAltIcon
+                          }
+                          label={item?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
+                              ? 'Expediente' 
+                              : 'Notas'
+                          }
+                          value={
+                            item.notas
+                              ? item.notas.length > 50
+                                ? item.notas.slice(0, 50) + '...'
+                                : item.notas
+                              : 'Sin notas'
+                          }
+                          compact
+                        />
+                      </Stack>
+
+                      {/* QR */}
+                      <Box
+                        sx={{
+                          mt: 2.5,
+                          p: 2,
+                          bgcolor: '#f8f9fa',
+                          borderRadius: 2,
+                          border: '1px dashed #dee2e6',
+                          display: 'flex',            // Asegura comportamiento de flexbox
+                          flexDirection: 'column',    // Alinea elementos verticalmente
+                          alignItems: 'center',       // Centra horizontalmente todo el contenido
+                          textAlign: 'center'
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
+                          Código de acceso
+                        </Typography>
+
+                        <img
+                          alt="qr"
+                          src={item.codigo_acceso_url}
+                          width={200}
+                          style={{ borderRadius: 8, display: 'block' }}
+                        />
+
+                        <Typography
+                          variant="caption"
+                          display="block"
+                          mt={1}
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {item.id}
+                        </Typography>
+                      </Box>
+
+                      {/* BOTÓN */}
                       {item.puede_cancelarse && (
-                        <Button sx={{ mt: 1 }} variant="outlined" color="error" fullWidth onClick={() => handleOpenDialog(item.id)}>
-                          Cancelar
+                        <Button
+                          variant="contained"
+                          color="error"
+                          fullWidth
+                          onClick={() => handleOpenDialog(item.id)}
+                          sx={{
+                            mt: 2,
+                            py: 1.2,
+                            borderRadius: 2,
+                            fontWeight: 600,
+                          }}
+                        >
+                          Cancelar Cita
                         </Button>
                       )}
-                    </CardActions>
+                    </Box>
                   </Card>
                 </Box>
               </Grid>
@@ -186,7 +349,7 @@ return (
         ) : (
           /* Estado vacío: se muestra cuando no hay citas */
           <Box width="100%" textAlign="center" py={6}>
-            <Avatar sx={{ bgcolor: '#b1c89e', width: 56, height: 56, margin: '0 auto' }}>
+            <Avatar sx={{ bgcolor: '#121528', width: 56, height: 56, margin: '0 auto' }}>
               <CalendarMonthIcon sx={{ color: 'white' }} />
             </Avatar>
             <Typography variant="h6" mt={2}>

@@ -29,7 +29,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     return () => clearTimeout(timer);
   }, [success, countdown, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLElement>) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
@@ -111,7 +111,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                 <img src="/images/logo2.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 160, minWidth: 100, height: 'auto' }} />
               </Box>
             </Box>
-            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#65815c', fontSize: '1.5rem' }}>
+            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#121528', fontSize: '1.5rem' }}>
               Recuperar contraseña
             </Typography>
             <Typography variant="body2" align="center" color="text.secondary" mb={3}>
@@ -179,7 +179,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   color="primary" 
                   disabled={loading || success} 
                   fullWidth
-                  sx={{ backgroundColor: '#65815c', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
+                  sx={{ backgroundColor: '#121528', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
                 >
                   {loading ? 'Enviando...' : success ? 'Recuperación enviada' : 'Recuperar contraseña'}
                 </Button>
@@ -188,7 +188,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   onClick={handleBack} 
                   disabled={success}
                   fullWidth 
-                  sx={{ mt: -1, color: '#65815c' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
+                  sx={{ mt: -1, color: '#121528' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
                 >
                   Volver al inicio de sesión
                 </Button>
