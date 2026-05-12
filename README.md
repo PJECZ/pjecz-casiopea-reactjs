@@ -1,6 +1,3 @@
-# pjecz-casiopea-reactjs
-Frontend del Sistema de Citas
-
 # 🏛️ pjecz-casiopea-reactjs
 
 > Frontend del sistema de citas, que utilizará el público en general para agendar sus citas, consultarlas y cancelarlas.
