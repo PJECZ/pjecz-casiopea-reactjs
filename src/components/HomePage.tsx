@@ -289,39 +289,42 @@ return (
                       </Stack>
 
                       {/* QR */}
-                      <Box
-                        sx={{
-                          mt: 2.5,
-                          p: 2,
-                          bgcolor: '#f8f9fa',
-                          borderRadius: 2,
-                          border: '1px dashed #dee2e6',
-                          display: 'flex',            // Asegura comportamiento de flexbox
-                          flexDirection: 'column',    // Alinea elementos verticalmente
-                          alignItems: 'center',       // Centra horizontalmente todo el contenido
-                          textAlign: 'center'
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
-                          Código de acceso
-                        </Typography>
-
-                        <img
-                          alt="qr"
-                          src={item.codigo_acceso_url}
-                          width={200}
-                          style={{ borderRadius: 8, display: 'block' }}
-                        />
-
-                        <Typography
-                          variant="caption"
-                          display="block"
-                          mt={1}
-                          sx={{ fontWeight: 600 }}
+                      {item.codigo_acceso_url && (
+                        <Box
+                          sx={{
+                            mt: 2.5,
+                            p: 2,
+                            bgcolor: '#f8f9fa',
+                            borderRadius: 2,
+                            border: '1px dashed #dee2e6',
+                            display: 'flex',            // Asegura comportamiento de flexbox
+                            flexDirection: 'column',    // Alinea elementos verticalmente
+                            alignItems: 'center',       // Centra horizontalmente todo el contenido
+                            textAlign: 'center'
+                          }}
                         >
-                          {item.id}
-                        </Typography>
-                      </Box>
+                          <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
+                            Código de acceso
+                          </Typography>
+                        
+                            <img
+                              alt="qr"
+                              src={item.codigo_acceso_url}
+                            width={200}
+                            style={{ borderRadius: 8, display: 'block' }}
+                          />
+
+                          <Typography
+                            variant="caption"
+                            display="block"
+                            mt={1}
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {item.id}
+                          </Typography>
+                        </Box>
+                      )}
+
 
                       {/* BOTÓN */}
                       {item.puede_cancelarse && (
