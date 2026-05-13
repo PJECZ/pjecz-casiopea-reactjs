@@ -230,14 +230,14 @@ const NewAppointment: React.FC = () => {
                             
                             {/* ── Panel izquierdo: Formulario ── */}
                             <Box flex={1} sx={{ p: 4, borderRight: '1px solid', borderColor: 'divider' }}>
-                                <Typography variant="h5" fontWeight={700} color={C.dark} gutterBottom>
+                                <Typography variant="h5" fontWeight={700} mb={3} color={C.dark} gutterBottom>
                                     Nueva Cita
                                 </Typography>
                                 
                                 <Grid container spacing={3}>
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <FormControl fullWidth>
-                                            <InputLabel id="distrito-label">Distrito</InputLabel>
+                                            <InputLabel id="distrito-label">Ubicación</InputLabel>
                                             <Select
                                                 labelId="distrito-label"
                                                 value={distrito}
@@ -247,12 +247,12 @@ const NewAppointment: React.FC = () => {
                                                 displayEmpty
                                                 renderValue={(selected) => {
                                                     if (!selected) {
-                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un distrito</span>;
+                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona una ubicación</span>;
                                                     }
                                                     return distritos.find(d => d.clave === selected)?.nombre || '';
                                                 }}
                                             >
-                                                <MenuItem value="" disabled>Selecciona un distrito</MenuItem>
+                                                <MenuItem value="" disabled>Selecciona una ubicación</MenuItem>
                                                 {distritos.map(d => <MenuItem key={d.clave} value={d.clave}>{d.nombre}</MenuItem>)}
                                             </Select>
                                         </FormControl>

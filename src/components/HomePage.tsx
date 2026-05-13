@@ -403,7 +403,7 @@ return (
     </Container>
 
     {/* FOOTER (Fuera del Container para que ocupe todo el ancho) */}
-    <Box component="footer"
+    {/* <Box component="footer"
       sx={{
         mt: 4,
         py: 3,
@@ -418,7 +418,7 @@ return (
       }}
     >
       <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 220, height: 'auto' }} />
-    </Box>
+    </Box> */}
   </>
 )};
 

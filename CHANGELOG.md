@@ -6,6 +6,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 ## [1.1.4] - 2026-05-12
 
 ### ✨ Añadido
+- Correcciones en interfaz de nueva cita y _homepage_.
 - Mejora del archivo `README.md` para mayor descripción del proyecto.
 - Añadido el archivo de ejemplo `.env.example`.
 - Archivo `CHANGELOG.md` para registro de cambios.
