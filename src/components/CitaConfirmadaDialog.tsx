@@ -193,40 +193,44 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
       {/* Contenido */}
       <DialogContent sx={{ p: 3, bgcolor: 'white' }}>
         <Stack spacing={1.5}>
-          <Box
-            sx={{
-              p: 2,
-              bgcolor: '#f0f4ff',
-              borderRadius: 2,
-              border: '1px solid #000'
-            }}
-          >
-            <Grid container spacing={2}>
-              <Grid size={{ md: 7, xs: 12 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CalendarIcon sx={{ fontSize: 20, color: '#000' }} />
+          
+          {/* FECHA Y HORA */}
+          <Box sx={{
+            p: 1.5, bgcolor: '#f8f9fa', borderRadius: 2,
+            border: '1px solid #e0e0e0'
+          }}>
+            <Grid container>
+              <Grid size={{ xs: 7}}>
+                {/* Fecha */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ display: 'inline-flex', bgcolor: '#121528', p: 1, borderRadius: '50%', color: 'white' }}>
+                    <CalendarIcon sx={{ fontSize: 20 }} />
+                  </Box>
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
+                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}>
                       Fecha
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#000', fontWeight: 600, fontSize: '0.95rem' }}>
-                      {cita?.inicio 
-                        ? new Date(cita.inicio).toLocaleDateString('es-MX', {day: '2-digit', month:'2-digit', year:'numeric'}) 
+                    <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.85rem' }}>
+                      {cita?.inicio
+                        ? new Date(cita.inicio).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
                         : 'No especificada'}
                     </Typography>
                   </Box>
                 </Box>
               </Grid>
-              <Grid size={{ md: 5, xs: 12 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TimeIcon sx={{ fontSize: 20, color: '#000' }} />
+              <Grid size={{ xs: 5}}>
+                {/* Hora */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ display: 'inline-flex', bgcolor: '#121528', p: 1, borderRadius: '50%', color: 'white' }}>
+                    <TimeIcon sx={{ fontSize: 20 }} />
+                  </Box>
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
+                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}>
                       Hora
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#000', fontWeight: 600, fontSize: '0.95rem' }}>
-                      {cita?.inicio 
-                        ? new Date(cita.inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.85rem' }}>
+                      {cita?.inicio
+                        ? new Date(cita.inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : '--:--'}
                     </Typography>
                   </Box>
@@ -234,79 +238,109 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               </Grid>
             </Grid>
           </Box>
-
-          <InfoItem
-            icon={BusinessIcon}
-            label="Unidad"
-            value={cita?.oficina_descripcion}
-            compact
-          />
-
-          <InfoItem
-            icon={Assignment}
-            label="Tipo de trámite"
-            value={cita?.cit_servicio_descripcion}
-            compact
-          />
-
-          <InfoItem
-            icon={cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
-              ? DescriptionIcon 
-              : NoteIcon
-            }
-            label={cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
-              ? 'Expediente' 
-              : 'Notas'
-            }
-            value={cita?.notas || 'Sin información adicional'}
-            compact
-          />
-
-          <InfoItem
-            icon={KeyIcon}
-            label="Código de asistencia"
-            value={cita?.codigo_asistencia || 'No generado'}
-            compact
-          />
-        </Stack>
-        
-        {cita?.codigo_acceso_url && (
-          <Box
-            sx={{
-                mt: 2.5,
-                p: 2,
-                bgcolor: '#f8f9fa',
-                borderRadius: 2,
-                border: '1px dashed #dee2e6',
-                textAlign: 'center'
-            }}
-          >
-            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                Código de acceso
-            </Typography>
-            <img
-                alt="qr"
-                src={cita.codigo_acceso_url}
-                width={200}
-                style={{ borderRadius: 8 }}
-            />
-            <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
-                {cita?.id}
-            </Typography>
+            
+          {/* UNIDAD */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+              <BusinessIcon sx={{ fontSize: 18, color: 'white' }} />
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
+                Unidad
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                {cita?.oficina_descripcion || 'No especificado'}
+              </Typography>
+            </Box>
           </Box>
-        )}
 
+          {/* TIPO DE TRÁMITE */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+              <Assignment sx={{ fontSize: 18, color: 'white' }} />
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
+                Tipo de trámite
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                {cita?.cit_servicio_descripcion || 'No especificado'}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* NOTAS / EXPEDIENTE */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+              {cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente')
+                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+                : <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
+              }
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
+                {cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente') ? 'Expediente' : 'Notas'}
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                {cita?.notas || 'Sin información adicional'}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* CÓDIGO DE ASISTENCIA */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+              <KeyIcon sx={{ fontSize: 18, color: 'white' }} />
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
+                Código de asistencia
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                {cita?.codigo_asistencia || 'No generado'}
+              </Typography>
+            </Box>
+          </Box>
+
+        </Stack>
+
+        {/* QR y tip se quedan igual */}
+        {cita?.codigo_acceso_url && (
         <Box
           sx={{
-            mt: 2, p: 1.5, bgcolor: '#fff9e6', borderRadius: 2, borderLeft: '3px solid #ffc107',
-            display: 'flex', gap: 1, alignItems: 'center'
+              mt: 2.5,
+              p: 2,
+              bgcolor: '#f8f9fa',
+              borderRadius: 2,
+              border: '1px dashed #dee2e6',
+              textAlign: 'center'
           }}
         >
-          <Typography variant="body2" sx={{ fontSize: '1rem' }}>💡</Typography>
-          <Typography variant="body2" sx={{ color: '#856404', fontSize: '0.85rem' }}>
-            Llega 15 minutos antes de la hora programada
+          <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+              Código de acceso
+          </Typography>
+          <img
+              alt="qr"
+              src={cita.codigo_acceso_url}
+              width={200}
+              style={{ borderRadius: 8 }}
+          />
+          <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+              {cita?.id}
           </Typography>
         </Box>
+      )}
+      <Box
+        sx={{
+          mt: 2, p: 1.5, bgcolor: '#fff9e6', borderRadius: 2, borderLeft: '3px solid #ffc107',
+          display: 'flex', gap: 1, alignItems: 'center'
+        }}
+      >
+        <Typography variant="body2" sx={{ fontSize: '1rem' }}>💡</Typography>
+        <Typography variant="body2" sx={{ color: '#856404', fontSize: '0.85rem' }}>
+          Llega 15 minutos antes de la hora programada
+        </Typography>
+      </Box>
       </DialogContent>
 
       {/* Acciones */}
