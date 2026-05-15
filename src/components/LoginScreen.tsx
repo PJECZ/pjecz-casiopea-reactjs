@@ -156,7 +156,7 @@ const LoginScreen = () => {
         // ✅ Más padding interno general
         p: { xs: 3, sm: 5 },
         backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgb(236,236,236)',
+        backgroundColor: '#fff',
         borderRadius: 3,
         mx: { xs: 1, sm: 'auto' },
         my: { xs: 4, sm: 2, md: 1 },
@@ -330,7 +330,7 @@ const LoginScreen = () => {
                 <Box display="flex" justifyContent="flex-end">
                   <Link
                     to="/forgot-password"
-                    style={{ color: '#1c1f33ff', textTransform: 'none', fontSize: 15 }}
+                    style={{ color: '#1c1f33ff', textTransform: 'none', textDecoration: 'none',fontSize: 15 }}
                     onClick={() => setShowForgotPassword(true)}
                   >
                     ¿Olvidaste tu contraseña?

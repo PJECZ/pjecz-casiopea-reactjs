@@ -23,6 +23,8 @@ import {
   CheckCircle as CheckIcon,
   AccessTime as TimeIcon
 } from '@mui/icons-material';
+import KeyIcon from '@mui/icons-material/Key';
+import Assignment from '@mui/icons-material/Assignment';
 
 // ─── Interfaces ─────────────────────────────────────────────
 interface CitaData {
@@ -32,6 +34,7 @@ interface CitaData {
   cit_servicio_descripcion?: string;
   notas?: string;
   codigo_acceso_url?: string;
+  codigo_asistencia?: string;
 }
 
 interface CitaConfirmadaDialogProps {
@@ -234,14 +237,14 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
 
           <InfoItem
             icon={BusinessIcon}
-            label="Oficina"
+            label="Unidad"
             value={cita?.oficina_descripcion}
             compact
           />
 
           <InfoItem
-            icon={DescriptionIcon}
-            label="Trámite"
+            icon={Assignment}
+            label="Tipo de trámite"
             value={cita?.cit_servicio_descripcion}
             compact
           />
@@ -256,6 +259,13 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               : 'Notas'
             }
             value={cita?.notas || 'Sin información adicional'}
+            compact
+          />
+
+          <InfoItem
+            icon={KeyIcon}
+            label="Código de asistencia"
+            value={cita?.codigo_asistencia || 'No generado'}
             compact
           />
         </Stack>

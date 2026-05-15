@@ -108,7 +108,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
             {/* Logo institucional */}
             <Box display="flex" justifyContent="center" alignItems="center">
               <Box textAlign="left">
-                <img src="/images/logo_citas_login.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 160, minWidth: 100, height: 'auto' }} />
+                <img src="/images/logo_citas_login.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 200, minWidth: 100, height: 'auto' }} />
               </Box>
             </Box>
             <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#000', fontSize: '1.5rem' }}>
