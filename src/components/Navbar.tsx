@@ -5,8 +5,6 @@ import {
   AppBar,
   Box,
   Toolbar,
-  Tabs,
-  Tab,
   Avatar,
   Menu,
   MenuItem,
@@ -79,12 +77,12 @@ const Navbar: React.FC<NavbarProps> = ({
 
   // Render principal del Navbar
   return (
-    <AppBar position="fixed" color="default" elevation={2}>
+    <AppBar position="fixed" color="default" elevation={2} style={{ boxShadow: 'none', backgroundColor: 'white', borderBottom: '3px solid rgba(10, 25, 45, 0.8)' }}>
 
       <Container maxWidth="xl">
 
         {/* Distribuye los elementos en la barra */}
-        <Toolbar sx={{ justifyContent: 'space-between', height: 85 }}>
+        <Toolbar sx={{ justifyContent: 'space-between',backgroundColor: 'white', height: 85 }}>
           {/* Si es móvil, muestra solo el logo y el menú hamburguesa; si es desktop, muestra logo y tabs */}
           {isMobile ? (
             <>
@@ -106,7 +104,7 @@ const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <Box display="flex" alignItems="center">
               {/* Logo */}
-              <img src="/images/logo_navbar.png" alt="Logo" style={{ height: 60, display: 'block' }} />
+              <img src="/images/logo_navbar.png" alt="Logo" style={{ height: 60, display: 'block', marginRight:32 }} />
               <Box sx={{ flex: 1 }}>
                 <List component="nav" sx={{ display: 'flex', justifyContent: 'center' }}>
                   
@@ -120,10 +118,10 @@ const Navbar: React.FC<NavbarProps> = ({
                       }}
                       sx={{
                         borderRadius: 2,
-                        mx: 1,
+                        mx: 4,
                         px: 2,
                         '&.Mui-selected': {
-                          bgcolor: '#e9eef7',
+                          bgcolor: '#f5f5f5 !important',
                           color: '#000'
                         }
                       }}
@@ -145,10 +143,10 @@ const Navbar: React.FC<NavbarProps> = ({
                       }}
                       sx={{
                         borderRadius: 2,
-                        mx: 1,
+                        mx: 4,
                         px: 2,
                         '&.Mui-selected': {
-                          bgcolor: '#e9eef7',
+                          bgcolor: '#f5f5f5 !important',
                           color: '#000'
                         }
                       }}
@@ -178,11 +176,11 @@ const Navbar: React.FC<NavbarProps> = ({
                   px: 2,
                   py: 1,
                   borderRadius: 3,
-                  backgroundColor: '#f5f7fb',
+                  backgroundColor: '#f5f5f5',
                   color: '#000',
                   textTransform: 'none',
                   '&:hover': {
-                    backgroundColor: '#e9eef7'
+                    backgroundColor: '#f5f5f5'
                   }
                 }}
               >
@@ -248,7 +246,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     width: menuWidth ? menuWidth - 32 : 'auto', // Ajusta el ancho del menú al ancho del botón menos el padding
                     transition: 'all 0.2s ease',
                     '&:hover': {
-                      bgcolor: '#fbe9e7',
+                      bgcolor: '#fff',
                     }
                   }}
                   >
@@ -292,7 +290,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   <Typography variant="body2" sx={{ color: '#000', fontWeight: 600, fontSize: '0.875rem' }}>
                     Usuario
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem', wordBreak: 'break-word' }}>
+                  <Typography variant="caption" sx={{ color: '#f5f5f5', fontSize: '0.75rem' }}>
                     {localStorage.getItem('email')}
                   </Typography>
                 </Box>
