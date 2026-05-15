@@ -61,14 +61,18 @@ const SessionExpiredDialog: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center">
           <Avatar
             sx={{
-              bgcolor: 'dark',
-              color: 'dark',
+              bgcolor: '#000',
+              color: 'white',
               width: 64,
               height: 64,
-              mb: 2,
+              mb: 3,
+              mt: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            <AccessTime fontSize="large" />
+            <AccessTime fontSize="large" sx={{ backgroundColor: '#000', color: 'white' }} />
           </Avatar>
           <Box component="span">
             Sesión Expirada

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack } from '@mui/material';
 import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
-import { format } from 'date-fns';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -11,6 +10,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
+import KeyIcon from '@mui/icons-material/Key';
 type InfoFieldProps = {
   icon: SvgIconComponent;
   label: string;
@@ -274,7 +274,7 @@ return (
                         {/* OFICINA */}
                         <InfoField
                           icon={BusinessIcon}
-                          label="Oficina"
+                          label="Unidad"
                           value={item.oficina_descripcion}
                           compact
                         />
@@ -282,7 +282,7 @@ return (
                         {/* SERVICIO */}
                         <InfoField
                           icon={Assignment}
-                          label="Servicio"
+                          label="Tipo de trámite"
                           value={item.cit_servicio_descripcion}
                           compact
                         />
@@ -306,6 +306,14 @@ return (
                                 : item.notas
                               : 'Sin notas'
                           }
+                          compact
+                        />
+
+                         {/* CÓDIGO ASITENCIA */}
+                        <InfoField
+                          icon={KeyIcon}
+                          label="Código de asistencia"
+                          value={item.codigo_asistencia || 'No generado'}
                           compact
                         />
                       </Stack>
@@ -364,7 +372,7 @@ return (
           ))
         ) : (
           /* Estado vacío: se muestra cuando no hay citas */
-          <Box width="100%" textAlign="center" py={6}>
+          <Box width="100%" height={500} textAlign="center" py={6} alignContent={'center'}>
             <Avatar sx={{ bgcolor: '#000', width: 56, height: 56, margin: '0 auto' }}>
               <CalendarMonthIcon sx={{ color: 'white' }} />
             </Avatar>
@@ -382,7 +390,7 @@ return (
       <Dialog open={openDialog} onClose={loadingConfirm ? undefined : handleCloseDialog} fullWidth maxWidth="xs">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box display="flex" alignItems="center">
-            <EventBusy sx={{ color: 'error.main', mr: 1.5 }} />
+            <EventBusy sx={{ color: 'dark.main', fontSize: 32, mr: 1.5 }} />
             <Typography variant="h6" fontWeight="bold">Cancelar Cita</Typography>
           </Box>
           <IconButton onClick={handleCloseDialog} disabled={loadingConfirm}><CloseIcon /></IconButton>
@@ -390,7 +398,7 @@ return (
         <Divider />
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-            <WarningAmberIcon sx={{ fontSize: 60, color: 'warning.main', mb: 2 }} />
+            <WarningAmberIcon sx={{ fontSize: 80, color: 'dark.main',  mb: 2 }} />
             <Typography align="center" variant="subtitle1" fontWeight={500}>
               ¿Estás seguro que deseas cancelar tu cita?
             </Typography>
@@ -405,8 +413,7 @@ return (
               if(selectedAppointmentId) handleCancelAppointment(selectedAppointmentId);
             }}
             variant="contained"
-            color="error"
-            sx={{ ml: 2, minWidth: 120 }}
+            sx={{ ml: 2, minWidth: 120, backgroundColor: '#000', color: 'white', '&:hover': { backgroundColor: '#000' } }}
             disabled={loadingConfirm}
           >
             {loadingConfirm ? <CircularProgress size={22} color="inherit" /> : "Confirmar"}
