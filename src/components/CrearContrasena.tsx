@@ -42,7 +42,7 @@ const CrearContrasena: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
-            sx={{ borderRadius: 2, backgroundColor: '#121528', fontWeight: 600 }}
+            sx={{ borderRadius: 2, backgroundColor: '#000', fontWeight: 600 }}
             fullWidth
             size="large"
             onClick={() => navigate("/")}
@@ -110,10 +110,10 @@ const CrearContrasena: React.FC = () => {
   return (
     <Box sx={{ py: 6, px: 2, minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
       <Card sx={{ maxWidth: 600, borderRadius: 4, boxShadow: 3, p: 3, mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ bgcolor: success === true ? 'info.light' : (success === false ? 'error.light' : '#121528'), color: success === true ? 'info.dark' : (success === false ? 'error.dark' : '#fff'), width: 64, height: 64, mb: 2 }}>
+        <Avatar sx={{ bgcolor: success === true ? 'info.light' : (success === false ? 'error.light' : '#000'), color: success === true ? 'info.dark' : (success === false ? 'error.dark' : '#fff'), width: 64, height: 64, mb: 2 }}>
           {success === true ? <CheckCircle fontSize="large" /> : success === false ? <ErrorOutline fontSize="large" /> : <KeyOutlined fontSize="large" />}
         </Avatar>
-        <Typography variant="h5" fontWeight={600} sx={{ color: '#121528', mb: 1, textAlign: 'center' }}>
+        <Typography variant="h5" fontWeight={600} sx={{ color: '#000', mb: 1, textAlign: 'center' }}>
           {isRecuperacion ? 'Recuperar contraseña' : 'Crear nueva contraseña'}
         </Typography>
         <Divider sx={{ my: 2, width: '100%' }} />
@@ -144,7 +144,7 @@ const CrearContrasena: React.FC = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       onMouseDown={(e) => e.preventDefault()}
                       edge="end"
-                      sx={{ color: '#121528' }}
+                      sx={{ color: '#000' }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -174,7 +174,7 @@ const CrearContrasena: React.FC = () => {
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       onMouseDown={(e) => e.preventDefault()}
                       edge="end"
-                      sx={{ color: '#121528' }}
+                      sx={{ color: '#000' }}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -204,7 +204,7 @@ const CrearContrasena: React.FC = () => {
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mt: 3, borderRadius: 2, backgroundColor: '#121528', fontWeight: 600 }}
+            sx={{ mt: 3, borderRadius: 2, backgroundColor: '#000', fontWeight: 600 }}
             startIcon={<KeyOutlined />}
             disabled={loading}
             size="large"

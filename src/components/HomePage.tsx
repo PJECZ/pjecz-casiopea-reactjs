@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack } from '@mui/material';
 import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -10,8 +9,8 @@ import BusinessIcon from '@mui/icons-material/Business';
 import DescriptionIcon from '@mui/icons-material/Description';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import Assignment from '@mui/icons-material/Assignment';
-import NotesIcon from '@mui/icons-material/Notes';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import moment from 'moment';
 type InfoFieldProps = {
   icon: SvgIconComponent;
   label: string;
@@ -33,6 +32,11 @@ const HomePage: React.FC = () => {
   const citasOrdenadas = useMemo(() => {
     return [...citas].sort((a, b) => Date.parse(a.inicio) - Date.parse(b.inicio));
   }, [citas]);
+
+  // const formatDate = (inicio) => moment(inicio).format("DD/MM/YYYY");
+   // Add type annotation for parameter
+  const formatDate = (inicio: string | Date) => moment(inicio).format("DD/MM/YYYY");
+  const formatTime = (inicio: string | Date): string => moment(inicio).format("HH:mm");
 
   // Prepara la interfaz para la cancelación: guarda la referencia de la cita seleccionada y muestra el modal de confirmación.
   const handleOpenDialog = (id: string) => {
@@ -86,7 +90,7 @@ useEffect(() => {
 if (loadingCitas) {
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-      <CircularProgress sx={{ color: '#121528' }} />
+      <CircularProgress sx={{ color: '#000' }} />
     </Box>
   );
 }
@@ -106,11 +110,11 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
       transition: 'all 0.2s ease',
       '&:hover': {
         bgcolor: '#f1f3f5',
-        borderColor: '#121528',
+        borderColor: '#000',
       }
     }}
   >
-    <Avatar sx={{ bgcolor: '#121528', width: 36, height: 36 }}>
+    <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
       <Icon sx={{ fontSize: 18, color: 'white' }} />
     </Avatar>
 
@@ -134,7 +138,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
         variant="body2"
         component="div"
         sx={{
-          color: '#121528',
+          color: '#000',
           fontWeight: 500,
           fontSize: '0.9rem',
           lineHeight: 1.3,
@@ -152,7 +156,7 @@ return (
     <Container sx={{ pt: 4}} maxWidth="xl">
       {/* Barra de título */}
       <Box display="flex" justifyContent="space-between" alignItems="center" px={6} mb={4}>
-        <Typography variant="h4" fontWeight={700} sx={{ color: '#121528' }}>
+        <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
           Mis Citas Agendadas
         </Typography>
       </Box>
@@ -182,7 +186,7 @@ return (
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: 'linear-gradient(135deg, #121528 0%, #1e2442 50%, #121528 100%)',
+                        background: 'linear-gradient(135deg, #000 0%, #1e2442 50%, #000 100%)',
                         color: 'white',
                         p: 2.5,
                         textAlign: 'center'
@@ -200,8 +204,11 @@ return (
                         <CalendarMonthIcon sx={{ fontSize: 28 }} />
                       </Box>
 
-                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        Cita Programada
+                      <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                        Cita
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                        {item.id}
                       </Typography>
                     </Box>
 
@@ -210,45 +217,60 @@ return (
                       <Stack spacing={1.5}>
 
                         {/* FECHA Y HORA */}
-                        <Box
-                          sx={{
-                            p: 1.8,
-                            bgcolor: '#f0f4ff',
-                            borderRadius: 2,
-                            border: '1px solid #121528'
-                          }}
+                         <Box
+                            sx={{
+                                p: 1.5,
+                                bgcolor: '#f8f9fa',
+                                borderRadius: 2,
+                                border: '1px solid #e0e0e0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2
+                            }}
                         >
-                          <Grid container spacing={1.5} justifyContent="center">
-                            <Grid size={{ md: 7, xs: 7 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
-                                <CalendarMonthIcon sx={{ fontSize: 18, color: '#121528' }} />
-                                <Box>
-                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600 }}>
-                                    Fecha
-                                  </Typography>
-                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                    {format(new Date(item.inicio), "dd/MM/yyyy", { locale: es })}
-                                  </Typography>
+                            {/* Fecha */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{
+                                    display: 'inline-flex',
+                                    bgcolor: '#121528',
+                                    p: 1,
+                                    borderRadius: '50%',
+                                    color: 'white'
+                                }}>
+                                    <CalendarMonthIcon sx={{ fontSize: 20 }} />
                                 </Box>
-                              </Box>
-                            </Grid>
+                                <Box>
+                                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}>
+                                        Fecha
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.85rem' }}>
+                                        {formatDate(item.inicio)}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-                            <Grid size={{ md: 5, xs: 5 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
-                                <AccessTime sx={{ fontSize: 18, color: '#121528' }} />
-                                <Box>
-                                  <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600}}>
-                                    Hora
-                                  </Typography>
-                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                    {format(new Date(item.inicio), "HH:mm")}
-                                  </Typography>
+                            {/* Hora */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{
+                                    display: 'inline-flex',
+                                    bgcolor: '#121528',
+                                    p: 1,
+                                    borderRadius: '50%',
+                                    color: 'white'
+                                }}>
+                                    <AccessTime sx={{ fontSize: 20 }} />
                                 </Box>
-                              </Box>
-                            </Grid>
-                          </Grid>
+                                <Box>
+                                    <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}>
+                                        Hora
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.85rem' }}>
+                                        {formatTime(item.inicio)}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
                         </Box>
-
                         {/* OFICINA */}
                         <InfoField
                           icon={BusinessIcon}
@@ -314,17 +336,8 @@ return (
                             style={{ borderRadius: 8, display: 'block' }}
                           />
 
-                          <Typography
-                            variant="caption"
-                            display="block"
-                            mt={1}
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {item.id}
-                          </Typography>
                         </Box>
                       )}
-
 
                       {/* BOTÓN */}
                       {item.puede_cancelarse && (
@@ -352,7 +365,7 @@ return (
         ) : (
           /* Estado vacío: se muestra cuando no hay citas */
           <Box width="100%" textAlign="center" py={6}>
-            <Avatar sx={{ bgcolor: '#121528', width: 56, height: 56, margin: '0 auto' }}>
+            <Avatar sx={{ bgcolor: '#000', width: 56, height: 56, margin: '0 auto' }}>
               <CalendarMonthIcon sx={{ color: 'white' }} />
             </Avatar>
             <Typography variant="h6" mt={2}>
@@ -400,25 +413,7 @@ return (
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
-
-    {/* FOOTER (Fuera del Container para que ocupe todo el ancho) */}
-    {/* <Box component="footer"
-      sx={{
-        mt: 4,
-        py: 3,
-        bgcolor: '#fff',
-        boxShadow: '0 -2px 8px rgba(0,0,0,0.08)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: citasOrdenadas.length === 0 ? 'fixed' : 'relative',
-        bottom: citasOrdenadas.length === 0 ? 0 : 'auto',
-        width: '100%',
-      }}
-    >
-      <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 220, height: 'auto' }} />
-    </Box> */}
+    </Container>   
   </>
 )};
 

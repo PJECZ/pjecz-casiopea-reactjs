@@ -61,8 +61,8 @@ const SessionExpiredDialog: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center">
           <Avatar
             sx={{
-              bgcolor: 'warning.light',
-              color: 'warning.dark',
+              bgcolor: 'dark',
+              color: 'dark',
               width: 64,
               height: 64,
               mb: 2,
@@ -92,9 +92,9 @@ const SessionExpiredDialog: React.FC = () => {
           onClick={handleClose}
           variant="contained"
           sx={{
-            bgcolor: '#486238',
+            bgcolor: '#000',
             '&:hover': {
-              bgcolor: '#3a4f2d',
+              bgcolor: '#000',
             },
             textTransform: 'none',
             px: 4,
