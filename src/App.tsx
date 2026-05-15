@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import SessionExpiredDialog from './components/SessionExpiredDialog';

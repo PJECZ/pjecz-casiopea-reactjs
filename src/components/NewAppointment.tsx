@@ -33,7 +33,7 @@ type OficinaServicio = {
 };
 
 const C = {
-    dark:  '#252b50',
+    dark:  '#000',
     mid:   '#1e2545',
     light: '#e8eaf6',
     white: '#ffffff',
@@ -241,7 +241,7 @@ const NewAppointment: React.FC = () => {
                                             <Select
                                                 labelId="distrito-label"
                                                 value={distrito}
-                                                label="Distrito"
+                                                label="Ubicación"
                                                 onChange={e => setDistrito(e.target.value)}
                                                 startAdornment={<InputAdornment position="start"><LocationCityIcon /></InputAdornment>}
                                                 displayEmpty
@@ -310,17 +310,31 @@ const NewAppointment: React.FC = () => {
                                             <Autocomplete
                                                 multiple freeSolo options={[]}
                                                 value={expedientes}
-                                                onChange={(_, newValue) => setExpedientes(newValue)}
+                                                onChange={(_, newValue) => {
+                                                    if (newValue.length <= 10) {
+                                                        setExpedientes(newValue);
+                                                    }
+                                                }}
                                                 renderValue={(value, getTagProps) =>
                                                     value.map((option, index) => {
                                                     // Extraemos la key explícitamente para evitar el error anterior
                                                     const { key, ...tagProps } = getTagProps({ index });
                                                     return (
                                                         <Chip
-                                                        key={key} 
-                                                        label={option}
-                                                        size="small"
-                                                        {...tagProps}
+                                                            key={key} 
+                                                            label={option}
+                                                            size="small"
+                                                            {...tagProps}
+                                                            sx={{ 
+                                                                backgroundColor: "#000", 
+                                                                color: "white",
+                                                                '& .MuiChip-deleteIcon': {
+                                                                    color: 'white',
+                                                                    '&:hover': {
+                                                                        color: 'rgba(255,255,255,0.7)'
+                                                                    }
+                                                                }
+                                                            }}
                                                         />
                                                     );
                                                     })
@@ -341,7 +355,7 @@ const NewAppointment: React.FC = () => {
                                                 slotProps={{
                                                     input: {
                                                     startAdornment: (
-                                                        <InputAdornment position="start" sx={{ color: '#252b50' }}>
+                                                        <InputAdornment position="start" sx={{ color: '#fff' }}>
                                                         <NotesIcon />
                                                         </InputAdornment>
                                                     ),
@@ -445,7 +459,7 @@ const NewAppointment: React.FC = () => {
 
                                 <SummaryRow label="Distrito" value={distritos.find(d => d.clave === distrito)?.nombre} empty={!distrito} icon={<LocationCityIcon />} />
                                 <SummaryRow label="Oficina" value={oficina?.descripcion} empty={!oficina} icon={<BusinessIcon />} />
-                                <SummaryRow label="Trámite" value={tramite ? <Box component={'span'}><Chip label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} size="small" sx={{ fontSize: 10 }} /> </Box>: null} empty={!tramite} icon={<Assignment />} />
+                                <SummaryRow label="Trámite" value={tramite ? <Box component={'span'}><Chip label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} size="small" sx={{backgroundColor:'#000', color:'white'}} /> </Box>: null} empty={!tramite} icon={<Assignment />} />
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow

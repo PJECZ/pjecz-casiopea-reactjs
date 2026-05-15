@@ -74,7 +74,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
           minHeight: '100vh',
           width: '100%',
           height: '100%',
-          backgroundImage: "url('/images/bg3.jpg')",
+          backgroundImage: "url('/images/bg_new.jpeg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'repeat',
@@ -108,17 +108,17 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
             {/* Logo institucional */}
             <Box display="flex" justifyContent="center" alignItems="center">
               <Box textAlign="left">
-                <img src="/images/logo2.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 160, minWidth: 100, height: 'auto' }} />
+                <img src="/images/logo_citas_login.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 160, minWidth: 100, height: 'auto' }} />
               </Box>
             </Box>
-            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#121528', fontSize: '1.5rem' }}>
+            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#000', fontSize: '1.5rem' }}>
               Recuperar contraseña
             </Typography>
             <Typography variant="body2" align="center" color="text.secondary" mb={3}>
               Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
             </Typography>
             <form onSubmit={handleSubmit}>
-              <Stack spacing={2}>
+              <Stack spacing={4}>
                 <TextField
                   label="Correo electrónico"
                   type="email"
@@ -179,7 +179,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   color="primary" 
                   disabled={loading || success} 
                   fullWidth
-                  sx={{ backgroundColor: '#121528', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
+                  sx={{ backgroundColor: '#000', color: 'white', '&:hover': { backgroundColor: '#000' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
                 >
                   {loading ? 'Enviando...' : success ? 'Recuperación enviada' : 'Recuperar contraseña'}
                 </Button>
@@ -188,17 +188,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   onClick={handleBack} 
                   disabled={success}
                   fullWidth 
-                  sx={{ mt: -1, color: '#121528' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
+                  sx={{ mt: -1, color: '#000' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
                 >
                   Volver al inicio de sesión
                 </Button>
               </Stack>
             </form>
-
-            {/* Logo institucional */}
-            <Box textAlign="center" sx={{ mt: 2 }}> 
-              <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 200, height: 'auto' }} />
-            </Box>
           </Paper>
         </Box>
     </>

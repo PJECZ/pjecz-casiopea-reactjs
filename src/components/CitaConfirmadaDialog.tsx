@@ -66,7 +66,7 @@ const InfoItem: React.FC<InfoItemProps> = ({
       borderRadius: 2,
       transition: 'all 0.2s ease',
       bgcolor: highlight ? '#f0f4ff' : 'transparent',
-      border: highlight ? '1px solid #121528' : '1px solid transparent',
+      border: highlight ? '1px solid #000' : '1px solid transparent',
       '&:hover': {
         bgcolor: '#f8f9fa',
       }
@@ -74,8 +74,8 @@ const InfoItem: React.FC<InfoItemProps> = ({
   >
     <Avatar
       sx={{
-        bgcolor: highlight ? '#121528' : '#e9ecef',
-        color: highlight ? 'white' : '#121528',
+        bgcolor: highlight ? '#000' : '#e9ecef',
+        color: highlight ? 'white' : '#000',
         width: compact ? 36 : 40,
         height: compact ? 36 : 40
       }}
@@ -99,7 +99,7 @@ const InfoItem: React.FC<InfoItemProps> = ({
         variant="body1"
         sx={{
           mt: 0.2,
-          color: '#121528',
+          color: '#000',
           fontWeight: highlight ? 600 : 500,
           fontSize: compact ? '0.9rem' : (highlight ? '1rem' : '0.92rem'),
           wordBreak: 'break-word',
@@ -143,11 +143,11 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
       {/* Header */}
       <Box
         sx={{
-          bgcolor: '#121528',
+          bgcolor: '#000',
           color: 'white',
           p: 3,
           position: 'relative',
-          background: 'linear-gradient(135deg, #121528 0%, #1e2442 50%, #121528 100%)'
+          background: 'linear-gradient(135deg, #000 0%, #1e2442 50%, #000 100%)'
         }}
       >
         <IconButton
@@ -195,18 +195,18 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               p: 2,
               bgcolor: '#f0f4ff',
               borderRadius: 2,
-              border: '1px solid #121528'
+              border: '1px solid #000'
             }}
           >
             <Grid container spacing={2}>
               <Grid size={{ md: 7, xs: 12 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CalendarIcon sx={{ fontSize: 20, color: '#121528' }} />
+                  <CalendarIcon sx={{ fontSize: 20, color: '#000' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
                       Fecha
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.95rem' }}>
+                    <Typography variant="body1" sx={{ color: '#000', fontWeight: 600, fontSize: '0.95rem' }}>
                       {cita?.inicio 
                         ? new Date(cita.inicio).toLocaleDateString('es-MX', {day: '2-digit', month:'2-digit', year:'numeric'}) 
                         : 'No especificada'}
@@ -216,12 +216,12 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               </Grid>
               <Grid size={{ md: 5, xs: 12 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TimeIcon sx={{ fontSize: 20, color: '#121528' }} />
+                  <TimeIcon sx={{ fontSize: 20, color: '#000' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
                       Hora
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.95rem' }}>
+                    <Typography variant="body1" sx={{ color: '#000', fontWeight: 600, fontSize: '0.95rem' }}>
                       {cita?.inicio 
                         ? new Date(cita.inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
                         : '--:--'}
@@ -280,7 +280,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
                 width={200}
                 style={{ borderRadius: 8 }}
             />
-            <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#121528', fontWeight: 600, fontSize: '0.75rem' }}>
+            <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
                 {cita?.id}
             </Typography>
           </Box>
@@ -306,9 +306,9 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           variant="outlined"
           fullWidth
           sx={{
-            borderColor: '#dee2e6', color: '#495057', textTransform: 'none',
+            borderColor: '#dee2e6', color: '#000', textTransform: 'none',
             fontWeight: 600, py: 1.2, borderRadius: 2, fontSize: '0.9rem',
-            '&:hover': { borderColor: '#121528', bgcolor: 'white' }
+            '&:hover': { borderColor: '#000', bgcolor: 'white' }
           }}
         >
           Cerrar
@@ -319,7 +319,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           variant="contained"
           fullWidth
           sx={{
-            bgcolor: '#121528', textTransform: 'none', fontWeight: 600,
+            bgcolor: '#000', textTransform: 'none', fontWeight: 600,
             py: 1.2, borderRadius: 2, fontSize: '0.9rem',
             '&:hover': { bgcolor: '#1a1f3a', transform: 'translateY(-1px)' },
             transition: 'all 0.2s ease'

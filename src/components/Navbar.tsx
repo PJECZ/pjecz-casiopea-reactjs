@@ -96,7 +96,7 @@ const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setOpenDrawer(true)}
               sx={{ ml: 2 }}
             >
-              <MenuIcon sx={{ color: '#121528' }} />
+              <MenuIcon sx={{ color: '#000' }} />
             </IconButton>
           </>
         ) : (
@@ -120,12 +120,12 @@ const Navbar: React.FC<NavbarProps> = ({
                       px: 2,
                       '&.Mui-selected': {
                         bgcolor: '#e9eef7',
-                        color: '#121528'
+                        color: '#000'
                       }
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 32 }}>
-                      <EventNoteIcon sx={{ color: '#486238' }} />
+                      <EventNoteIcon sx={{ color: '#000' }} />
                     </ListItemIcon>
                     <ListItemText primary="Mis Citas" />
                   </ListItemButton>
@@ -145,12 +145,12 @@ const Navbar: React.FC<NavbarProps> = ({
                       px: 2,
                       '&.Mui-selected': {
                         bgcolor: '#e9eef7',
-                        color: '#121528'
+                        color: '#000'
                       }
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 32 }}>
-                      <AddIcon sx={{ color: '#486238' }} />
+                      <AddIcon sx={{ color: '#000' }} />
                     </ListItemIcon>
                     <ListItemText primary="Nueva Cita" />
                   </ListItemButton>
@@ -175,7 +175,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 py: 1,
                 borderRadius: 3,
                 backgroundColor: '#f5f7fb',
-                color: '#121528',
+                color: '#000',
                 textTransform: 'none',
                 '&:hover': {
                   backgroundColor: '#e9eef7'
@@ -184,7 +184,7 @@ const Navbar: React.FC<NavbarProps> = ({
             >
               <Avatar
                 sx={{
-                  bgcolor: '#121528',
+                  bgcolor: '#000',
                   width: 36,
                   height: 36,
                   fontSize: 14
@@ -203,14 +203,10 @@ const Navbar: React.FC<NavbarProps> = ({
                     lineHeight: 1.2
                   }}
                 >
-                  <Typography variant="body2" sx={{ color: '#121528', fontWeight: 500 }}>
+                  <Typography variant="body2" sx={{ color: '#000', fontWeight: 500 }}>
                     {/* Mostrar correo del usuario */}
                     {localStorage.getItem('email')}
                   </Typography>
-                  {/* <Avatar sx={{ bgcolor: '#393b49ff', color: '#eff0efff', width: 32, height: 32 }}> */}
-                    {/* Mostrar inicial del correo */}
-                    {/* {localStorage.getItem('email')?.slice(0, 1).toUpperCase()} */}
-                  {/* </Avatar> */}
                 </Box>
 
               )}
@@ -270,7 +266,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   primaryTypographyProps={{
                     fontSize: 14,
                     fontWeight: 500,
-                    color: '#121528'
+                    color: '#000'
                   }}
                 />
 
@@ -289,7 +285,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
               </Avatar>
               <Box flex={1}>
-                <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.875rem' }}>
+                <Typography variant="body2" sx={{ color: '#000', fontWeight: 600, fontSize: '0.875rem' }}>
                   Usuario
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem', wordBreak: 'break-word' }}>
@@ -302,14 +298,14 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* Opción para ver citas */}
             <ListItem disablePadding>
               <ListItemButton selected={activeTab === 'homepage'} onClick={() => { setActiveTab('homepage'); navigate('/homepage'); }}>
-                <ListItemIcon><EventNoteIcon sx={{ color: '#486238' }} /></ListItemIcon>
+                <ListItemIcon><EventNoteIcon sx={{ color: '#000' }} /></ListItemIcon>
                 <ListItemText primary="Mis Citas" />
               </ListItemButton>
             </ListItem>
             {/* Opción para crear nueva cita */}
             <ListItem disablePadding>
               <ListItemButton selected={activeTab === 'newappointment'} onClick={() => { setActiveTab('newappointment'); navigate('/new-appointment'); }}>
-                <ListItemIcon><AddIcon sx={{ color: '#486238' }} /></ListItemIcon>
+                <ListItemIcon><AddIcon sx={{ color: '#000' }} /></ListItemIcon>
                 <ListItemText primary="Nueva Cita" />
               </ListItemButton>
             </ListItem>
@@ -329,7 +325,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   navigate('/');
                 }, 1200);
               }}>
-                <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#121528' }} />}</ListItemIcon>
+                <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#000' }} />}</ListItemIcon>
                 <ListItemText primary="Cerrar Sesión" />
               </ListItemButton>
             </ListItem>
