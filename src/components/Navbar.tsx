@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [loadingLogout, setLoadingLogout] = useState(false); // Estado de carga al cerrar sesión
   const [openDrawer, setOpenDrawer] = React.useState(false); // Estado del menú lateral (drawer)
   const theme = useTheme(); // Tema de MUI
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Detecta si es móvil
+  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Detecta si es móvil
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null); // Anchor para el menú desplegable del perfil
   const [menuWidth, setMenuWidth] = useState<number | null>(null);
 
@@ -88,7 +88,7 @@ const Navbar: React.FC<NavbarProps> = ({
             <>
               <Box display="flex" alignItems="center">
                 {/* Logo */}
-                <img src="/images/logo_navbar.png" alt="Logo" style={{ width: 70, height: 'auto', display: 'block' }} />
+                <img src="/images/logo_navbar.png" alt="Logo" style={{ width: 'auto', height: 50, display: 'block' }} />
               </Box>
               {/* Botón de menú hamburguesa para abrir el Drawer */}
               <IconButton
@@ -175,6 +175,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     gap: 1.5,
                   px: 2,
                   py: 1,
+                  minWidth:48,
                   borderRadius: 3,
                   backgroundColor: '#f5f5f5',
                   color: '#000',
@@ -194,27 +195,20 @@ const Navbar: React.FC<NavbarProps> = ({
                 >
                   {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
                 </Avatar>
-                {loadingLogout ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  // Mostrar correo del usuario
-                  <Box sx={{
-                      display: { xs: 'none', md: 'flex' },
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: '#000', fontWeight: 500 }}>
-                      {/* Mostrar correo del usuario */}
-                      {localStorage.getItem('email')}
-                    </Typography>
-                  </Box>
-
-                )}
-                {loadingLogout ? null : (
-                  <KeyboardArrowDownIcon />
-                )}
+           
+                  {/* Mostrar correo del usuario*/}
+                <Box sx={{
+                    display: { xs: 'none', md: 'flex' },
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    lineHeight: 1.2
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: '#000', fontWeight: 500 }}>
+                    {/* Mostrar correo del usuario */}
+                    {localStorage.getItem('email')}
+                  </Typography>
+                </Box>
               </Button>
               <Menu
                 anchorEl={profileMenuAnchor}
@@ -225,16 +219,19 @@ const Navbar: React.FC<NavbarProps> = ({
               >
                 <MenuItem
                   onClick={() => {
-                    setProfileMenuAnchor(null);
                     setShowNewAppointmentForm(true);
                     setLoadingLogout(true);
-
+                    
                     setTimeout(() => {
+                      setProfileMenuAnchor(null);
+
                       localStorage.removeItem('access_token');
                       localStorage.removeItem('email');
+
                       setLoadingLogout(false);
+
                       navigate('/');
-                    }, 1200);
+                    }, 1500);
                   }}
                   disabled={loadingLogout}
                   sx={{
@@ -253,22 +250,26 @@ const Navbar: React.FC<NavbarProps> = ({
                   <ListItemIcon
                     sx={{
                       minWidth: 36,
-                      //color: '#d32f2f'
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     {loadingLogout ? (
-                      <CircularProgress size={18} />
+                      <CircularProgress size={20} thickness={5} sx={{ color: '#000' }}/>
                     ) : (
                       <LogoutIcon fontSize="small" />
                     )}
                   </ListItemIcon>
 
                   <ListItemText
-                    primary="Salir"
-                    primaryTypographyProps={{
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: '#000'
+                    primary={loadingLogout ? 'Saliendo...' : 'Salir'}
+                    slotProps={{
+                      primary: {
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: '#000'
+                      }
                     }}
                   />
 
@@ -290,7 +291,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   <Typography variant="body2" sx={{ color: '#000', fontWeight: 600, fontSize: '0.875rem' }}>
                     Usuario
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#f5f5f5', fontSize: '0.75rem' }}>
+                  <Typography variant="caption" sx={{ color: '#000', fontSize: '0.75rem' }}>
                     {localStorage.getItem('email')}
                   </Typography>
                 </Box>
@@ -299,14 +300,32 @@ const Navbar: React.FC<NavbarProps> = ({
             <List>
               {/* Opción para ver citas */}
               <ListItem disablePadding>
-                <ListItemButton selected={activeTab === 'homepage'} onClick={() => { setActiveTab('homepage'); navigate('/homepage'); }}>
+                <ListItemButton 
+                  selected={activeTab === 'homepage'} 
+                  onClick={() => { setActiveTab('homepage'); navigate('/homepage'); }}
+                  sx={{
+                      '&.Mui-selected': {
+                        bgcolor: '#f5f5f5 !important',
+                        color: '#000'
+                      }
+                    }}
+                >
                   <ListItemIcon><EventNoteIcon sx={{ color: '#000' }} /></ListItemIcon>
                   <ListItemText primary="Mis Citas" />
                 </ListItemButton>
               </ListItem>
               {/* Opción para crear nueva cita */}
               <ListItem disablePadding>
-                <ListItemButton selected={activeTab === 'newappointment'} onClick={() => { setActiveTab('newappointment'); navigate('/new-appointment'); }}>
+                <ListItemButton 
+                  selected={activeTab === 'newappointment'} 
+                  onClick={() => { setActiveTab('newappointment'); navigate('/new-appointment'); }}
+                  sx={{
+                      '&.Mui-selected': {
+                        bgcolor: '#f5f5f5 !important',
+                        color: '#000'
+                      }
+                    }}
+                >
                   <ListItemIcon><AddIcon sx={{ color: '#000' }} /></ListItemIcon>
                   <ListItemText primary="Nueva Cita" />
                 </ListItemButton>
@@ -316,8 +335,9 @@ const Navbar: React.FC<NavbarProps> = ({
             <List>
               {/* Opción para cerrar sesión */}
               <ListItem disablePadding>
-                <ListItemButton onClick={() => {
+                <ListItemButton onClick={(e) => {
                   // Logout desde el menú móvil
+                  e.stopPropagation();
                   setShowNewAppointmentForm(true);
                   setLoadingLogout(true);
                   setTimeout(() => {
@@ -328,7 +348,16 @@ const Navbar: React.FC<NavbarProps> = ({
                   }, 1200);
                 }}>
                   <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#000' }} />}</ListItemIcon>
-                  <ListItemText primary="Cerrar Sesión" />
+                  <ListItemText 
+                    primary={loadingLogout ? 'Saliendo...' : 'Salir'} 
+                    slotProps={{
+                      primary: {
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: '#000'
+                      }
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             </List>

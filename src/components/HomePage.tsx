@@ -107,11 +107,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
       borderRadius: 2,
       bgcolor: '#f8f9fa',
       border: '1px solid #e9ecef',
-      transition: 'all 0.2s ease',
-      '&:hover': {
-        bgcolor: '#f1f3f5',
-        borderColor: '#000',
-      }
+      
     }}
   >
     <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
@@ -186,7 +182,7 @@ return (
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: 'linear-gradient(135deg, #000 0%, #1e2442 50%, #000 100%)',
+                        background: 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
                         p: 2.5,
                         textAlign: 'center'
@@ -243,7 +239,7 @@ return (
                                     <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}>
                                         Fecha
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.85rem' }}>
+                                    <Typography variant="body2" sx={{ color: '#000', fontWeight: 600, fontSize: '0.85rem' }}>
                                         {formatDate(item.inicio)}
                                     </Typography>
                                 </Box>
@@ -253,7 +249,7 @@ return (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                 <Box sx={{
                                     display: 'inline-flex',
-                                    bgcolor: '#121528',
+                                    bgcolor: '#000',
                                     p: 1,
                                     borderRadius: '50%',
                                     color: 'white'
@@ -289,8 +285,6 @@ return (
 
                         {/* NOTAS */}
                         <InfoField
-                          // icon={NotesIcon}
-                          // label="Notas"
                           icon={item?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
                               ? DescriptionIcon 
                               : NoteAltIcon
@@ -326,7 +320,7 @@ return (
                             p: 2,
                             bgcolor: '#f8f9fa',
                             borderRadius: 2,
-                            border: '1px dashed #dee2e6',
+                            border: '1px solid #dee2e6',
                             display: 'flex',            // Asegura comportamiento de flexbox
                             flexDirection: 'column',    // Alinea elementos verticalmente
                             alignItems: 'center',       // Centra horizontalmente todo el contenido
@@ -340,8 +334,8 @@ return (
                             <img
                               alt="qr"
                               src={item.codigo_acceso_url}
-                            width={200}
-                            style={{ borderRadius: 8, display: 'block' }}
+                              width={200}
+                              style={{ borderRadius: 8, display: 'block' }}
                           />
 
                         </Box>

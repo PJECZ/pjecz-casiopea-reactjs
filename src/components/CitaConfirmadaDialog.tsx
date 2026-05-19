@@ -150,7 +150,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           color: 'white',
           p: 3,
           position: 'relative',
-          background: 'linear-gradient(135deg, #000 0%, #1e2442 50%, #000 100%)'
+          background: 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)'
         }}
       >
         <IconButton
@@ -161,7 +161,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
             top: 8,
             color: 'white',
             bgcolor: 'rgba(255, 255, 255, 0.1)',
-            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
+            
           }}
         >
           <CloseIcon />
@@ -203,7 +203,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               <Grid size={{ xs: 7}}>
                 {/* Fecha */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ display: 'inline-flex', bgcolor: '#121528', p: 1, borderRadius: '50%', color: 'white' }}>
+                  <Box sx={{ display: 'inline-flex', bgcolor: '#000', p: 1, borderRadius: '50%', color: 'white' }}>
                     <CalendarIcon sx={{ fontSize: 20 }} />
                   </Box>
                   <Box>
@@ -221,7 +221,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               <Grid size={{ xs: 5}}>
                 {/* Hora */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ display: 'inline-flex', bgcolor: '#121528', p: 1, borderRadius: '50%', color: 'white' }}>
+                  <Box sx={{ display: 'inline-flex', bgcolor: '#000', p: 1, borderRadius: '50%', color: 'white' }}>
                     <TimeIcon sx={{ fontSize: 20 }} />
                   </Box>
                   <Box>
@@ -240,7 +240,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           </Box>
             
           {/* UNIDAD */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
               <BusinessIcon sx={{ fontSize: 18, color: 'white' }} />
             </Avatar>
@@ -255,7 +255,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           </Box>
 
           {/* TIPO DE TRÁMITE */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
               <Assignment sx={{ fontSize: 18, color: 'white' }} />
             </Avatar>
@@ -270,7 +270,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           </Box>
 
           {/* NOTAS / EXPEDIENTE */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
               {cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente')
                 ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
@@ -288,7 +288,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           </Box>
 
           {/* CÓDIGO DE ASISTENCIA */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef', '&:hover': { bgcolor: '#f1f3f5', borderColor: '#000' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef' }}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
               <KeyIcon sx={{ fontSize: 18, color: 'white' }} />
             </Avatar>
@@ -312,7 +312,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               p: 2,
               bgcolor: '#f8f9fa',
               borderRadius: 2,
-              border: '1px dashed #dee2e6',
+              border: '1px solid #dee2e6',
               textAlign: 'center'
           }}
         >
@@ -365,8 +365,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           sx={{
             bgcolor: '#000', textTransform: 'none', fontWeight: 600,
             py: 1.2, borderRadius: 2, fontSize: '0.9rem',
-            '&:hover': { bgcolor: '#1a1f3a', transform: 'translateY(-1px)' },
-            transition: 'all 0.2s ease'
+           
           }}
         >
           Ver mis citas
