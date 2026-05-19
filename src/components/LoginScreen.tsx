@@ -153,7 +153,7 @@ const LoginScreen = () => {
       <Paper elevation={2} sx={{
         maxWidth: { xs: 380, sm: 460 },
         width: '100%',
-        // ✅ Más padding interno general
+        //  Más padding interno general
         p: { xs: 3, sm: 5 },
         backdropFilter: 'blur(10px)',
         backgroundColor: '#fff',
