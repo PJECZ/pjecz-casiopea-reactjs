@@ -285,14 +285,8 @@ return (
 
                         {/* NOTAS */}
                         <InfoField
-                          icon={item?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
-                              ? DescriptionIcon 
-                              : NoteAltIcon
-                          }
-                          label={item?.cit_servicio_descripcion?.toLowerCase().includes('expediente') 
-                              ? 'Expediente' 
-                              : 'Notas'
-                          }
+                          icon={NoteAltIcon}
+                          label="Notas"
                           value={
                             item.notas
                               ? item.notas.length > 50

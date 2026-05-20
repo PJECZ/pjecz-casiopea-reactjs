@@ -102,25 +102,28 @@ const NewAppointment: React.FC = () => {
 
     
 
-    const isExpedientesTramite = useMemo(() => {
-        const t = tramites.find(t => t.cit_servicio_clave === tramite);
-        return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
-    }, [tramites, tramite]);
+    // const isExpedientesTramite = useMemo(() => {
+    //     const t = tramites.find(t => t.cit_servicio_clave === tramite);
+    //     return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
+    // }, [tramites, tramite]);
 
     const notasResumen = useMemo(() => 
-        isExpedientesTramite
-            ? expedientes.filter(e => e.trim()).join(', ') || null
-            : notas.trim() || null,
-        [isExpedientesTramite, expedientes, notas]
+        // isExpedientesTramite
+            // ? expedientes.filter(e => e.trim()).join(', ') || null
+            // : 
+            notas.trim() || null,
+        [// isExpedientesTramite, 
+         notas]
     );
 
     const isFormComplete = useMemo(() => {
-        const notasValidas = isExpedientesTramite 
-            ? expedientes.length > 0          // si es expediente, debe tener al menos uno
-            : notas.trim().length > 0;        // si es notas, no debe estar vacío
+        const notasValidas = // isExpedientesTramite 
+            // ? expedientes.length > 0          // si es expediente, debe tener al menos uno
+            // :
+            notas.trim().length > 0;        // si es notas, no debe estar vacío
 
         return !!(oficina && tramite && fecha && hora && notasValidas);
-    }, [oficina, tramite, fecha, hora, isExpedientesTramite, expedientes, notas]);
+    }, [oficina, tramite, fecha, hora,notas ]);
    
 
     const handleCloseConfirm = useCallback(() =>  {
@@ -134,9 +137,10 @@ const NewAppointment: React.FC = () => {
         if (!isFormComplete) return;
         setLoadingSubmit(true);
 
-        const finalNotas = isExpedientesTramite
-            ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'
-            : notas.trim() || 'Sin notas';
+        const finalNotas = notas.trim() || 'Sin notas';
+        //isExpedientesTramite
+            /* ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'*/
+            // : 
 
         try {
             const res =  await createCita({
@@ -160,7 +164,7 @@ const NewAppointment: React.FC = () => {
                 setLoadingSubmit(false);
             }, 1500);
         } 
-    }, [isFormComplete, isExpedientesTramite, expedientes, notas, tramite, fecha, hora, oficina]);
+    }, [isFormComplete, notas, tramite, fecha, hora, oficina]);
 
 
     // ─── Lógica de Efectos ────────────────────────────────
@@ -335,66 +339,22 @@ const NewAppointment: React.FC = () => {
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
-                                        {isExpedientesTramite ? (
-                                            <Autocomplete
-                                                multiple freeSolo options={[]}
-                                                value={expedientes}
-                                                onChange={(_, newValue) => {
-                                                    if (newValue.length <= 10) {
-                                                        setExpedientes(newValue);
-                                                    }
-                                                }}
-                                                renderValue={(value, getTagProps) =>
-                                                    value.map((option, index) => {
-                                                    // Extraemos la key explícitamente para evitar el error anterior
-                                                    const { key, ...tagProps } = getTagProps({ index });
-                                                    return (
-                                                        <Chip
-                                                            key={key} 
-                                                            label={option}
-                                                            //size="small"
-                                                            {...tagProps}
-                                                            sx={{ 
-                                                                backgroundColor: "#000", 
-                                                                color: "white",
-                                                                '& .MuiChip-deleteIcon': {
-                                                                    color: 'white',
-                                                                    '&:hover': {
-                                                                        color: 'rgba(255,255,255,0.7)'
-                                                                    }
-                                                                }
-                                                            }}
-                                                        />
-                                                    );
-                                                    })
-                                                }
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label="Expedientes"
-                                                        placeholder="Escribe y presiona Enter"
-                                                        fullWidth
-                                                        
-                                                    />
-                                                )}
-                                            />
-                                        ) : (
-                                            <TextField
-                                                fullWidth multiline label="Notas" value={notas}
-                                                onChange={e => setNotas(e.target.value)}
-                                                slotProps={{
-                                                    input: {
-                                                    startAdornment: (
-                                                        <InputAdornment position="start" sx={{ color: '#fff' }}>
-                                                        <NotesIcon />
-                                                        </InputAdornment>
-                                                    ),
-                                                    },
-                                                }}
-                                                placeholder='Escribe aquí tus notas...'
-                                                // InputProps={{ startAdornment: <InputAdornment position="start"><NotesIcon /></InputAdornment> }}
-                                            />
-                                        )}
+                                       
+                                        <TextField
+                                            fullWidth multiline label="Notas" value={notas}
+                                            onChange={e => setNotas(e.target.value)}
+                                            slotProps={{
+                                                input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start" sx={{ color: '#fff' }}>
+                                                    <NotesIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                },
+                                            }}
+                                            placeholder='Escribe aquí tus notas...'
+                                            // InputProps={{ startAdornment: <InputAdornment position="start"><NotesIcon /></InputAdornment> }}
+                                        />
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
@@ -505,7 +465,7 @@ const NewAppointment: React.FC = () => {
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow
-                                    label={isExpedientesTramite ? 'Expedientes' : 'Notas'}
+                                    label={ 'Notas'}
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
                                     icon={<NotesIcon sx={{ fontSize: 16 }} />}
