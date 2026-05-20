@@ -346,8 +346,8 @@ const NewAppointment: React.FC = () => {
                                             slotProps={{
                                                 input: {
                                                 startAdornment: (
-                                                    <InputAdornment position="start" sx={{ color: '#fff' }}>
-                                                    <NotesIcon />
+                                                    <InputAdornment position="start" sx={{ color: '#9e9e9e' }}>
+                                                        <NotesIcon />
                                                     </InputAdornment>
                                                 ),
                                                 },
