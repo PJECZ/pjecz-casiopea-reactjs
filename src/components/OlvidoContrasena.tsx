@@ -67,14 +67,22 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     navigate('/');
   };
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   return (
     <>
       <Box
         sx={{
           minHeight: '100vh',
-          width: '100%',
-          height: '100%',
-          backgroundImage: "url('/images/bg3.jpg')",
+          width: '100vw',
+          backgroundImage: "url('/images/bg_new.jpeg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'repeat',
@@ -97,28 +105,29 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
             zIndex: 1,
             maxWidth: { xs: 380, sm: 460 },
             width: '100%',
-            p: { xs: 2, sm: 4 },
+            minHeight: { xs: 480, sm: 520 },
+            p: { xs: 3, sm: 5 },
             backdropFilter: 'blur(10px)',
             backgroundColor: 'rgb(255, 255, 255)',
             borderRadius: 3,
             mx: { xs: 1, sm: 'auto' },
-            my: { xs: 4, sm: 0 }
+            my: { xs: 4, sm: 2, md: 1 },
           }}
           >
             {/* Logo institucional */}
             <Box display="flex" justifyContent="center" alignItems="center">
               <Box textAlign="left">
-                <img src="/images/logo2.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 160, minWidth: 100, height: 'auto' }} />
+                <img src="/images/logo_citas_login.png" alt="Logo Sistema Citas" style={{ width: '60vw', maxWidth: 200, minWidth: 100, height: 'auto', display: 'block', margin: '0 auto'}} />
               </Box>
             </Box>
-            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#121528', fontSize: '1.5rem' }}>
+            <Typography variant="h6" align="center" mb={2} fontWeight="bold" sx={{ color: '#000', fontSize: '1.5rem' }}>
               Recuperar contraseña
             </Typography>
             <Typography variant="body2" align="center" color="text.secondary" mb={3}>
               Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
             </Typography>
             <form onSubmit={handleSubmit}>
-              <Stack spacing={2}>
+              <Stack spacing={4}>
                 <TextField
                   label="Correo electrónico"
                   type="email"
@@ -179,7 +188,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   color="primary" 
                   disabled={loading || success} 
                   fullWidth
-                  sx={{ backgroundColor: '#121528', color: 'white', '&:hover': { backgroundColor: '#70815c' }, mb: 2, '&:disabled': { backgroundColor: '#ccc' } }}
+                  sx={{ backgroundColor: '#000', color: 'white',  '&:disabled': { backgroundColor: '#ccc' }, mb:'-15px !important' }}
                 >
                   {loading ? 'Enviando...' : success ? 'Recuperación enviada' : 'Recuperar contraseña'}
                 </Button>
@@ -187,18 +196,22 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   variant="text"  
                   onClick={handleBack} 
                   disabled={success}
-                  fullWidth 
-                  sx={{ mt: -1, color: '#121528' , fontWeight: 'bold', '&:disabled': { color: '#ccc' } }}
+                  fullWidth
+                  sx={{ 
+                    color: '#000', 
+                    fontWeight: 'bold', 
+                    '&:disabled': { color: '#000' }, 
+                    '&:hover': { 
+                      backgroundColor: 'transparent !important',
+                      boxShadow: 'none',
+                    },
+                  }}
+                  
                 >
                   Volver al inicio de sesión
                 </Button>
               </Stack>
             </form>
-
-            {/* Logo institucional */}
-            <Box textAlign="center" sx={{ mt: 2 }}> 
-              <img src="/images/logo-horizontal-600x200-negro.png" alt="Logo PJECZ" style={{ width: 200, height: 'auto' }} />
-            </Box>
           </Paper>
         </Box>
     </>

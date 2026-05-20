@@ -5,13 +5,12 @@ import {
   AppBar,
   Box,
   Toolbar,
-  Tabs,
-  Tab,
   Avatar,
   Menu,
   MenuItem,
   Typography,
   Button,
+  Container,
 } from '@mui/material';
 // Importa íconos y utilidades de Material UI y React Router
 import AddIcon from '@mui/icons-material/Add';
@@ -49,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [loadingLogout, setLoadingLogout] = useState(false); // Estado de carga al cerrar sesión
   const [openDrawer, setOpenDrawer] = React.useState(false); // Estado del menú lateral (drawer)
   const theme = useTheme(); // Tema de MUI
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Detecta si es móvil
+  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Detecta si es móvil
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null); // Anchor para el menú desplegable del perfil
   const [menuWidth, setMenuWidth] = useState<number | null>(null);
 
@@ -78,124 +77,126 @@ const Navbar: React.FC<NavbarProps> = ({
 
   // Render principal del Navbar
   return (
-    <AppBar position="sticky" color="default" elevation={2}>
-      {/* Distribuye los elementos en la barra */}
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        {/* Si es móvil, muestra solo el logo y el menú hamburguesa; si es desktop, muestra logo y tabs */}
-        {isMobile ? (
-          <>
+    <AppBar position="fixed" color="default" elevation={2} style={{ boxShadow: 'none', backgroundColor: 'white', borderBottom: '3px solid rgba(10, 25, 45, 0.8)' }}>
+
+      <Container maxWidth="xl">
+
+        {/* Distribuye los elementos en la barra */}
+        <Toolbar sx={{ justifyContent: 'space-between',backgroundColor: 'white', height: 85 }}>
+          {/* Si es móvil, muestra solo el logo y el menú hamburguesa; si es desktop, muestra logo y tabs */}
+          {isMobile ? (
+            <>
+              <Box display="flex" alignItems="center">
+                {/* Logo */}
+                <img src="/images/logo_navbar.png" alt="Logo" style={{ width: 'auto', height: 50, display: 'block' }} />
+              </Box>
+              {/* Botón de menú hamburguesa para abrir el Drawer */}
+              <IconButton
+                color="inherit"
+                edge="end"
+                aria-label="menu"
+                onClick={() => setOpenDrawer(true)}
+                sx={{ ml: 2 }}
+              >
+                <MenuIcon sx={{ color: '#000' }} />
+              </IconButton>
+            </>
+          ) : (
             <Box display="flex" alignItems="center">
               {/* Logo */}
-              <img src="/images/logo_navbar.png" alt="Logo" style={{ width: 70, height: 'auto', display: 'block' }} />
+              <img src="/images/logo_navbar.png" alt="Logo" style={{ height: 60, display: 'block', marginRight:32 }} />
+              <Box sx={{ flex: 1 }}>
+                <List component="nav" sx={{ display: 'flex', justifyContent: 'center' }}>
+                  
+                  <ListItem disablePadding sx={{ width: 'auto' }}>
+                    <ListItemButton
+                      selected={activeTab === 'homepage'}
+                      onClick={() => {
+                        setActiveTab('homepage');
+                        setShowNewAppointmentForm(false);
+                        navigate('/homepage');
+                      }}
+                      sx={{
+                        borderRadius: 2,
+                        mx: 4,
+                        px: 2,
+                        '&.Mui-selected': {
+                          bgcolor: '#f5f5f5 !important',
+                          color: '#000'
+                        }
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        <EventNoteIcon sx={{ color: '#000' }} />
+                      </ListItemIcon>
+                      <ListItemText primary="Mis Citas" />
+                    </ListItemButton>
+                  </ListItem>
+
+                  <ListItem disablePadding sx={{ width: 'auto' }}>
+                    <ListItemButton
+                      selected={activeTab === 'newappointment'}
+                      onClick={() => {
+                        setActiveTab('newappointment');
+                        setShowNewAppointmentForm(false);
+                        navigate('/new-appointment');
+                      }}
+                      sx={{
+                        borderRadius: 2,
+                        mx: 4,
+                        px: 2,
+                        '&.Mui-selected': {
+                          bgcolor: '#f5f5f5 !important',
+                          color: '#000'
+                        }
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        <AddIcon sx={{ color: '#000' }} />
+                      </ListItemIcon>
+                      <ListItemText primary="Nueva Cita" />
+                    </ListItemButton>
+                  </ListItem>
+
+                </List>
+              </Box>
             </Box>
-            {/* Botón de menú hamburguesa para abrir el Drawer */}
-            <IconButton
-              color="inherit"
-              edge="end"
-              aria-label="menu"
-              onClick={() => setOpenDrawer(true)}
-              sx={{ ml: 2 }}
-            >
-              <MenuIcon sx={{ color: '#121528' }} />
-            </IconButton>
-          </>
-        ) : (
-          <Box display="flex" alignItems="center">
-            {/* Logo */}
-            <img src="/images/logo_navbar.png" alt="Logo" style={{ width: '20%', height: 'auto', display: 'block' }} />
-            <Box sx={{ flex: 1 }}>
-              <List component="nav" sx={{ display: 'flex', justifyContent: 'center' }}>
-                
-                <ListItem disablePadding sx={{ width: 'auto' }}>
-                  <ListItemButton
-                    selected={activeTab === 'homepage'}
-                    onClick={() => {
-                      setActiveTab('homepage');
-                      setShowNewAppointmentForm(false);
-                      navigate('/homepage');
-                    }}
-                    sx={{
-                      borderRadius: 2,
-                      mx: 1,
-                      px: 2,
-                      '&.Mui-selected': {
-                        bgcolor: '#e9eef7',
-                        color: '#121528'
-                      }
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 32 }}>
-                      <EventNoteIcon sx={{ color: '#486238' }} />
-                    </ListItemIcon>
-                    <ListItemText primary="Mis Citas" />
-                  </ListItemButton>
-                </ListItem>
+          )}
 
-                <ListItem disablePadding sx={{ width: 'auto' }}>
-                  <ListItemButton
-                    selected={activeTab === 'newappointment'}
-                    onClick={() => {
-                      setActiveTab('newappointment');
-                      setShowNewAppointmentForm(false);
-                      navigate('/new-appointment');
-                    }}
-                    sx={{
-                      borderRadius: 2,
-                      mx: 1,
-                      px: 2,
-                      '&.Mui-selected': {
-                        bgcolor: '#e9eef7',
-                        color: '#121528'
-                      }
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 32 }}>
-                      <AddIcon sx={{ color: '#486238' }} />
-                    </ListItemIcon>
-                    <ListItemText primary="Nueva Cita" />
-                  </ListItemButton>
-                </ListItem>
-
-              </List>
-            </Box>
-          </Box>
-        )}
-
-        {/* Botón de cerrar sesión visible solo en escritorio */}
-        {!isMobile && (
-          <Box>
-            <Button
-              onClick={event => {setProfileMenuAnchor(event.currentTarget); setMenuWidth(event.currentTarget.offsetWidth);}}
-              size="large"
-              sx={{
-                display: 'flex',
-                  alignItems: 'center',
-                  gap: 1.5,
-                px: 2,
-                py: 1,
-                borderRadius: 3,
-                backgroundColor: '#f5f7fb',
-                color: '#121528',
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#e9eef7'
-                }
-              }}
-            >
-              <Avatar
+          {/* Botón de cerrar sesión visible solo en escritorio */}
+          {!isMobile && (
+            <Box>
+              <Button
+                onClick={event => {setProfileMenuAnchor(event.currentTarget); setMenuWidth(event.currentTarget.offsetWidth);}}
+                size="large"
                 sx={{
-                  bgcolor: '#121528',
-                  width: 36,
-                  height: 36,
-                  fontSize: 14
+                  display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  px: 2,
+                  py: 1,
+                  minWidth:48,
+                  borderRadius: 3,
+                  backgroundColor: '#f5f5f5',
+                  color: '#000',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5'
+                  }
                 }}
               >
-                {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
-              </Avatar>
-              {loadingLogout ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                // Mostrar correo del usuario
+                <Avatar
+                  sx={{
+                    bgcolor: '#000',
+                    width: 36,
+                    height: 36,
+                    fontSize: 14
+                  }}
+                >
+                  {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
+                </Avatar>
+           
+                  {/* Mostrar correo del usuario*/}
                 <Box sx={{
                     display: { xs: 'none', md: 'flex' },
                     flexDirection: 'column',
@@ -203,139 +204,168 @@ const Navbar: React.FC<NavbarProps> = ({
                     lineHeight: 1.2
                   }}
                 >
-                  <Typography variant="body2" sx={{ color: '#121528', fontWeight: 500 }}>
+                  <Typography variant="body2" sx={{ color: '#000', fontWeight: 500 }}>
                     {/* Mostrar correo del usuario */}
                     {localStorage.getItem('email')}
                   </Typography>
-                  {/* <Avatar sx={{ bgcolor: '#393b49ff', color: '#eff0efff', width: 32, height: 32 }}> */}
-                    {/* Mostrar inicial del correo */}
-                    {/* {localStorage.getItem('email')?.slice(0, 1).toUpperCase()} */}
-                  {/* </Avatar> */}
                 </Box>
+              </Button>
+              <Menu
+                anchorEl={profileMenuAnchor}
+                open={Boolean(profileMenuAnchor)}
+                onClose={() => setProfileMenuAnchor(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setShowNewAppointmentForm(true);
+                    setLoadingLogout(true);
+                    
+                    setTimeout(() => {
+                      setProfileMenuAnchor(null);
 
-              )}
-              {loadingLogout ? null : (
-                <KeyboardArrowDownIcon />
-              )}
-            </Button>
-            <Menu
-              anchorEl={profileMenuAnchor}
-              open={Boolean(profileMenuAnchor)}
-              onClose={() => setProfileMenuAnchor(null)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            >
-              <MenuItem
-                onClick={() => {
-                  setProfileMenuAnchor(null);
+                      localStorage.removeItem('access_token');
+                      localStorage.removeItem('email');
+
+                      setLoadingLogout(false);
+
+                      navigate('/');
+                    }, 1500);
+                  }}
+                  disabled={loadingLogout}
+                  sx={{
+                    py: 1.5,
+                    px: 2,
+                    borderRadius: 2,
+                    mx: 1,
+                    my: 0.5,
+                    width: menuWidth ? menuWidth - 32 : 'auto', // Ajusta el ancho del menú al ancho del botón menos el padding
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: '#fff',
+                    }
+                  }}
+                  >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 36,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {loadingLogout ? (
+                      <CircularProgress size={20} thickness={5} sx={{ color: '#000' }}/>
+                    ) : (
+                      <LogoutIcon fontSize="small" />
+                    )}
+                  </ListItemIcon>
+
+                  <ListItemText
+                    primary={loadingLogout ? 'Saliendo...' : 'Salir'}
+                    slotProps={{
+                      primary: {
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: '#000'
+                      }
+                    }}
+                  />
+
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
+        </Toolbar>
+        {/* Drawer para menú lateral en móvil */}
+        <Drawer anchor="left" open={openDrawer} onClose={() => setOpenDrawer(false)}>
+          <Box sx={{ width: 260 }} role="presentation" onClick={() => setOpenDrawer(false)}>
+            {/* Información del usuario en la parte superior del drawer */}
+            <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>
+              <Box display="flex" alignItems="center" gap={2}>
+                <Avatar sx={{ bgcolor: '#0d0e14ff', color: '#eaeaeaff', width: 40, height: 40 }}>
+                  {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
+                </Avatar>
+                <Box flex={1}>
+                  <Typography variant="body2" sx={{ color: '#000', fontWeight: 600, fontSize: '0.875rem' }}>
+                    Usuario
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#000', fontSize: '0.75rem' }}>
+                    {localStorage.getItem('email')}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+            <List>
+              {/* Opción para ver citas */}
+              <ListItem disablePadding>
+                <ListItemButton 
+                  selected={activeTab === 'homepage'} 
+                  onClick={() => { setActiveTab('homepage'); navigate('/homepage'); }}
+                  sx={{
+                      '&.Mui-selected': {
+                        bgcolor: '#f5f5f5 !important',
+                        color: '#000'
+                      }
+                    }}
+                >
+                  <ListItemIcon><EventNoteIcon sx={{ color: '#000' }} /></ListItemIcon>
+                  <ListItemText primary="Mis Citas" />
+                </ListItemButton>
+              </ListItem>
+              {/* Opción para crear nueva cita */}
+              <ListItem disablePadding>
+                <ListItemButton 
+                  selected={activeTab === 'newappointment'} 
+                  onClick={() => { setActiveTab('newappointment'); navigate('/new-appointment'); }}
+                  sx={{
+                      '&.Mui-selected': {
+                        bgcolor: '#f5f5f5 !important',
+                        color: '#000'
+                      }
+                    }}
+                >
+                  <ListItemIcon><AddIcon sx={{ color: '#000' }} /></ListItemIcon>
+                  <ListItemText primary="Nueva Cita" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            <Divider />
+            <List>
+              {/* Opción para cerrar sesión */}
+              <ListItem disablePadding>
+                <ListItemButton onClick={(e) => {
+                  // Logout desde el menú móvil
+                  e.stopPropagation();
                   setShowNewAppointmentForm(true);
                   setLoadingLogout(true);
-
                   setTimeout(() => {
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('email');
                     setLoadingLogout(false);
                     navigate('/');
                   }, 1200);
-                }}
-                disabled={loadingLogout}
-                sx={{
-                  py: 1.5,
-                  px: 2,
-                  borderRadius: 2,
-                  mx: 1,
-                  my: 0.5,
-                  width: menuWidth ? menuWidth - 32 : 'auto', // Ajusta el ancho del menú al ancho del botón menos el padding
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    bgcolor: '#fbe9e7',
-                  }
-                }}
-                >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 36,
-                    color: '#d32f2f'
-                  }}
-                >
-                  {loadingLogout ? (
-                    <CircularProgress size={18} />
-                  ) : (
-                    <LogoutIcon fontSize="small" />
-                  )}
-                </ListItemIcon>
-
-                <ListItemText
-                  primary="Salir"
-                  primaryTypographyProps={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: '#121528'
-                  }}
-                />
-
-              </MenuItem>
-            </Menu>
+                }}>
+                  <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#000' }} />}</ListItemIcon>
+                  <ListItemText 
+                    primary={loadingLogout ? 'Saliendo...' : 'Salir'} 
+                    slotProps={{
+                      primary: {
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: '#000'
+                      }
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </List>
           </Box>
-        )}
-      </Toolbar>
-      {/* Drawer para menú lateral en móvil */}
-      <Drawer anchor="left" open={openDrawer} onClose={() => setOpenDrawer(false)}>
-        <Box sx={{ width: 260 }} role="presentation" onClick={() => setOpenDrawer(false)}>
-          {/* Información del usuario en la parte superior del drawer */}
-          <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Avatar sx={{ bgcolor: '#0d0e14ff', color: '#eaeaeaff', width: 40, height: 40 }}>
-                {localStorage.getItem('email')?.slice(0, 1).toUpperCase()}
-              </Avatar>
-              <Box flex={1}>
-                <Typography variant="body2" sx={{ color: '#121528', fontWeight: 600, fontSize: '0.875rem' }}>
-                  Usuario
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem', wordBreak: 'break-word' }}>
-                  {localStorage.getItem('email')}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-          <List>
-            {/* Opción para ver citas */}
-            <ListItem disablePadding>
-              <ListItemButton selected={activeTab === 'homepage'} onClick={() => { setActiveTab('homepage'); navigate('/homepage'); }}>
-                <ListItemIcon><EventNoteIcon sx={{ color: '#486238' }} /></ListItemIcon>
-                <ListItemText primary="Mis Citas" />
-              </ListItemButton>
-            </ListItem>
-            {/* Opción para crear nueva cita */}
-            <ListItem disablePadding>
-              <ListItemButton selected={activeTab === 'newappointment'} onClick={() => { setActiveTab('newappointment'); navigate('/new-appointment'); }}>
-                <ListItemIcon><AddIcon sx={{ color: '#486238' }} /></ListItemIcon>
-                <ListItemText primary="Nueva Cita" />
-              </ListItemButton>
-            </ListItem>
-          </List>
-          <Divider />
-          <List>
-            {/* Opción para cerrar sesión */}
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => {
-                // Logout desde el menú móvil
-                setShowNewAppointmentForm(true);
-                setLoadingLogout(true);
-                setTimeout(() => {
-                  localStorage.removeItem('access_token');
-                  localStorage.removeItem('email');
-                  setLoadingLogout(false);
-                  navigate('/');
-                }, 1200);
-              }}>
-                <ListItemIcon>{loadingLogout ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon sx={{ color: '#121528' }} />}</ListItemIcon>
-                <ListItemText primary="Cerrar Sesión" />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
+        </Drawer>
+
+      </Container>
+
     </AppBar>
   );
 };

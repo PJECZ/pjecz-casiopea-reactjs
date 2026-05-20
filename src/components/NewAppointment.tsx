@@ -33,9 +33,9 @@ type OficinaServicio = {
 };
 
 const C = {
-    dark:  '#252b50',
-    mid:   '#1e2545',
-    light: '#e8eaf6',
+    dark:  '#000',
+    mid:   '#000',
+    light: '#ffffff',
     white: '#ffffff',
 };
 
@@ -93,9 +93,7 @@ const NewAppointment: React.FC = () => {
     
     // ─ Estados para el Diálogo de Confirmación ─
     const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
-    // const [openConfirm, setOpenConfirm] = useState(false);
-    // const [citaCreada, setCitaCreada] = useState<any>(null);
-    // const [isSuccess, setIsSuccess] = useState(false);
+    
     
     // ─ Submit y Mensajes ─
     const [loadingStep, setLoadingStep] = useState<'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null>(null);
@@ -104,24 +102,31 @@ const NewAppointment: React.FC = () => {
 
     
 
-    const isExpedientesTramite = useMemo(() => {
-        const t = tramites.find(t => t.cit_servicio_clave === tramite);
-        return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
-    }, [tramites, tramite]);
+    // const isExpedientesTramite = useMemo(() => {
+    //     const t = tramites.find(t => t.cit_servicio_clave === tramite);
+    //     return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
+    // }, [tramites, tramite]);
 
-    const notasResumen   = useMemo(() => 
-        isExpedientesTramite
-            ? expedientes.filter(e => e.trim()).join(', ') || null
-            : notas.trim() || null,
-        [isExpedientesTramite, expedientes, notas]
+    const notasResumen = useMemo(() => 
+        // isExpedientesTramite
+            // ? expedientes.filter(e => e.trim()).join(', ') || null
+            // : 
+            notas.trim() || null,
+        [// isExpedientesTramite, 
+         notas]
     );
 
-     const isFormComplete = useMemo(() => 
-        !!(oficina && tramite && fecha && hora), 
-        [oficina, tramite, fecha, hora]
-    );
+    const isFormComplete = useMemo(() => {
+        const notasValidas = // isExpedientesTramite 
+            // ? expedientes.length > 0          // si es expediente, debe tener al menos uno
+            // :
+            notas.trim().length > 0;        // si es notas, no debe estar vacío
 
-    const handleCloseConfirm = useCallback(() => () => {
+        return !!(oficina && tramite && fecha && hora && notasValidas);
+    }, [oficina, tramite, fecha, hora,notas ]);
+   
+
+    const handleCloseConfirm = useCallback(() =>  {
         setDialog({ open: false, cita: null, isSuccess: false });
         // Si fue éxito, quizás quieras limpiar el formulario o redirigir
         if (dialog?.isSuccess) navigate('/homepage');
@@ -132,9 +137,10 @@ const NewAppointment: React.FC = () => {
         if (!isFormComplete) return;
         setLoadingSubmit(true);
 
-        const finalNotas = isExpedientesTramite
-            ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'
-            : notas.trim() || 'Sin notas';
+        const finalNotas = notas.trim() || 'Sin notas';
+        //isExpedientesTramite
+            /* ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'*/
+            // : 
 
         try {
             const res =  await createCita({
@@ -146,34 +152,48 @@ const NewAppointment: React.FC = () => {
             });
             const nuevaCita = res;
             // Seteamos los datos para el modal
-            setDialog({ open: true, cita: nuevaCita, isSuccess: true });
-            // setSuccessMsg('Cita agendada con éxito. Redirigiendo...');
-            // setTimeout(() => navigate('/homepage'), 2500);
+            setTimeout(() => {
+                setDialog({ open: true, cita: nuevaCita, isSuccess: true });
+                setLoadingSubmit(false);
+
+            }, 1500);
+            
         } catch (e: any) {
-            setError(e.message || 'Error al agendar.');
-        } finally {
-            setLoadingSubmit(false);
-        }
-    }, [isFormComplete, isExpedientesTramite, expedientes, notas, tramite, fecha, hora, oficina]);
+            setTimeout(() => {
+                setError(e.message || 'Error al agendar la cita.');
+                setLoadingSubmit(false);
+            }, 1500);
+        } 
+    }, [isFormComplete, notas, tramite, fecha, hora, oficina]);
 
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
         const obtener = async () => {
             setLoadingStep('distrito');
-            try{
-                const res = await getDistritos()
-                setDistritos(res);
-            }
-            catch(e){
+            try {
+                const res: Distrito[] = await getDistritos();
+                if (Array.isArray(res)) {
+                    const sorted = res.sort((a: Distrito, b: Distrito) => {
+                        const PRIMERO = 'CIUDAD JUDICIAL DE SALTILLO';
+                        if (a.nombre === PRIMERO) return -1;
+                        if (b.nombre === PRIMERO) return 1;
+                        return a.nombre.localeCompare(b.nombre);
+                    });
+                    setDistritos(sorted);
+                } else {
+                    setDistritos([]);
+                    setError('Error al cargar distritos.');
+                }
+            } catch (e) {
                 console.error('Error al obtener distritos:', e);
+                setError('No se pudieron cargar los distritos.');
             } finally {
                 setLoadingStep(null);
             }
         };
         obtener();
     }, []);
-
     useEffect(() => {
         setOficina(null); setTramite(''); setFechas([]); setHoras([]);
         if (!distrito) return;
@@ -214,67 +234,80 @@ const NewAppointment: React.FC = () => {
         .finally(() => setLoadingStep(null));
     }, [oficina, tramite, fecha]);
    
-    if (loadingSubmit || loadingStep) {
-        return (
-             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                <CircularProgress sx={{ color: '#252b50' }} />
-                <Typography sx={{ ml: 2 }}>Cargando información...</Typography>
-            </Box>
-        );
-    }
+ 
     return (        
-            <Container maxWidth="xl">
-                <Box mx="auto" mt={6} mb={6}>
+            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center' }}>
+
+                <Box mx="auto">
                     <Card elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                         <Box display="flex" minHeight={600} flexDirection={{ xs: 'column', md: 'row' }}>
                             
                             {/* ── Panel izquierdo: Formulario ── */}
                             <Box flex={1} sx={{ p: 4, borderRight: '1px solid', borderColor: 'divider' }}>
-                                <Typography variant="h5" fontWeight={700} color={C.dark} gutterBottom>
+                                <Typography variant="h5" fontWeight={700} mb={3} color={C.dark} gutterBottom>
                                     Nueva Cita
                                 </Typography>
                                 
                                 <Grid container spacing={3}>
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <FormControl fullWidth>
-                                            <InputLabel id="distrito-label">Distrito</InputLabel>
+                                            <InputLabel id="distrito-label">Ubicación</InputLabel>
                                             <Select
                                                 labelId="distrito-label"
                                                 value={distrito}
-                                                label="Distrito"
+                                                label="Ubicación"
                                                 onChange={e => setDistrito(e.target.value)}
                                                 startAdornment={<InputAdornment position="start"><LocationCityIcon /></InputAdornment>}
                                                 displayEmpty
                                                 renderValue={(selected) => {
                                                     if (!selected) {
-                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un distrito</span>;
+                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona una ubicación</span>;
                                                     }
                                                     return distritos.find(d => d.clave === selected)?.nombre || '';
                                                 }}
                                             >
-                                                <MenuItem value="" disabled>Selecciona un distrito</MenuItem>
-                                                {distritos.map(d => <MenuItem key={d.clave} value={d.clave}>{d.nombre}</MenuItem>)}
+                                                <MenuItem value="" disabled>Selecciona una ubicación</MenuItem>
+                                                {distritos.map(d => 
+                                                    <MenuItem key={d.clave} value={d.clave}>
+                                                        {d.clave === 'DSAL-CJ' ? (
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                <Chip 
+                                                                    label="Nuevo" 
+                                                                    size="small" 
+                                                                    sx={{ 
+                                                                        backgroundColor: '#000',
+                                                                        color: 'white', 
+                                                                        fontSize: '0.65rem',
+                                                                        height: 20
+                                                                    }} 
+                                                                />
+                                                                {d.nombre}
+                                                            </Box>
+                                                        ) : (
+                                                            d.nombre
+                                                        )}
+                                                    </MenuItem>)}
                                             </Select>
                                         </FormControl>
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <FormControl fullWidth disabled={!distrito}>
-                                            <InputLabel>Oficina</InputLabel>
+                                            <InputLabel>Unidad</InputLabel>
                                             <Select
                                                 value={oficina?.clave || ''}
-                                                label="Oficina"
+                                                label="Unidad"
                                                 onChange={e => setOficina(oficinas.find(o => o.clave === e.target.value) || null)}
                                                 startAdornment={<InputAdornment position="start"><BusinessIcon /></InputAdornment>}
                                                 displayEmpty
                                                 renderValue={(selected) => {
                                                     if (!selected) {
-                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona una oficina</span>;
+                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona una unidad</span>;
                                                     }
                                                     return oficinas.find(o => o.clave === selected)?.descripcion || '';
                                                 }}
                                             >
-                                                <MenuItem value="" disabled>Selecciona una oficina</MenuItem>
+                                                <MenuItem value="" disabled>Selecciona una unidad</MenuItem>
                                                 {oficinas.map(o => <MenuItem key={o.clave} value={o.clave}>{o.descripcion}</MenuItem>)}
                                             </Select>
                                         </FormControl>
@@ -282,21 +315,21 @@ const NewAppointment: React.FC = () => {
 
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <FormControl fullWidth disabled={!oficina}>
-                                            <InputLabel>Trámite</InputLabel>
+                                            <InputLabel>Tipo de trámite</InputLabel>
                                             <Select
                                                 value={tramite}
-                                                label="Trámite"
+                                                label="Tipo de trámite"
                                                 onChange={e => setTramite(e.target.value)}
                                                 startAdornment={<InputAdornment position="start"><Assignment /></InputAdornment>}
                                                 displayEmpty
                                                 renderValue={(selected) => {
                                                     if (!selected) {
-                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un tramite</span>;
+                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un tipo de trámite</span>;
                                                     }
                                                     return tramites.find(t => t.cit_servicio_clave === selected)?.cit_servicio_descripcion || '';
                                                 }}
                                             >
-                                                <MenuItem value="" disabled>Selecciona un tramite</MenuItem>
+                                                <MenuItem value="" disabled>Selecciona un tipo de trámite</MenuItem>
 
 
 
@@ -306,55 +339,26 @@ const NewAppointment: React.FC = () => {
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
-                                        {isExpedientesTramite ? (
-                                            <Autocomplete
-                                                multiple freeSolo options={[]}
-                                                value={expedientes}
-                                                onChange={(_, newValue) => setExpedientes(newValue)}
-                                                renderValue={(value, getTagProps) =>
-                                                    value.map((option, index) => {
-                                                    // Extraemos la key explícitamente para evitar el error anterior
-                                                    const { key, ...tagProps } = getTagProps({ index });
-                                                    return (
-                                                        <Chip
-                                                        key={key} 
-                                                        label={option}
-                                                        size="small"
-                                                        {...tagProps}
-                                                        />
-                                                    );
-                                                    })
-                                                }
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label="Expedientes"
-                                                        placeholder="Escribe y presiona Enter"
-                                                        fullWidth
-                                                    />
-                                                )}
-                                            />
-                                        ) : (
-                                            <TextField
-                                                fullWidth multiline label="Notas" value={notas}
-                                                onChange={e => setNotas(e.target.value)}
-                                                slotProps={{
-                                                    input: {
-                                                    startAdornment: (
-                                                        <InputAdornment position="start" sx={{ color: '#252b50' }}>
+                                       
+                                        <TextField
+                                            fullWidth multiline label="Notas" value={notas}
+                                            onChange={e => setNotas(e.target.value)}
+                                            slotProps={{
+                                                input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start" sx={{ color: '#9e9e9e' }}>
                                                         <NotesIcon />
-                                                        </InputAdornment>
-                                                    ),
-                                                    },
-                                                }}
-                                                placeholder='Escribe aquí tus notas...'
-                                                // InputProps={{ startAdornment: <InputAdornment position="start"><NotesIcon /></InputAdornment> }}
-                                            />
-                                        )}
+                                                    </InputAdornment>
+                                                ),
+                                                },
+                                            }}
+                                            placeholder='Escribe aquí tus notas...'
+                                            // InputProps={{ startAdornment: <InputAdornment position="start"><NotesIcon /></InputAdornment> }}
+                                        />
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
-                                        <Typography variant="caption" fontWeight={700} color={C.dark}>FECHA</Typography>
+                                        <Typography variant="caption" fontWeight={700} color={C.dark}>FECHAS DISPONIBLES</Typography>
                                         <Card variant="outlined" sx={{ mt: 1 }}>
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DateCalendar
@@ -362,13 +366,25 @@ const NewAppointment: React.FC = () => {
                                                     onChange={val => setFecha(val)}
                                                     shouldDisableDate={d => !fechas.includes(d.format('YYYY-MM-DD'))}
                                                     disabled={!tramite || loadingStep === 'fechas'}
+                                                    sx={{
+                                                        '& .MuiPickersDay-root.Mui-selected': {
+                                                            backgroundColor: '#000 !important',
+                                                            color: 'white !important',
+                                                            '&:hover': {
+                                                                backgroundColor: '#333 !important',
+                                                            },
+                                                            '&:focus': {
+                                                                backgroundColor: '#000 !important',
+                                                            },
+                                                        },
+                                                    }}
                                                 />
                                             </LocalizationProvider>
                                         </Card>
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
-                                        <Typography variant="caption" fontWeight={700} color={C.dark}>HORA DISPONIBLE</Typography>
+                                        <Typography variant="caption" fontWeight={700} sx={{color:'#000'}}>HORAS DISPONIBLES</Typography>
                                         <Card variant="outlined" sx={{ mt: 1, height: 338, overflowY: 'auto' }}>
                                             {loadingStep === 'horas' ? (
                                             <Box 
@@ -380,7 +396,7 @@ const NewAppointment: React.FC = () => {
                                                 p={4}
                                             >
                                                 <CircularProgress size={32} sx={{ color: C.dark, mb: 2 }} />
-                                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                                                <Typography variant="caption" sx={{ color: '#000', fontWeight: 600 }}>
                                                     CARGANDO HORARIOS...
                                                 </Typography>
                                             </Box>
@@ -389,7 +405,7 @@ const NewAppointment: React.FC = () => {
                                                 {/* Validación: Si no hay horas y ya se seleccionó una fecha */}
                                                 {horas.length === 0 && (
                                                     <Box sx={{ py: 8, textAlign: 'center' }}>
-                                                        <Typography variant="body2" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                                                        <Typography variant="body2" sx={{ color: '#000', fontStyle: 'italic' }}>
                                                             {fecha ? 'No hay horas disponibles para este día' : 'Selecciona una fecha primero'}
                                                         </Typography>
                                                     </Box>
@@ -405,7 +421,7 @@ const NewAppointment: React.FC = () => {
                                                             borderRadius: 1.5,
                                                             mb: 0.5,
                                                             '&.Mui-selected': {
-                                                                bgcolor: '#252b50',
+                                                                bgcolor: '#000',
                                                                 color: 'white',
                                                                 '&:hover': { bgcolor: '#1e2545' },
                                                                 '& .MuiListItemIcon-root': { color: 'white' }
@@ -443,13 +459,13 @@ const NewAppointment: React.FC = () => {
                                     <Typography variant="subtitle2" color="white" fontWeight={700}>RESUMEN</Typography>
                                 </Box>
 
-                                <SummaryRow label="Distrito" value={distritos.find(d => d.clave === distrito)?.nombre} empty={!distrito} icon={<LocationCityIcon />} />
-                                <SummaryRow label="Oficina" value={oficina?.descripcion} empty={!oficina} icon={<BusinessIcon />} />
-                                <SummaryRow label="Trámite" value={tramite ? <Box component={'span'}><Chip label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} size="small" sx={{ fontSize: 10 }} /> </Box>: null} empty={!tramite} icon={<Assignment />} />
+                                <SummaryRow label="Ubicación" value={distritos.find(d => d.clave === distrito)?.nombre} empty={!distrito} icon={<LocationCityIcon />} />
+                                <SummaryRow label="Unidad" value={oficina?.descripcion} empty={!oficina} icon={<BusinessIcon />} />
+                                <SummaryRow label="Tipo de trámite" value={tramite ? <Box component={'span'}><Chip label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} size="small" sx={{backgroundColor:'#000', color:'white'}} /> </Box>: null} empty={!tramite} icon={<Assignment />} />
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow
-                                    label={isExpedientesTramite ? 'Expedientes' : 'Notas'}
+                                    label={ 'Notas'}
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
                                     icon={<NotesIcon sx={{ fontSize: 16 }} />}
@@ -472,6 +488,7 @@ const NewAppointment: React.FC = () => {
                         </Box>
                     </Card>
                 </Box>
+
                 {/* Componente de Diálogo */}
                 <CitaConfirmadaDialog
                     open={dialog.open}
@@ -479,6 +496,7 @@ const NewAppointment: React.FC = () => {
                     cita={dialog.cita}
                     isSuccess={dialog.isSuccess}
                 />
+
             </Container>
         );
     };

@@ -61,14 +61,18 @@ const SessionExpiredDialog: React.FC = () => {
         <Box display="flex" flexDirection="column" alignItems="center">
           <Avatar
             sx={{
-              bgcolor: 'warning.light',
-              color: 'warning.dark',
+              bgcolor: '#000',
+              color: 'white',
               width: 64,
               height: 64,
-              mb: 2,
+              mb: 3,
+              mt: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            <AccessTime fontSize="large" />
+            <AccessTime fontSize="large" sx={{ backgroundColor: '#000', color: 'white' }} />
           </Avatar>
           <Box component="span">
             Sesión Expirada
@@ -92,9 +96,9 @@ const SessionExpiredDialog: React.FC = () => {
           onClick={handleClose}
           variant="contained"
           sx={{
-            bgcolor: '#486238',
+            bgcolor: '#000',
             '&:hover': {
-              bgcolor: '#3a4f2d',
+              bgcolor: '#000',
             },
             textTransform: 'none',
             px: 4,
