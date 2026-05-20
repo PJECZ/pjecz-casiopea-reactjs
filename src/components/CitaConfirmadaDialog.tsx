@@ -269,17 +269,14 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
             </Box>
           </Box>
 
-          {/* NOTAS / EXPEDIENTE */}
+          {/* NOTAS */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-              {cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente')
-                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
-                : <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
-              }
+              <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
-                {cita?.cit_servicio_descripcion?.toLowerCase().includes('expediente') ? 'Expediente' : 'Notas'}
+                Notas
               </Typography>
               <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
                 {cita?.notas || 'Sin información adicional'}
