@@ -236,7 +236,7 @@ const NewAppointment: React.FC = () => {
    
  
     return (        
-            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center' }}>
+            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center', py: 16,px: { xs: 2, sm: 3, md: 5 } }}>
 
                 <Box mx="auto">
                     <Card elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
