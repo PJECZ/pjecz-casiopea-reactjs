@@ -149,9 +149,9 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
 return (
   <>
     {/* Contenedor principal */}
-    <Container sx={{ pt: 4}} maxWidth="xl">
+    <Container sx={{ pt: 15}} maxWidth="xl">
       {/* Barra de título */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" px={6} mb={4}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
           Mis Citas Agendadas
         </Typography>
