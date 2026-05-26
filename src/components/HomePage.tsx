@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack } from '@mui/material';
-import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack, Chip, Tabs, Tab } from '@mui/material';
+import { AccessTime, BarcodeReader, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -10,7 +10,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
-import KeyIcon from '@mui/icons-material/Key';
+import { get } from 'lodash';
 type InfoFieldProps = {
   icon: SvgIconComponent;
   label: string;
@@ -27,6 +27,10 @@ const HomePage: React.FC = () => {
   const [citas, setCitas] = useState<Cita[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [tabsActivas, setTabsActivas] = useState<Record<string, string>>({});
+  const getTab = (id: string) => tabsActivas[id] ?? 'qr';
+  const setTab = (id: string, value: string) => 
+    setTabsActivas(prev => ({ ...prev, [id]: value }));
 
  // Memorizar el ordenamiento para evitar cálculos innecesarios en cada render
   const citasOrdenadas = useMemo(() => {
@@ -167,11 +171,12 @@ return (
                 display="flex"
                 justifyContent="center"
               >
-                <Box justifyItems={'center'} alignItems={'center'}>
+                {/* <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}> */}
+                {/* <Box justifyItems={'center'} alignItems={'center'}> */}
                   {/* DISEÑO ORIGINAL  CARD RESTAURADO */}
                   <Card
                     sx={{
-                      // width: '100%',
+                      width: '100%',
                       maxWidth: 450,
                       borderRadius: 4,
                       boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
@@ -221,7 +226,7 @@ return (
                                 border: '1px solid #e0e0e0',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 2
+                                gap: {xs: 12, sm: 3, md: 4, lg: 5}
                             }}
                         >
                             {/* Fecha */}
@@ -286,7 +291,7 @@ return (
                         {/* NOTAS */}
                         <InfoField
                           icon={NoteAltIcon}
-                          label="Notas"
+                          label={item.notas?.includes('(') ? 'Expedientes' : 'Notas'}
                           value={
                             item.notas
                               ? item.notas.length > 50
@@ -296,44 +301,61 @@ return (
                           }
                           compact
                         />
-
-                         {/* CÓDIGO ASITENCIA */}
-                        <InfoField
-                          icon={KeyIcon}
-                          label="Código de asistencia"
-                          value={item.codigo_asistencia || 'No generado'}
-                          compact
-                        />
                       </Stack>
 
-                      {/* QR */}
-                      {item.codigo_acceso_url && (
-                        <Box
+                    {/* Solo tabs si tiene ambos */}
+                    {item.codigo_acceso_url && item.codigo_barras_url ? (
+                      <Box sx={{ mt: 2.5 }}>
+                        <Tabs
+                          value={getTab(item.id)}
+                          onChange={(_, v) => setTab(item.id, v)}
+                          centered
                           sx={{
-                            mt: 2.5,
-                            p: 2,
-                            bgcolor: '#f8f9fa',
-                            borderRadius: 2,
-                            border: '1px solid #dee2e6',
-                            display: 'flex',            // Asegura comportamiento de flexbox
-                            flexDirection: 'column',    // Alinea elementos verticalmente
-                            alignItems: 'center',       // Centra horizontalmente todo el contenido
-                            textAlign: 'center'
+                            mb: 2,
+                            '& .MuiTab-root': { fontWeight: 600, fontSize: '0.75rem' },
+                            '& .Mui-selected': { color: '#000' },
+                            '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
                         >
-                          <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
-                            Código de acceso
-                          </Typography>
-                        
-                            <img
-                              alt="qr"
-                              src={item.codigo_acceso_url}
-                              width={200}
-                              style={{ borderRadius: 8, display: 'block' }}
-                          />
+                          <Tab label="Código QR" value="qr" />
+                          <Tab label="Código de Barras" value="barras" />
+                        </Tabs>
 
-                        </Box>
-                      )}
+                        {getTab(item.id) === 'qr' && (
+                          <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1 }}>Código de acceso</Typography>
+                            <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
+                          </Box>
+                        )}
+
+                        {getTab(item.id) === 'barras' && (
+                          <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
+                            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+                              Código de barras
+                            </Typography>
+                            <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+                          </Box>
+                        )}
+                      </Box>
+
+                    ) : item.codigo_acceso_url ? (
+                      // Solo QR — sin tabs
+                      <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1 }}>Código de acceso</Typography>
+                        <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
+                      </Box>
+
+                    ) : item.codigo_barras_url ? (
+                      // Solo barras — sin tabs
+                      <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+                          Código de barras
+                        </Typography>
+                        <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+                      </Box>
+
+                    ) : null}
+
 
                       {/* BOTÓN */}
                       {item.puede_cancelarse && (
@@ -354,7 +376,7 @@ return (
                       )}
                     </Box>
                   </Card>
-                </Box>
+                {/* </Box> */}
               </Grid>
             </Grow>
           ))
