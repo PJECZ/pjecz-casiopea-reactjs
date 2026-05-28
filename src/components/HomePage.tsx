@@ -331,7 +331,7 @@ return (
                         {getTab(item.id) === 'barras' && (
                           <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
                             <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                              Código de barras
+                              Código de asistencia
                             </Typography>
                             <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
                           </Box>
@@ -349,7 +349,7 @@ return (
                       // Solo barras — sin tabs
                       <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                          Código de barras
+                          Código de asistencia
                         </Typography>
                         <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
                       </Box>
