@@ -104,6 +104,7 @@ export type Cita = {
   codigo_acceso_url: string;
   creado: string;
   puede_cancelarse: boolean;
+  codigo_barras_url: string;
 };
 
 // --- Tipo Crear Cita ---
@@ -113,6 +114,18 @@ export type CrearCitaRequest = {
   hora_minuto: string; // formato: HH:mm:ss
   oficina_clave: string;
   notas: string;
+};
+
+// --- Tipo Expediente ---
+export type ExpedienteRow = {
+    expediente: string;
+    juzgadoId: string;
+};
+
+// --- Tipo Juzgado Origen ---
+export type JuzgadoOrigen = {
+  clave: string;
+  descripcion: string;
 };
 
 // --- Obtener todos los distritos ---
@@ -274,4 +287,17 @@ export async function cancelarCita(citaId: string): Promise<Cita> {
     throw new Error(data?.message || 'No se pudo cancelar la cita');
   }
   return data.data as Cita;
+}
+
+// Obtener juzgados de origen para expedientes
+export async function getJuzgadosOrigen(): Promise<{ clave: string; descripcion: string }[]> {
+  const API_BASE = await getApiBase();
+  const token = getToken();
+  const res = await authFetch(`${API_BASE}/api/v5/exp_juzgados`, {
+    headers: { Authorization: `Bearer ${token}` },
+    method: 'GET'
+  });
+  if (!res.ok) throw new Error('No se pudieron cargar juzgados de origen');
+  const json = await res.json();
+  return Array.isArray(json?.data) ? json.data : json;
 }

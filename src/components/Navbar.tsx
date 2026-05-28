@@ -17,7 +17,6 @@ import AddIcon from '@mui/icons-material/Add';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';

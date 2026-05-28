@@ -4,20 +4,23 @@ import {
     Box, Button, TextField, Select, MenuItem, FormControl, InputLabel,
     Stack, Typography, InputAdornment, Alert, Card, 
     List, ListItemButton, ListItemIcon, ListItemText, CircularProgress,
-    Divider, Chip, Grid, Autocomplete, Container,
+    Divider, Chip, Grid, Container,
 } from '@mui/material';
 import { LocalizationProvider, DateCalendar } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import BusinessIcon from '@mui/icons-material/Business';
-import { AccessTime, Assignment, CalendarMonth, EventAvailable } from '@mui/icons-material';
+import { AccessTime, Assignment, CalendarMonth, EventAvailable, Description as DescriptionIcon} from '@mui/icons-material';
 import NotesIcon from '@mui/icons-material/Notes';
 
 // Acciones y Tipos
 import { 
     getDistritos, getOficinasFiltradas, getFechasDisponibles, 
-    getHorasDisponibles, getServiciosPorOficina, createCita, Distrito 
+    getHorasDisponibles, getServiciosPorOficina, createCita, Distrito, 
+    ExpedienteRow,
+    JuzgadoOrigen,
+    getJuzgadosOrigen
 } from '../actions/CitasActions';
 import CitaConfirmadaDialog from './CitaConfirmadaDialog';
 
@@ -73,14 +76,15 @@ const SummaryRow = ({ label, value, icon, empty }: { label: string, value: any, 
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════════════════════════
 const NewAppointment: React.FC = () => {
-    const navigate = useNavigate();
 
     // ─ Campos del formulario ─
     const [distrito,    setDistrito]    = useState('');
     const [oficina,     setOficina]     = useState<Oficina | null>(null);
     const [tramite,     setTramite]     = useState('');
     const [notas,       setNotas]       = useState('');
-    const [expedientes, setExpedientes] = useState<string[]>([]);
+    const [expedientes, setExpedientes] = useState<ExpedienteRow[]>([]);
+    const [juzgados,    setJuzgados]    = useState<JuzgadoOrigen[]>([]);
+    const [expInput,    setExpInput]    = useState({expediente: '', juzgadoId: ''});
     const [fecha,       setFecha]       = useState<Dayjs | null>(null);
     const [hora,        setHora]        = useState('');
 
@@ -94,53 +98,71 @@ const NewAppointment: React.FC = () => {
     // ─ Estados para el Diálogo de Confirmación ─
     const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
     
-    
     // ─ Submit y Mensajes ─
     const [loadingStep, setLoadingStep] = useState<'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null>(null);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    
+    const isExpedientesTramite = useMemo(() => {
+        const t = tramites.find(t => t.cit_servicio_clave === tramite);
+        return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
+    }, [tramites, tramite]);
 
-    // const isExpedientesTramite = useMemo(() => {
-    //     const t = tramites.find(t => t.cit_servicio_clave === tramite);
-    //     return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
-    // }, [tramites, tramite]);
-
-    const notasResumen = useMemo(() => 
-        // isExpedientesTramite
-            // ? expedientes.filter(e => e.trim()).join(', ') || null
-            // : 
-            notas.trim() || null,
-        [// isExpedientesTramite, 
-         notas]
-    );
+    const notasResumen = useMemo((): string | null => {
+        if (isExpedientesTramite) {
+            if (expedientes.length === 0) return null;
+            return expedientes.map(e => {
+                const j = juzgados.find(j => j.clave === e.juzgadoId);
+                return `${e.expediente} (${j?.descripcion ?? e.juzgadoId})`;
+            }).join(', ');
+        }
+        const n = notas.trim();
+        return n.length > 0 ? n : null;
+    }, [isExpedientesTramite, expedientes, juzgados, notas]);
 
     const isFormComplete = useMemo(() => {
-        const notasValidas = // isExpedientesTramite 
-            // ? expedientes.length > 0          // si es expediente, debe tener al menos uno
-            // :
-            notas.trim().length > 0;        // si es notas, no debe estar vacío
-
+        const notasValidas = isExpedientesTramite 
+            ? expedientes.length > 0    // si es expediente, debe tener al menos uno
+            : notas.trim().length > 0;   // si es notas, no debe estar vacío
+        
         return !!(oficina && tramite && fecha && hora && notasValidas);
-    }, [oficina, tramite, fecha, hora,notas ]);
-   
+    }, [oficina, tramite, fecha, hora,notas, isExpedientesTramite, expedientes]);
+
+
+    // ─ Handler para agregar expediente a la tabla ─
+    const handleAddExpediente = useCallback(() => {
+        const exp = expInput.expediente.trim();
+        if (!exp || !expInput.juzgadoId) return;
+        setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: expInput.juzgadoId }]);
+        setExpInput({ expediente: '', juzgadoId: '' });
+    }, [expInput]);
+
+    const handleRemoveExpediente = useCallback((index: number) => {
+        setExpedientes(prev => prev.filter((_, i) => i !== index));
+    }, []);
+
 
     const handleCloseConfirm = useCallback(() =>  {
+        setOficina(null); 
+        setTramite(''); 
+        setNotas('');
+        setExpedientes([]);
+        setExpInput({ expediente: '', juzgadoId: '' }); 
+        setFecha(null); 
+        setHora('');
+        setDistrito(''); 
         setDialog({ open: false, cita: null, isSuccess: false });
-        // Si fue éxito, quizás quieras limpiar el formulario o redirigir
-        if (dialog?.isSuccess) navigate('/homepage');
-    }, [dialog, navigate]);
+        
+    }, []);
 
     const handleSubmit = useCallback(async () => {
         setError(null);
         if (!isFormComplete) return;
         setLoadingSubmit(true);
 
-        const finalNotas = notas.trim() || 'Sin notas';
-        //isExpedientesTramite
-            /* ? expedientes.filter(e => e.trim()).join(',') || 'Sin expedientes'*/
-            // : 
+        const finalNotas = isExpedientesTramite
+            ? expedientes.map(e => `${e.expediente} (${juzgados.find(j => j.clave === e.juzgadoId)?.descripcion ?? e.juzgadoId})`).join('; ')
+            : notas.trim() || 'Sin notas';
 
         try {
             const res =  await createCita({
@@ -164,7 +186,7 @@ const NewAppointment: React.FC = () => {
                 setLoadingSubmit(false);
             }, 1500);
         } 
-    }, [isFormComplete, notas, tramite, fecha, hora, oficina]);
+    }, [isFormComplete, notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite]);
 
 
     // ─── Lógica de Efectos ────────────────────────────────
@@ -194,6 +216,8 @@ const NewAppointment: React.FC = () => {
         };
         obtener();
     }, []);
+
+    // Cada que cambia el distrito, reseteamos los campos dependientes y cargamos las oficinas
     useEffect(() => {
         setOficina(null); setTramite(''); setFechas([]); setHoras([]);
         if (!distrito) return;
@@ -204,6 +228,7 @@ const NewAppointment: React.FC = () => {
         .finally(() => setLoadingStep(null));
     }, [distrito]);
 
+    // Cada que cambia la oficina, reseteamos los campos dependientes y cargamos los trámites
     useEffect(() => {
         setTramite(''); setFechas([]); setHoras([]);
         if (!oficina) return;
@@ -214,6 +239,7 @@ const NewAppointment: React.FC = () => {
         .finally(() => setLoadingStep(null));
     }, [oficina]);
 
+    // Cada que cambia el trámite, reseteamos los campos dependientes y cargamos las fechas
     useEffect(() => {
         setFecha(null); setFechas([]); setHoras([]);
         if (!oficina || !tramite) return;
@@ -224,6 +250,7 @@ const NewAppointment: React.FC = () => {
         .finally(() => setLoadingStep(null));
     }, [oficina, tramite]);
 
+    // Cada que cambia la fecha, reseteamos el campo de hora y cargamos las horas disponibles
     useEffect(() => {
         setHora(''); setHoras([]);
         if (!oficina || !tramite || !fecha) return;
@@ -234,9 +261,15 @@ const NewAppointment: React.FC = () => {
         .finally(() => setLoadingStep(null));
     }, [oficina, tramite, fecha]);
    
- 
+    // cargar juzgados origen
+    useEffect(() => {
+        if(!isExpedientesTramite) return;
+        getJuzgadosOrigen()
+            .then(data => setJuzgados(data))
+            .catch(err => console.error('Error al cargar juzgados origen:', err));
+    }, [isExpedientesTramite]);
     return (        
-            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center', py: 16,px: { xs: 2, sm: 3, md: 5 } }}>
+            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center', py: 16,px: { xs: 2, sm: 3, md: 5 }, mb:{ xs: 2, sm: 3, md: 13 } }}>
 
                 <Box mx="auto">
                     <Card elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
@@ -338,23 +371,122 @@ const NewAppointment: React.FC = () => {
                                         </FormControl>
                                     </Grid>
 
-                                    <Grid size={{ md: 6, xs: 12 }} >
-                                       
-                                        <TextField
-                                            fullWidth multiline label="Notas" value={notas}
-                                            onChange={e => setNotas(e.target.value)}
-                                            slotProps={{
-                                                input: {
-                                                startAdornment: (
-                                                    <InputAdornment position="start" sx={{ color: '#9e9e9e' }}>
-                                                        <NotesIcon />
-                                                    </InputAdornment>
-                                                ),
-                                                },
-                                            }}
-                                            placeholder='Escribe aquí tus notas...'
-                                            // InputProps={{ startAdornment: <InputAdornment position="start"><NotesIcon /></InputAdornment> }}
-                                        />
+                                    {/* */}
+
+                                    <Grid size={{ md: 6, xs: 12 }}>
+                                        {isExpedientesTramite ? (
+                                            <Box>
+                                                {/* ── Inputs para agregar ── */}
+                                                <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                                                    <TextField
+                                                        size="small"
+                                                        label="Expediente"
+                                                        value={expInput.expediente}
+                                                        onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
+                                                        onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
+                                                        placeholder="Ej. 123/2026"
+                                                        sx={{ flex: 1 }}
+                                                        slotProps={{
+                                                            input: {
+                                                                startAdornment: (
+                                                                    <InputAdornment position="start">
+                                                                        <DescriptionIcon fontSize="small" sx={{ color: '#9e9e9e' }} />
+                                                                    </InputAdornment>
+                                                                ),
+                                                            },
+                                                        }}
+                                                    />
+
+                                                    <FormControl size="small" sx={{ minWidth: 250 }}>
+                                                        <InputLabel>Juzgado</InputLabel>
+                                                        <Select
+                                                            value={expInput.juzgadoId}
+                                                            label="Juzgado"
+                                                            onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
+                                                        >
+                                                            {juzgados.map(j => (
+                                                                <MenuItem key={j.clave} value={j.clave}>
+                                                                    {j.descripcion}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+
+                                                    <Button
+                                                        variant="contained"
+                                                        onClick={handleAddExpediente}
+                                                        disabled={!expInput.expediente.trim() || !expInput.juzgadoId}
+                                                        sx={{ bgcolor: C.dark, minWidth: 40, px: 1.5, height: 40 }}
+                                                    >
+                                                        <Typography fontWeight={700} fontSize={20} lineHeight={1}>+</Typography>
+                                                    </Button>
+                                                </Stack>
+
+                                                {/* ── Tabla ── */}
+                                                <Card variant="outlined" sx={{ mt: 1 }}>
+                                                    <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                                        <Box component="thead">
+                                                            <Box component="tr" sx={{ bgcolor: 'grey.100' }}>
+                                                                <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700, width: '45%' }}>
+                                                                    Expediente
+                                                                </Box>
+                                                                <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700 }}>
+                                                                    Juzgado
+                                                                </Box>
+                                                                <Box component="th" sx={{ p: 1, width: 32, borderBottom: '1px solid', borderColor: 'divider' }} />
+                                                            </Box>
+                                                        </Box>
+                                                        <Box component="tbody">
+                                                            {expedientes.length === 0 ? (
+                                                                <Box component="tr">
+                                                                    <Box component="td" colSpan={3} sx={{ p: 2, textAlign: 'center', color: 'text.disabled', fontStyle: 'italic' }}>
+                                                                        Sin expedientes agregados
+                                                                    </Box>
+                                                                </Box>
+                                                            ) : (
+                                                                expedientes.map((row, i) => {
+                                                                    const juzgado = juzgados.find(j => j.clave === row.juzgadoId);
+                                                                    return (
+                                                                        <Box component="tr" key={i} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
+                                                                            <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider', fontWeight: 600 }}>
+                                                                                {row.expediente}
+                                                                            </Box>
+                                                                            <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                                                                                {juzgado?.descripcion ?? row.juzgadoId}
+                                                                            </Box>
+                                                                            <Box component="td" sx={{ p: 0.5, borderBottom: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+                                                                                <Button
+                                                                                    size="small"
+                                                                                    onClick={() => handleRemoveExpediente(i)}
+                                                                                    sx={{ minWidth: 28, p: 0.25, color: 'error.main' }}
+                                                                                >
+                                                                                    ✕
+                                                                                </Button>
+                                                                            </Box>
+                                                                        </Box>
+                                                                    );
+                                                                })
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                </Card>
+                                            </Box>
+                                        ) : (
+                                            <TextField
+                                                fullWidth multiline label="Notas" value={notas}
+                                                onChange={e => setNotas(e.target.value)}
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: (
+                                                            <InputAdornment position="start" sx={{ color: '#9e9e9e' }}>
+                                                                <NotesIcon />
+                                                            </InputAdornment>
+                                                        ),
+                                                    },
+                                                }}
+                                                placeholder='Escribe aquí tus notas...'
+                                            />
+                                        )}
                                     </Grid>
 
                                     <Grid size={{ md: 6, xs: 12 }} >
@@ -465,7 +597,7 @@ const NewAppointment: React.FC = () => {
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow
-                                    label={ 'Notas'}
+                                    label={ isExpedientesTramite ? 'Expedientes' : 'Notas'}
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
                                     icon={<NotesIcon sx={{ fontSize: 16 }} />}

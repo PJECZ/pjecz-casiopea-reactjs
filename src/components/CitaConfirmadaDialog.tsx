@@ -23,7 +23,6 @@ import {
   CheckCircle as CheckIcon,
   AccessTime as TimeIcon
 } from '@mui/icons-material';
-import KeyIcon from '@mui/icons-material/Key';
 import Assignment from '@mui/icons-material/Assignment';
 
 // ─── Interfaces ─────────────────────────────────────────────
@@ -35,6 +34,7 @@ interface CitaData {
   notas?: string;
   codigo_acceso_url?: string;
   codigo_asistencia?: string;
+  codigo_barras_url?: string;
 }
 
 interface CitaConfirmadaDialogProps {
@@ -273,29 +273,47 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
               <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
+              <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
-                Notas
+                {/* Detecta si son expedientes por el formato "exp|juzgado" */}
+                {cita?.notas?.includes('(') ? 'Expedientes' : 'Notas'}
               </Typography>
-              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
-                {cita?.notas || 'Sin información adicional'}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* CÓDIGO DE ASISTENCIA */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef' }}>
-            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-              <KeyIcon sx={{ fontSize: 18, color: 'white' }} />
-            </Avatar>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
-                Código de asistencia
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
-                {cita?.codigo_asistencia || 'No generado'}
-              </Typography>
+              {cita?.notas?.includes('|') ? (
+                // ── Tabla de expedientes ──
+                <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, mt: 0.5 }}>
+                    <Box component="thead">
+                        <Box component="tr">
+                            <Box component="th" sx={{ textAlign: 'left', pb: 0.5, fontWeight: 700, color: '#6c757d', fontSize: '0.7rem', textTransform: 'uppercase' }}>
+                                Expediente
+                            </Box>
+                            <Box component="th" sx={{ textAlign: 'left', pb: 0.5, fontWeight: 700, color: '#6c757d', fontSize: '0.7rem', textTransform: 'uppercase' }}>
+                                Juzgado
+                            </Box>
+                        </Box>
+                    </Box>
+                    <Box component="tbody">
+                        {cita.notas.split(',').map((item, i) => {
+                            const [exp, juzgado] = item.trim().split('|');
+                            return (
+                                <Box component="tr" key={i}>
+                                    <Box component="td" sx={{ py: 0.5, pr: 1, fontWeight: 600, color: '#000', fontSize: '0.85rem' }}>
+                                        {exp}
+                                    </Box>
+                                    <Box component="td" sx={{ py: 0.5, color: '#000', fontSize: '0.85rem' }}>
+                                        {juzgado}
+                                    </Box>
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Box>
+            ) : (
+                <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                    {cita?.notas || 'Sin información adicional'}
+                </Typography>
+            )}
             </Box>
           </Box>
 
@@ -326,6 +344,30 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               {cita?.id}
           </Typography>
         </Box>
+      )}
+
+      {/* Código de barras */}
+      {cita?.codigo_barras_url && (
+      <Box
+        sx={{
+            mt: 2.5,
+            p: 2,
+            bgcolor: '#f8f9fa',
+            borderRadius: 2,
+            border: '1px solid #dee2e6',
+            textAlign: 'center'
+        }}
+      >
+        <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+            Código de barras
+        </Typography>
+        <img
+            alt="qr"
+            src={cita.codigo_barras_url}
+            width={200}
+            style={{ borderRadius: 8 }}
+        />
+      </Box>
       )}
       <Box
         sx={{
