@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack, Chip, Tabs, Tab } from '@mui/material';
-import { AccessTime, BarcodeReader, EventBusy, SvgIconComponent} from '@mui/icons-material';
+import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -10,7 +10,6 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
-import { get } from 'lodash';
 type InfoFieldProps = {
   icon: SvgIconComponent;
   label: string;
@@ -181,7 +180,9 @@ return (
                       borderRadius: 4,
                       boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
                       overflow: 'hidden',
-                      background: 'white'
+                      background: 'white',
+                      display: 'flex',
+                      flexDirection: 'column',
                     }}
                   >
                     {/* HEADER */}
@@ -214,7 +215,7 @@ return (
                     </Box>
 
                     {/* CONTENIDO */}
-                    <Box sx={{ p: 2.5 }}>
+                    <Box sx={{ p: 2.5,display: 'flex', flexDirection: 'column', flex: 1 }}>
                       <Stack spacing={1.5}>
 
                         {/* FECHA Y HORA */}
@@ -323,7 +324,7 @@ return (
 
                         {getTab(item.id) === 'qr' && (
                           <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1 }}>Código de acceso</Typography>
+                            <Typography variant="caption" sx={{color: '#6c757d', fontWeight: 600, mb: 1, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>Código de acceso</Typography>
                             <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
                           </Box>
                         )}
@@ -340,8 +341,8 @@ return (
 
                     ) : item.codigo_acceso_url ? (
                       // Solo QR — sin tabs
-                      <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1 }}>Código de acceso</Typography>
+                      <Box sx={{  mt: 10,p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: '#6c757d',fontWeight: 600, mb: 1 , textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>Código de acceso</Typography>
                         <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
                       </Box>
 
@@ -358,22 +359,24 @@ return (
 
 
                       {/* BOTÓN */}
-                      {item.puede_cancelarse && (
-                        <Button
-                          variant="contained"
-                          color="error"
-                          fullWidth
-                          onClick={() => handleOpenDialog(item.id)}
-                          sx={{
-                            mt: 2,
-                            py: 1.2,
-                            borderRadius: 2,
-                            fontWeight: 600,
-                          }}
-                        >
-                          Cancelar Cita
-                        </Button>
-                      )}
+                      <Box sx={{ mt: 'auto', pt: 1 }}>
+                        {item.puede_cancelarse && (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            fullWidth
+                            onClick={() => handleOpenDialog(item.id)}
+                            sx={{
+                              mt: 2,
+                              py: 1.2,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                            }}
+                          >
+                            Cancelar Cita
+                          </Button>
+                        )}
+                      </Box>
                     </Box>
                   </Card>
                 {/* </Box> */}

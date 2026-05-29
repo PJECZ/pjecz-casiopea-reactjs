@@ -132,10 +132,14 @@ const NewAppointment: React.FC = () => {
     // ─ Handler para agregar expediente a la tabla ─
     const handleAddExpediente = useCallback(() => {
         const exp = expInput.expediente.trim();
+        if(expedientes.length >= 5) {
+            setError('No puedes agregar más de 5 expedientes.');
+            return;
+        }
         if (!exp || !expInput.juzgadoId) return;
         setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: expInput.juzgadoId }]);
         setExpInput({ expediente: '', juzgadoId: '' });
-    }, [expInput]);
+    }, [expInput, expedientes]);
 
     const handleRemoveExpediente = useCallback((index: number) => {
         setExpedientes(prev => prev.filter((_, i) => i !== index));
@@ -269,10 +273,10 @@ const NewAppointment: React.FC = () => {
             .catch(err => console.error('Error al cargar juzgados origen:', err));
     }, [isExpedientesTramite]);
     return (        
-            <Container maxWidth="xl" sx={{ height: '100vh', alignContent: 'center', py: 16,px: { xs: 2, sm: 3, md: 5 }, mb:{ xs: 2, sm: 3, md: 13 } }}>
+            <Container maxWidth="xl" sx={{ minHeight: '100vh', display: 'flex',alignContent: 'center', py: 16, px: { xs: 1, sm: 3, md: 5 } }}>
 
-                <Box mx="auto">
-                    <Card elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <Box mx="auto" width="100%">
+                    <Card elevation={4} sx={{ borderRadius: 3, overflow: 'hidden', mb: 4, width: '100%' }}>
                         <Box display="flex" minHeight={600} flexDirection={{ xs: 'column', md: 'row' }}>
                             
                             {/* ── Panel izquierdo: Formulario ── */}
@@ -376,51 +380,58 @@ const NewAppointment: React.FC = () => {
                                     <Grid size={{ md: 6, xs: 12 }}>
                                         {isExpedientesTramite ? (
                                             <Box>
+                                                <Stack spacing={1} mb={1}>
                                                 {/* ── Inputs para agregar ── */}
-                                                <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-                                                    <TextField
-                                                        size="small"
-                                                        label="Expediente"
-                                                        value={expInput.expediente}
-                                                        onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
-                                                        onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
-                                                        placeholder="Ej. 123/2026"
-                                                        sx={{ flex: 1 }}
-                                                        slotProps={{
-                                                            input: {
-                                                                startAdornment: (
-                                                                    <InputAdornment position="start">
-                                                                        <DescriptionIcon fontSize="small" sx={{ color: '#9e9e9e' }} />
-                                                                    </InputAdornment>
-                                                                ),
-                                                            },
-                                                        }}
-                                                    />
+                                                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                                                        <TextField
+                                                            size="small"
+                                                            label="Expediente"
+                                                            value={expInput.expediente}
+                                                            onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
+                                                            onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
+                                                            placeholder="Ej. 123/2026"
+                                                            fullWidth
+                                                            slotProps={{
+                                                                input: {
+                                                                    startAdornment: (
+                                                                        <InputAdornment position="start">
+                                                                            <DescriptionIcon fontSize="small" sx={{ color: '#9e9e9e' }} />
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                },
+                                                            }}
+                                                        />
 
-                                                    <FormControl size="small" sx={{ minWidth: 250 }}>
-                                                        <InputLabel>Juzgado</InputLabel>
-                                                        <Select
-                                                            value={expInput.juzgadoId}
-                                                            label="Juzgado"
-                                                            onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
+                                                        <FormControl size="small" fullWidth>
+                                                            <InputLabel>Juzgado</InputLabel>
+                                                            <Select
+                                                                value={expInput.juzgadoId}
+                                                                label="Juzgado"
+                                                                onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
+                                                            >
+                                                                {juzgados.map(j => (
+                                                                    <MenuItem key={j.clave} value={j.clave}>
+                                                                        {j.descripcion}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={handleAddExpediente}
+                                                            disabled={!expInput.expediente.trim() || !expInput.juzgadoId || expedientes.length >= 5}
+                                                            sx={{ bgcolor: C.dark, minWidth: 40, px: 1.5, height: 40, flexShrink: 0 }}
                                                         >
-                                                            {juzgados.map(j => (
-                                                                <MenuItem key={j.clave} value={j.clave}>
-                                                                    {j.descripcion}
-                                                                </MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
-
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={handleAddExpediente}
-                                                        disabled={!expInput.expediente.trim() || !expInput.juzgadoId}
-                                                        sx={{ bgcolor: C.dark, minWidth: 40, px: 1.5, height: 40 }}
-                                                    >
-                                                        <Typography fontWeight={700} fontSize={20} lineHeight={1}>+</Typography>
-                                                    </Button>
+                                                            <Typography fontWeight={700} fontSize={20} lineHeight={1}>+</Typography>
+                                                        </Button>
+                                                    </Stack>
                                                 </Stack>
+                                                {expedientes.length >= 5 && (
+                                                    <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                        Límite máximo de 5 expedientes alcanzado.
+                                                    </Typography>
+                                                )}
 
                                                 {/* ── Tabla ── */}
                                                 <Card variant="outlined" sx={{ mt: 1 }}>
@@ -585,7 +596,20 @@ const NewAppointment: React.FC = () => {
                             </Box>
 
                             {/* ── Panel derecho: Resumen ── */}
-                            <Box sx={{ width: { md: 300 }, bgcolor: 'grey.50', p: 3, borderLeft: '1px solid', borderColor: 'divider' }}>
+                            <Box 
+                                sx={{ 
+                                    width: { md: 300 }, 
+                                    bgcolor: 'grey.50', 
+                                    p: {xs: 2, sm: 3, md: 4}, 
+                                    borderLeft: '1px solid', 
+                                    borderColor: 'divider',
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'space-between',
+                                    overflow: 'hidden',
+                                    minWidth: 0,
+                                }}
+                            >
                                 <Box sx={{ bgcolor: C.dark, borderRadius: 2, p: 1.5, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <EventAvailable sx={{ color: 'white' }} />
                                     <Typography variant="subtitle2" color="white" fontWeight={700}>RESUMEN</Typography>
@@ -593,7 +617,25 @@ const NewAppointment: React.FC = () => {
 
                                 <SummaryRow label="Ubicación" value={distritos.find(d => d.clave === distrito)?.nombre} empty={!distrito} icon={<LocationCityIcon />} />
                                 <SummaryRow label="Unidad" value={oficina?.descripcion} empty={!oficina} icon={<BusinessIcon />} />
-                                <SummaryRow label="Tipo de trámite" value={tramite ? <Box component={'span'}><Chip label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} size="small" sx={{backgroundColor:'#000', color:'white'}} /> </Box>: null} empty={!tramite} icon={<Assignment />} />
+                                <SummaryRow label="Tipo de trámite" value={tramite ? 
+                                    <Box component={'span'}>
+                                        <Chip 
+                                            label={tramites.find(t => t.cit_servicio_clave === tramite)?.cit_servicio_descripcion} 
+                                            size="small" 
+                                            sx={{
+                                                backgroundColor:'#000', 
+                                                color:'white', 
+                                                height: 'auto',
+                                                '& .MuiChip-label': {
+                                                    whiteSpace: 'normal',
+                                                    display: 'block',
+                                                    py: 0.5,
+                                                }
+                                            }} 
+                                        /> 
+                                    </Box>
+                                    : null} empty={!tramite} icon={<Assignment />} 
+                                />
                                 <SummaryRow label="Fecha" value={fecha?.format('DD/MM/YYYY')} empty={!fecha} icon={<CalendarMonth />} />
                                 <SummaryRow label="Hora" value={hora} empty={!hora} icon={<AccessTime />} />
                                 <SummaryRow
