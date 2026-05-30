@@ -152,7 +152,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
 return (
   <>
     {/* Contenedor principal */}
-    <Container sx={{ pt: 15}} maxWidth="xl">
+    <Container sx={{ pt:14 }} maxWidth="xl">
       {/* Barra de título */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
@@ -161,7 +161,7 @@ return (
       </Box>
 
       {/* Grid de citas */}
-      <Grid container spacing={3} mb={3} px={4}>
+      <Grid container spacing={2} mb={3} px={4}>
         {citasOrdenadas.length > 0 ? (
           citasOrdenadas.map((item: Cita) => (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
@@ -169,6 +169,7 @@ return (
                 size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 display="flex"
                 justifyContent="center"
+                alignItems="flex-start"
               >
                 {/* <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}> */}
                 {/* <Box justifyItems={'center'} alignItems={'center'}> */}
@@ -176,13 +177,11 @@ return (
                   <Card
                     sx={{
                       width: '100%',
-                      maxWidth: 450,
-                      borderRadius: 4,
+                      maxWidth: 400,
+                      borderRadius: 3,
                       boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
                       overflow: 'hidden',
                       background: 'white',
-                      display: 'flex',
-                      flexDirection: 'column',
                     }}
                   >
                     {/* HEADER */}
@@ -215,7 +214,13 @@ return (
                     </Box>
 
                     {/* CONTENIDO */}
-                    <Box sx={{ p: 2.5,display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <Box 
+                      sx={{ 
+                        p: 2.5,
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                      }}
+                    >
                       <Stack spacing={1.5}>
 
                         {/* FECHA Y HORA */}
@@ -359,7 +364,7 @@ return (
 
 
                       {/* BOTÓN */}
-                      <Box sx={{ mt: 'auto', pt: 1 }}>
+                      <Box>
                         {item.puede_cancelarse && (
                           <Button
                             variant="contained"
