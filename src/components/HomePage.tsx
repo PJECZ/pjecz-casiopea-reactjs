@@ -5,7 +5,7 @@ import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import BusinessIcon from '@mui/icons-material/Business';
-import DescriptionIcon from '@mui/icons-material/Description';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -187,7 +187,9 @@ return (
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
+                        background: item.estado === 'asistio'
+                        ? 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)'  // verde si asistió
+                        : 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
                         p: 2.5,
                         textAlign: 'center'
@@ -202,15 +204,21 @@ return (
                           mb: 1
                         }}
                       >
-                        <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        {item.estado === 'asistio' 
+                          ? <CheckCircleIcon sx={{ fontSize: 28, color: 'white' }} />
+                          : <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        }
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        Cita
+                        {item.estado === 'asisitio' ? 'Cita Asistida' : 'Cita'}
                       </Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        {item.id}
-                      </Typography>
+
+                      {item.estado !== 'asistio' && (
+                        <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                          {item.id}
+                        </Typography>
+                      )}
                     </Box>
 
                     {/* CONTENIDO */}
