@@ -642,8 +642,10 @@ const NewAppointment: React.FC = () => {
                                     label={ isExpedientesTramite ? 'Expedientes' : 'Notas'}
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
-                                    icon={<NotesIcon sx={{ fontSize: 16 }} />}
-                                    />
+                                    icon={ 
+                                        isExpedientesTramite ? <NotesIcon sx={{ fontSize: 16 }} /> : <DescriptionIcon sx={{ fontSize: 16 }} />
+                                    }
+                                />
 
                                 
                                 <Box sx={{ mt: 16, px: 1 }}>

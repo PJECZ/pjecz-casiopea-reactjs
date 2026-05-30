@@ -5,8 +5,9 @@ import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import BusinessIcon from '@mui/icons-material/Business';
-import DescriptionIcon from '@mui/icons-material/Description';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import DescriptionIcon from '@mui/icons-material/Description';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
@@ -152,7 +153,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
 return (
   <>
     {/* Contenedor principal */}
-    <Container sx={{ pt: 15}} maxWidth="xl">
+    <Container sx={{ pt:14 }} maxWidth="xl">
       {/* Barra de título */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
@@ -161,7 +162,7 @@ return (
       </Box>
 
       {/* Grid de citas */}
-      <Grid container spacing={3} mb={3} px={4}>
+      <Grid container spacing={2} mb={3} px={4}>
         {citasOrdenadas.length > 0 ? (
           citasOrdenadas.map((item: Cita) => (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
@@ -169,6 +170,7 @@ return (
                 size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 display="flex"
                 justifyContent="center"
+                alignItems="flex-start"
               >
                 {/* <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}> */}
                 {/* <Box justifyItems={'center'} alignItems={'center'}> */}
@@ -176,19 +178,19 @@ return (
                   <Card
                     sx={{
                       width: '100%',
-                      maxWidth: 450,
-                      borderRadius: 4,
+                      maxWidth: 400,
+                      borderRadius: 3,
                       boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
                       overflow: 'hidden',
                       background: 'white',
-                      display: 'flex',
-                      flexDirection: 'column',
                     }}
                   >
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
+                        background: item.estado === 'asistio'
+                        ? 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)'  // verde si asistió
+                        : 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
                         p: 2.5,
                         textAlign: 'center'
@@ -203,19 +205,31 @@ return (
                           mb: 1
                         }}
                       >
-                        <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        {item.estado === 'asistio' 
+                          ? <CheckCircleIcon sx={{ fontSize: 28, color: 'white' }} />
+                          : <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        }
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        Cita
+                        {item.estado === 'asisitio' ? 'Cita Asistida' : 'Cita'}
                       </Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        {item.id}
-                      </Typography>
+
+                      {item.estado !== 'asistio' && (
+                        <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                          {item.id}
+                        </Typography>
+                      )}
                     </Box>
 
                     {/* CONTENIDO */}
-                    <Box sx={{ p: 2.5,display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <Box 
+                      sx={{ 
+                        p: 2.5,
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                      }}
+                    >
                       <Stack spacing={1.5}>
 
                         {/* FECHA Y HORA */}
@@ -291,7 +305,7 @@ return (
 
                         {/* NOTAS */}
                         <InfoField
-                          icon={NoteAltIcon}
+                          icon={item.notas?.includes('(') ? DescriptionIcon : NoteAltIcon}
                           label={item.notas?.includes('(') ? 'Expedientes' : 'Notas'}
                           value={
                             item.notas
@@ -359,7 +373,7 @@ return (
 
 
                       {/* BOTÓN */}
-                      <Box sx={{ mt: 'auto', pt: 1 }}>
+                      <Box>
                         {item.puede_cancelarse && (
                           <Button
                             variant="contained"
