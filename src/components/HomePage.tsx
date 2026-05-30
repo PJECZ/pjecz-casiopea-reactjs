@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import BusinessIcon from '@mui/icons-material/Business';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import DescriptionIcon from '@mui/icons-material/Description';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
@@ -304,7 +305,7 @@ return (
 
                         {/* NOTAS */}
                         <InfoField
-                          icon={NoteAltIcon}
+                          icon={item.notas?.includes('(') ? DescriptionIcon : NoteAltIcon}
                           label={item.notas?.includes('(') ? 'Expedientes' : 'Notas'}
                           value={
                             item.notas
