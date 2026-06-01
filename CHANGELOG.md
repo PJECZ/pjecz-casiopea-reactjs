@@ -3,10 +3,21 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.2.0] - 2026-06-01
+
+### ✨ Mejoras
+
+- Diseño de header al cambiar estado de cita "Cita en turno".
+- Añadidio el agregar expedientes limitado a 5 por persona.
+- Se añade tabs para ver código QR y de barras.
+- Mejora en responsividad de la interfaz.
+
+
 ## [1.1.4] - 2026-05-15
 
 ### ✨ Mejoras
 
+ 
 - Añadido campo de "Código de Asistencia" en _card_ de citas.
 - Cambio en diseño.
 - Correcciones en interfaz de nueva cita y _homepage_.

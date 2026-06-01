@@ -188,8 +188,8 @@ return (
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: item.estado === 'asistio'
-                        ? 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)'  // verde si asistió
+                        background: item.estado?.toLowerCase()  === 'asistio'
+                        ? 'linear-gradient(135deg,  #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)' 
                         : 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
                         p: 2.5,
@@ -205,17 +205,17 @@ return (
                           mb: 1
                         }}
                       >
-                        {item.estado === 'asistio' 
+                        {item.estado?.toLowerCase()  === 'asistio' 
                           ? <CheckCircleIcon sx={{ fontSize: 28, color: 'white' }} />
                           : <CalendarMonthIcon sx={{ fontSize: 28 }} />
                         }
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        {item.estado === 'asisitio' ? 'Cita Asistida' : 'Cita'}
+                        {item.estado?.toLowerCase()  === 'asistio' ? 'Cita en turno' : 'Cita'}
                       </Typography>
 
-                      {item.estado !== 'asistio' && (
+                      {item.estado?.toLowerCase()  !== 'asistio' && (
                         <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
                           {item.id}
                         </Typography>
