@@ -367,10 +367,11 @@ const NewAppointment: React.FC = () => {
                                                 }}
                                             >
                                                 <MenuItem value="" disabled>Selecciona un tipo de trámite</MenuItem>
-
-
-
-                                                {tramites.map(t => <MenuItem key={t.cit_servicio_clave} value={t.cit_servicio_clave}>{t.cit_servicio_descripcion}</MenuItem>)}
+                                                {tramites.map(t => 
+                                                    <MenuItem key={t.cit_servicio_clave} value={t.cit_servicio_clave}>
+                                                        {t.cit_servicio_descripcion}
+                                                    </MenuItem>
+                                                )}
                                             </Select>
                                         </FormControl>
                                     </Grid>
@@ -390,6 +391,7 @@ const NewAppointment: React.FC = () => {
                                                             onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
                                                             onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
                                                             placeholder="Ej. 123/2026"
+                                                            disabled={expedientes.length >= 5}
                                                             fullWidth
                                                             slotProps={{
                                                                 input: {
@@ -403,12 +405,22 @@ const NewAppointment: React.FC = () => {
                                                         />
 
                                                         <FormControl size="small" fullWidth>
-                                                            <InputLabel>Juzgado</InputLabel>
+                                                            <InputLabel shrink id="juzgado-label">Juzgado</InputLabel>
                                                             <Select
                                                                 value={expInput.juzgadoId}
                                                                 label="Juzgado"
                                                                 onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
+                                                                disabled={expedientes.length >= 5}
+                                                                displayEmpty
+                                                                renderValue={(selected) => {
+                                                                    if (!selected) {
+                                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un juzgado</span>;
+                                                                    }
+                                                                    return juzgados.find(j => j.clave === selected)?.descripcion || '';
+                                                                }}
+
                                                             >
+                                                                <MenuItem value="" disabled>Selecciona un juzgado</MenuItem>
                                                                 {juzgados.map(j => (
                                                                     <MenuItem key={j.clave} value={j.clave}>
                                                                         {j.descripcion}
@@ -437,7 +449,7 @@ const NewAppointment: React.FC = () => {
                                                 <Card variant="outlined" sx={{ mt: 1 }}>
                                                     <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                                         <Box component="thead">
-                                                            <Box component="tr" sx={{ bgcolor: 'grey.100' }}>
+                                                            <Box component="tr" sx={{ bgcolor: '#000', color: 'white' }}>
                                                                 <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700, width: '45%' }}>
                                                                     Expediente
                                                                 </Box>
@@ -643,7 +655,7 @@ const NewAppointment: React.FC = () => {
                                     value={notasResumen || 'Sin capturar'}
                                     empty={!notasResumen}
                                     icon={ 
-                                        isExpedientesTramite ? <NotesIcon sx={{ fontSize: 16 }} /> : <DescriptionIcon sx={{ fontSize: 16 }} />
+                                        isExpedientesTramite ? <DescriptionIcon sx={{ fontSize: 16 }} /> :<NotesIcon sx={{ fontSize: 16 }} />
                                     }
                                 />
 

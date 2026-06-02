@@ -162,7 +162,7 @@ return (
       </Box>
 
       {/* Grid de citas */}
-      <Grid container spacing={2} mb={3} px={4}>
+      <Grid container spacing={2} rowSpacing={4} mb={4} px={4}>
         {citasOrdenadas.length > 0 ? (
           citasOrdenadas.map((item: Cita) => (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
@@ -212,14 +212,13 @@ return (
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                        {item.estado?.toLowerCase()  === 'asistio' ? 'Cita en turno' : 'Cita'}
+                        {/* {item.estado?.toLowerCase()  === 'asistio' ? '' : 'Cita'} */}
+                        Cita
                       </Typography>
 
-                      {item.estado?.toLowerCase()  !== 'asistio' && (
-                        <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
-                          {item.id}
-                        </Typography>
-                      )}
+                      <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                        {item.id}
+                      </Typography>
                     </Box>
 
                     {/* CONTENIDO */}
@@ -320,34 +319,30 @@ return (
 
                     {/* Solo tabs si tiene ambos */}
                     {item.codigo_acceso_url && item.codigo_barras_url ? (
-                      <Box sx={{ mt: 2.5 }}>
+                      <Box sx={{ mt: 1 }}>
                         <Tabs
                           value={getTab(item.id)}
                           onChange={(_, v) => setTab(item.id, v)}
                           centered
                           sx={{
                             mb: 2,
-                            '& .MuiTab-root': { fontWeight: 600, fontSize: '0.75rem' },
-                            '& .Mui-selected': { color: '#000' },
+                            '& .MuiTab-root': { fontWeight: 600, fontSize: '0.65rem' },
+                            '& .Mui-selected': { color: '#0e0e0eff' },
                             '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
                         >
-                          <Tab label="Código QR" value="qr" />
-                          <Tab label="Código de Barras" value="barras" />
+                          <Tab label="Código de acceso" value="qr" />
+                          <Tab label="Código de asistencia" value="barras" />
                         </Tabs>
 
                         {getTab(item.id) === 'qr' && (
                           <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                            <Typography variant="caption" sx={{color: '#6c757d', fontWeight: 600, mb: 1, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>Código de acceso</Typography>
                             <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
                           </Box>
                         )}
 
                         {getTab(item.id) === 'barras' && (
-                          <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
-                            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                              Código de asistencia
-                            </Typography>
+                          <Box sx={{ p: 6.5, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
                             <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
                           </Box>
                         )}
@@ -355,18 +350,9 @@ return (
 
                     ) : item.codigo_acceso_url ? (
                       // Solo QR — sin tabs
-                      <Box sx={{  mt: 10,p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                      <Box sx={{  mt: 5.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: '#6c757d',fontWeight: 600, mb: 1 , textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>Código de acceso</Typography>
                         <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
-                      </Box>
-
-                    ) : item.codigo_barras_url ? (
-                      // Solo barras — sin tabs
-                      <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                          Código de asistencia
-                        </Typography>
-                        <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
                       </Box>
 
                     ) : null}

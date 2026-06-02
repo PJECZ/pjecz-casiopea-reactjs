@@ -275,8 +275,10 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           {/* NOTAS */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-              <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
-              <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+              {cita?.notas?.includes('(')
+                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+                : <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
+              }
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
@@ -335,15 +337,12 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
                 '& .MuiTabs-indicator': { backgroundColor: '#000' },
               }}
             >
-              <Tab label="Código QR" value="qr" />
-              <Tab label="Código de Barras" value="barras" />
+              <Tab label="Código de acceso" value="qr" />
+              <Tab label="Código de asistencia" value="barras" />
             </Tabs>
 
             {tabCodigo === 'qr' && (
               <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                  Código de acceso
-                </Typography>
                 <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
                 <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
                   {cita?.id}
@@ -352,11 +351,11 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
             )}
 
             {tabCodigo === 'barras' && (
-              <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
-                <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-                  Código de barras
-                </Typography>
+              <Box sx={{ p: 7, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 <img alt="barras" src={cita.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+                <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+                  {cita?.id}
+                </Typography>
               </Box>
             )}
           </Box>
@@ -368,7 +367,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
               Código de acceso
             </Typography>
             <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
-            <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+            <Typography variant="caption" display="block" mt={15} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem', alignItems: '' }}>
               {cita?.id}
             </Typography>
           </Box>
