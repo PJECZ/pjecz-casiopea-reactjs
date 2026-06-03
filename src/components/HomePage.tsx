@@ -234,17 +234,24 @@ return (
                         {/* FECHA Y HORA */}
                          <Box
                             sx={{
-                                p: 1.5,
-                                bgcolor: '#f8f9fa',
-                                borderRadius: 2,
-                                border: '1px solid #e0e0e0',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: {xs: 12, sm: 3, md: 4, lg: 5}
+                              p: 1.5,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #e0e0e0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              flexWrap: 'wrap',
+                              gap: 2,     
                             }}
                         >
                             {/* Fecha */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box 
+                              sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1.5 
+                              }}
+                            >
                                 <Box sx={{
                                     display: 'inline-flex',
                                     bgcolor: '#121528',
@@ -328,16 +335,17 @@ return (
                             mb: 2,
                             '& .MuiTab-root': {
                               fontWeight: 600,
-                              fontSize: { xs: '0.6rem', sm: '0.65rem' }, // ← escala según viewport
-                              minWidth: 0,          // ← permite que las tabs se compriman
-                              px: { xs: 1, sm: 2 }, // ← padding responsivo
+                              fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.62rem' }, 
+                              minWidth: 0, 
+                              px: { xs: 0.5, sm: 1.5 },
+                              letterSpacing: 0, 
                             },
                             '& .Mui-selected': { color: '#0e0e0eff' },
                             '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
                         >
-                          <Tab label="Código de acceso" value="qr" />
-                          <Tab label="Código de asistencia" value="barras" />
+                          <Tab label="Código acceso" value="qr" />
+                          <Tab label="Código asistencia" value="barras" />
                         </Tabs>
 
                         {getTab(item.id) === 'qr' && (
