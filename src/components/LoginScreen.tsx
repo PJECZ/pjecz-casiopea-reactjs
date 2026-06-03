@@ -5,9 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Box, Button, TextField, Paper, InputAdornment,
   ButtonGroup, FormControl, IconButton, Grid,
+  Typography,Alert, AlertTitle,
 } from '@mui/material';
 import { Sync, Visibility, VisibilityOff } from '@mui/icons-material';
 import { login } from '../actions/AuthActions';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 const LoginScreen = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -76,10 +80,10 @@ const LoginScreen = () => {
         setIsLoading(false);
         if (resp.success) {
           setMessageType('success');
-          setErrorMessage('Cuenta creada exitosamente. Revisa tu correo para validar el registro.');
+          setErrorMessage('Por favor, revisa tu correo electrónico para verificar tu cuenta.');
           setNombres(''); setApellidoPrimero(''); setApellidoSegundo('');
           setCurp(''); setTelefono(''); setEmail(''); setConfirmEmail('');
-          setTimeout(() => setErrorMessage(''), 6000);
+          // setTimeout(() => setErrorMessage(''), 6000);
         } else {
           setErrorMessage(resp.message || 'No se pudo crear la cuenta');
           setMessageType('error');
@@ -316,12 +320,34 @@ const LoginScreen = () => {
 
             {errorMessage && (
               <Grid size={{ xs: 12 }}>
-                <Box sx={{
-                  backgroundColor: messageType === 'success' ? '#1976d2' : '#c23636',
-                  color: '#fcfcfc', p: 1.5, borderRadius: 1, fontSize: 14,
-                }}>
-                  {errorMessage}
-                </Box>
+                <Alert
+                  role="alert"
+                  severity={messageType === 'success' ? 'success' : 'error'}
+                  icon={
+                    messageType === 'success'
+                      ? <CheckCircleOutlineIcon fontSize="inherit" />
+                      : <ErrorOutlineIcon fontSize="inherit" />
+                  }
+                  sx={{ borderRadius: 2, mt: 1 }}
+                >
+                  <AlertTitle>
+                    {messageType === 'success' ? '¡Cuenta creada exitosamente!' : 'Ocurrió un error'}
+                  </AlertTitle>
+
+                  <Typography variant="body2">
+                    {errorMessage}
+                  </Typography>
+
+                  {messageType === 'success' && (
+                    <Typography
+                      variant="caption"
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1, opacity: 0.8 }}
+                    >
+                      <WarningAmberIcon sx={{ fontSize: 14 }} />
+                      ¿No lo ves en tu bandeja? Revisa tu carpeta de spam o correo no deseado.
+                    </Typography>
+                  )}
+                </Alert>
               </Grid>
             )}
 
@@ -347,7 +373,6 @@ const LoginScreen = () => {
                   backgroundColor: '#000', color: 'white',
                   '&:hover': { backgroundColor: '#1c1f33ff' },
                   '&:disabled': { backgroundColor: '#ccc' },
-                  // ✅ botón más alto
                   py: 1.5,
                 }}
                 startIcon={isLoading ? <Sync sx={{ animation: 'spin 1s linear infinite' }} /> : null}
