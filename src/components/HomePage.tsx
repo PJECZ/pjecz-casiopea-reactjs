@@ -319,14 +319,19 @@ return (
 
                     {/* Solo tabs si tiene ambos */}
                     {item.codigo_acceso_url && item.codigo_barras_url ? (
-                      <Box sx={{ mt: 1 }}>
+                      <Box sx={{ mt: 1, width: '100%' }}>
                         <Tabs
                           value={getTab(item.id)}
                           onChange={(_, v) => setTab(item.id, v)}
                           centered
                           sx={{
                             mb: 2,
-                            '& .MuiTab-root': { fontWeight: 600, fontSize: '0.65rem' },
+                            '& .MuiTab-root': {
+                              fontWeight: 600,
+                              fontSize: { xs: '0.6rem', sm: '0.65rem' }, // ← escala según viewport
+                              minWidth: 0,          // ← permite que las tabs se compriman
+                              px: { xs: 1, sm: 2 }, // ← padding responsivo
+                            },
                             '& .Mui-selected': { color: '#0e0e0eff' },
                             '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
@@ -336,27 +341,104 @@ return (
                         </Tabs>
 
                         {getTab(item.id) === 'qr' && (
-                          <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                            <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
+                          <Box
+                            sx={{
+                              p: 2,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #dee2e6',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',   // ← centra horizontalmente
+                              justifyContent: 'center', // ← centra verticalmente
+                              width: '100%',           // ← ocupa todo el ancho disponible
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              alt="qr"
+                              src={item.codigo_acceso_url}
+                              style={{
+                                width: '60%',          // ← responsivo en lugar de width fijo
+                                maxWidth: 200,
+                                borderRadius: 8,
+                                display: 'block',
+                              }}
+                            />
                           </Box>
                         )}
 
                         {getTab(item.id) === 'barras' && (
-                          <Box sx={{ p: 6.5, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
-                            <img alt="barras" src={item.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+                          <Box
+                            sx={{
+                              p: 3,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #dee2e6',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',    // ← centra horizontalmente
+                              justifyContent: 'center',
+                              width: '100%',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              alt="barras"
+                              src={item.codigo_barras_url}
+                              style={{
+                                width: '80%',           // ← el código de barras es más ancho
+                                maxWidth: 200,
+                                borderRadius: 8,
+                                display: 'block',
+                              }}
+                            />
                           </Box>
                         )}
                       </Box>
 
                     ) : item.codigo_acceso_url ? (
                       // Solo QR — sin tabs
-                      <Box sx={{  mt: 5.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ color: '#6c757d',fontWeight: 600, mb: 1 , textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>Código de acceso</Typography>
-                        <img alt="qr" src={item.codigo_acceso_url} width={200} style={{ borderRadius: 8, display: 'block' }} />
+                      <Box
+                        sx={{
+                          mt: 2,
+                          p: 2,
+                          bgcolor: '#f8f9fa',
+                          borderRadius: 2,
+                          border: '1px solid #dee2e6',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: '#6c757d',
+                            fontWeight: 600,
+                            mb: 1,
+                            textTransform: 'uppercase',
+                            fontSize: '0.65rem',
+                            display: 'block',
+                            textAlign: 'center', // ← texto centrado
+                          }}
+                        >
+                          Código de acceso
+                        </Typography>
+                        <img
+                          alt="qr"
+                          src={item.codigo_acceso_url}
+                          style={{
+                            width: '60%',
+                            maxWidth: 200,
+                            borderRadius: 8,
+                            display: 'block',
+                          }}
+                        />
                       </Box>
-
                     ) : null}
-
 
                       {/* BOTÓN */}
                       <Box>
