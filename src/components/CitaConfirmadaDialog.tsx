@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -12,7 +12,9 @@ import {
   Avatar,
   Fade,
   Grid,
-  SvgIconProps
+  SvgIconProps,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -23,7 +25,6 @@ import {
   CheckCircle as CheckIcon,
   AccessTime as TimeIcon
 } from '@mui/icons-material';
-import KeyIcon from '@mui/icons-material/Key';
 import Assignment from '@mui/icons-material/Assignment';
 
 // ─── Interfaces ─────────────────────────────────────────────
@@ -35,6 +36,7 @@ interface CitaData {
   notas?: string;
   codigo_acceso_url?: string;
   codigo_asistencia?: string;
+  codigo_barras_url?: string;
 }
 
 interface CitaConfirmadaDialogProps {
@@ -125,6 +127,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
   isSuccess,
 }) => {
   const navigate = useNavigate();
+  const [tabCodigo, setTabCodigo] = useState<'qr' | 'barras'>('qr');
 
   if (!open) return null;
 
@@ -272,61 +275,114 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           {/* NOTAS */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef'}}>
             <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-              <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
+              {cita?.notas?.includes('(')
+                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+                : <NoteIcon sx={{ fontSize: 18, color: 'white' }} />
+              }
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
-                Notas
+                {/* Detecta si son expedientes por el formato "exp|juzgado" */}
+                {cita?.notas?.includes('(') ? 'Expedientes' : 'Notas'}
               </Typography>
-              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
-                {cita?.notas || 'Sin información adicional'}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* CÓDIGO DE ASISTENCIA */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa', border: '1px solid #e9ecef' }}>
-            <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-              <KeyIcon sx={{ fontSize: 18, color: 'white' }} />
-            </Avatar>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block' }}>
-                Código de asistencia
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
-                {cita?.codigo_asistencia || 'No generado'}
-              </Typography>
+              {cita?.notas?.includes('|') ? (
+                // ── Tabla de expedientes ──
+                <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, mt: 0.5 }}>
+                    <Box component="thead">
+                        <Box component="tr">
+                            <Box component="th" sx={{ textAlign: 'left', pb: 0.5, fontWeight: 700, color: '#6c757d', fontSize: '0.7rem', textTransform: 'uppercase' }}>
+                                Expediente
+                            </Box>
+                            <Box component="th" sx={{ textAlign: 'left', pb: 0.5, fontWeight: 700, color: '#6c757d', fontSize: '0.7rem', textTransform: 'uppercase' }}>
+                                Juzgado
+                            </Box>
+                        </Box>
+                    </Box>
+                    <Box component="tbody">
+                        {cita.notas.split(',').map((item, i) => {
+                            const [exp, juzgado] = item.trim().split('|');
+                            return (
+                                <Box component="tr" key={i}>
+                                    <Box component="td" sx={{ py: 0.5, pr: 1, fontWeight: 600, color: '#000', fontSize: '0.85rem' }}>
+                                        {exp}
+                                    </Box>
+                                    <Box component="td" sx={{ py: 0.5, color: '#000', fontSize: '0.85rem' }}>
+                                        {juzgado}
+                                    </Box>
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Box>
+            ) : (
+                <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                    {cita?.notas || 'Sin información adicional'}
+                </Typography>
+            )}
             </Box>
           </Box>
 
         </Stack>
+            {/* Tabs si tiene ambos */}
+        {cita?.codigo_acceso_url && cita?.codigo_barras_url ? (
+          <Box sx={{ mt: 2.5 }}>
+            <Tabs
+              value={tabCodigo}
+              onChange={(_, v) => setTabCodigo(v)}
+              centered
+              sx={{
+                mb: 2,
+                '& .MuiTab-root': { fontWeight: 600, fontSize: '0.75rem' },
+                '& .Mui-selected': { color: '#000' },
+                '& .MuiTabs-indicator': { backgroundColor: '#000' },
+              }}
+            >
+              <Tab label="Código de acceso" value="qr" />
+              <Tab label="Código de asistencia" value="barras" />
+            </Tabs>
 
-        {/* QR y tip se quedan igual */}
-        {cita?.codigo_acceso_url && (
-        <Box
-          sx={{
-              mt: 2.5,
-              p: 2,
-              bgcolor: '#f8f9fa',
-              borderRadius: 2,
-              border: '1px solid #dee2e6',
-              textAlign: 'center'
-          }}
-        >
-          <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+            {tabCodigo === 'qr' && (
+              <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
+                <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+                  {cita?.id}
+                </Typography>
+              </Box>
+            )}
+
+            {tabCodigo === 'barras' && (
+              <Box sx={{ p: 7, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <img alt="barras" src={cita.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+                <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+                  {cita?.id}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
+        ) : cita?.codigo_acceso_url ? (
+          // Solo QR — sin tabs
+          <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
               Código de acceso
-          </Typography>
-          <img
-              alt="qr"
-              src={cita.codigo_acceso_url}
-              width={200}
-              style={{ borderRadius: 8 }}
-          />
-          <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+            </Typography>
+            <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
+            <Typography variant="caption" display="block" mt={15} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem', alignItems: '' }}>
               {cita?.id}
-          </Typography>
-        </Box>
-      )}
+            </Typography>
+          </Box>
+
+        ) : cita?.codigo_barras_url ? (
+          // Solo barras — sin tabs
+          <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+              Código de barras
+            </Typography>
+            <img alt="barras" src={cita.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
+          </Box>
+
+        ) : null}
+        
       <Box
         sx={{
           mt: 2, p: 1.5, bgcolor: '#fff9e6', borderRadius: 2, borderLeft: '3px solid #ffc107',

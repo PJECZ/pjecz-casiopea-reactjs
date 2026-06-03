@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack } from '@mui/material';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack, Chip, Tabs, Tab } from '@mui/material';
 import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import BusinessIcon from '@mui/icons-material/Business';
-import DescriptionIcon from '@mui/icons-material/Description';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import DescriptionIcon from '@mui/icons-material/Description';
 import Assignment from '@mui/icons-material/Assignment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import moment from 'moment';
-import KeyIcon from '@mui/icons-material/Key';
 type InfoFieldProps = {
   icon: SvgIconComponent;
   label: string;
@@ -27,6 +27,10 @@ const HomePage: React.FC = () => {
   const [citas, setCitas] = useState<Cita[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [tabsActivas, setTabsActivas] = useState<Record<string, string>>({});
+  const getTab = (id: string) => tabsActivas[id] ?? 'qr';
+  const setTab = (id: string, value: string) => 
+    setTabsActivas(prev => ({ ...prev, [id]: value }));
 
  // Memorizar el ordenamiento para evitar cálculos innecesarios en cada render
   const citasOrdenadas = useMemo(() => {
@@ -149,7 +153,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ icon: Icon, label, value, compact
 return (
   <>
     {/* Contenedor principal */}
-    <Container sx={{ pt: 15}} maxWidth="xl">
+    <Container sx={{ pt:14 }} maxWidth="xl">
       {/* Barra de título */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
@@ -158,7 +162,7 @@ return (
       </Box>
 
       {/* Grid de citas */}
-      <Grid container spacing={3} mb={3} px={4}>
+      <Grid container spacing={2} rowSpacing={4} mb={4} px={4}>
         {citasOrdenadas.length > 0 ? (
           citasOrdenadas.map((item: Cita) => (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
@@ -166,23 +170,27 @@ return (
                 size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 display="flex"
                 justifyContent="center"
+                alignItems="flex-start"
               >
-                <Box justifyItems={'center'} alignItems={'center'}>
+                {/* <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}> */}
+                {/* <Box justifyItems={'center'} alignItems={'center'}> */}
                   {/* DISEÑO ORIGINAL  CARD RESTAURADO */}
                   <Card
                     sx={{
-                      // width: '100%',
-                      maxWidth: 450,
-                      borderRadius: 4,
+                      width: '100%',
+                      maxWidth: 400,
+                      borderRadius: 3,
                       boxShadow: '0 8px 24px rgba(18, 21, 40, 0.12)',
                       overflow: 'hidden',
-                      background: 'white'
+                      background: 'white',
                     }}
                   >
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
+                        background: item.estado?.toLowerCase()  === 'asistio'
+                        ? 'linear-gradient(135deg,  #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)' 
+                        : 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
                         p: 2.5,
                         textAlign: 'center'
@@ -197,35 +205,53 @@ return (
                           mb: 1
                         }}
                       >
-                        <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        {item.estado?.toLowerCase()  === 'asistio' 
+                          ? <CheckCircleIcon sx={{ fontSize: 28, color: 'white' }} />
+                          : <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        }
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
+                        {/* {item.estado?.toLowerCase()  === 'asistio' ? '' : 'Cita'} */}
                         Cita
                       </Typography>
+
                       <Typography variant="caption" sx={{ fontWeight: 400 , textTransform: 'none', letterSpacing: '1px'}}>
                         {item.id}
                       </Typography>
                     </Box>
 
                     {/* CONTENIDO */}
-                    <Box sx={{ p: 2.5 }}>
+                    <Box 
+                      sx={{ 
+                        p: 2.5,
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                      }}
+                    >
                       <Stack spacing={1.5}>
 
                         {/* FECHA Y HORA */}
                          <Box
                             sx={{
-                                p: 1.5,
-                                bgcolor: '#f8f9fa',
-                                borderRadius: 2,
-                                border: '1px solid #e0e0e0',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 2
+                              p: 1.5,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #e0e0e0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              flexWrap: 'wrap',
+                              gap: 2,     
                             }}
                         >
                             {/* Fecha */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box 
+                              sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1.5 
+                              }}
+                            >
                                 <Box sx={{
                                     display: 'inline-flex',
                                     bgcolor: '#121528',
@@ -285,8 +311,8 @@ return (
 
                         {/* NOTAS */}
                         <InfoField
-                          icon={NoteAltIcon}
-                          label="Notas"
+                          icon={item.notas?.includes('(') ? DescriptionIcon : NoteAltIcon}
+                          label={item.notas?.includes('(') ? 'Expedientes' : 'Notas'}
                           value={
                             item.notas
                               ? item.notas.length > 50
@@ -296,65 +322,154 @@ return (
                           }
                           compact
                         />
-
-                         {/* CÓDIGO ASITENCIA */}
-                        <InfoField
-                          icon={KeyIcon}
-                          label="Código de asistencia"
-                          value={item.codigo_asistencia || 'No generado'}
-                          compact
-                        />
                       </Stack>
 
-                      {/* QR */}
-                      {item.codigo_acceso_url && (
-                        <Box
+                    {/* Solo tabs si tiene ambos */}
+                    {item.codigo_acceso_url && item.codigo_barras_url ? (
+                      <Box sx={{ mt: 1, width: '100%' }}>
+                        <Tabs
+                          value={getTab(item.id)}
+                          onChange={(_, v) => setTab(item.id, v)}
+                          centered
                           sx={{
-                            mt: 2.5,
-                            p: 2,
-                            bgcolor: '#f8f9fa',
-                            borderRadius: 2,
-                            border: '1px solid #dee2e6',
-                            display: 'flex',            // Asegura comportamiento de flexbox
-                            flexDirection: 'column',    // Alinea elementos verticalmente
-                            alignItems: 'center',       // Centra horizontalmente todo el contenido
-                            textAlign: 'center'
+                            mb: 2,
+                            '& .MuiTab-root': {
+                              fontWeight: 600,
+                              fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.62rem' }, 
+                              minWidth: 0, 
+                              px: { xs: 0.5, sm: 1.5 },
+                              letterSpacing: 0, 
+                            },
+                            '& .Mui-selected': { color: '#0e0e0eff' },
+                            '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
                         >
-                          <Typography variant="caption" sx={{ fontWeight: 600, mb: 1}}>
-                            Código de acceso
-                          </Typography>
-                        
+                          <Tab label="Código acceso" value="qr" />
+                          <Tab label="Código asistencia" value="barras" />
+                        </Tabs>
+
+                        {getTab(item.id) === 'qr' && (
+                          <Box
+                            sx={{
+                              p: 2,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #dee2e6',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',   // ← centra horizontalmente
+                              justifyContent: 'center', // ← centra verticalmente
+                              width: '100%',           // ← ocupa todo el ancho disponible
+                              boxSizing: 'border-box',
+                            }}
+                          >
                             <img
                               alt="qr"
                               src={item.codigo_acceso_url}
-                              width={200}
-                              style={{ borderRadius: 8, display: 'block' }}
-                          />
+                              style={{
+                                width: '60%',          // ← responsivo en lugar de width fijo
+                                maxWidth: 200,
+                                borderRadius: 8,
+                                display: 'block',
+                              }}
+                            />
+                          </Box>
+                        )}
 
-                        </Box>
-                      )}
+                        {getTab(item.id) === 'barras' && (
+                          <Box
+                            sx={{
+                              p: 3,
+                              bgcolor: '#f8f9fa',
+                              borderRadius: 2,
+                              border: '1px solid #dee2e6',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',    // ← centra horizontalmente
+                              justifyContent: 'center',
+                              width: '100%',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              alt="barras"
+                              src={item.codigo_barras_url}
+                              style={{
+                                width: '80%',           // ← el código de barras es más ancho
+                                maxWidth: 200,
+                                borderRadius: 8,
+                                display: 'block',
+                              }}
+                            />
+                          </Box>
+                        )}
+                      </Box>
 
-                      {/* BOTÓN */}
-                      {item.puede_cancelarse && (
-                        <Button
-                          variant="contained"
-                          color="error"
-                          fullWidth
-                          onClick={() => handleOpenDialog(item.id)}
+                    ) : item.codigo_acceso_url ? (
+                      // Solo QR — sin tabs
+                      <Box
+                        sx={{
+                          mt: 2,
+                          p: 2,
+                          bgcolor: '#f8f9fa',
+                          borderRadius: 2,
+                          border: '1px solid #dee2e6',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
                           sx={{
-                            mt: 2,
-                            py: 1.2,
-                            borderRadius: 2,
+                            color: '#6c757d',
                             fontWeight: 600,
+                            mb: 1,
+                            textTransform: 'uppercase',
+                            fontSize: '0.65rem',
+                            display: 'block',
+                            textAlign: 'center', // ← texto centrado
                           }}
                         >
-                          Cancelar Cita
-                        </Button>
-                      )}
+                          Código de acceso
+                        </Typography>
+                        <img
+                          alt="qr"
+                          src={item.codigo_acceso_url}
+                          style={{
+                            width: '60%',
+                            maxWidth: 200,
+                            borderRadius: 8,
+                            display: 'block',
+                          }}
+                        />
+                      </Box>
+                    ) : null}
+
+                      {/* BOTÓN */}
+                      <Box>
+                        {item.puede_cancelarse && (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            fullWidth
+                            onClick={() => handleOpenDialog(item.id)}
+                            sx={{
+                              mt: 2,
+                              py: 1.2,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                            }}
+                          >
+                            Cancelar Cita
+                          </Button>
+                        )}
+                      </Box>
                     </Box>
                   </Card>
-                </Box>
+                {/* </Box> */}
               </Grid>
             </Grow>
           ))
