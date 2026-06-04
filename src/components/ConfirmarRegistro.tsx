@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Typography, Card, Divider, Grid, Button, Avatar } from "@mui/material";
+import { Box, Typography, Card, Divider, Button, Avatar } from "@mui/material";
 import { validarUsuario } from "../actions/AuthActions";
-import { AccessTime, BadgeOutlined, CheckCircle, Email, HomeFilled, KeyOutlined, Person, Phone } from "@mui/icons-material";
+import {
+  AccessTime, BadgeOutlined, CheckCircle, Email,
+  HomeFilled, KeyOutlined, Person, Phone, ErrorOutline,
+} from "@mui/icons-material";
 
 const ConfirmarRegistro: React.FC = () => {
   const location = useLocation();
@@ -12,21 +15,17 @@ const ConfirmarRegistro: React.FC = () => {
   const [usuario, setUsuario] = useState<any>(null);
   const validacionEjecutada = useRef<boolean>(false);
 
-  /* Mostrar datos de usuario al obtener el id y cadena_validar desde el enlace  y funcion confirmarCuenta */
   useEffect(() => {
-    // Evitar múltiples ejecuciones (especialmente por React.StrictMode)
     if (validacionEjecutada.current) return;
-    
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
     const cadena_validar = params.get("cadena_validar");
-    
+
     if (id && cadena_validar) {
       validacionEjecutada.current = true;
       validarUsuario({ id, cadena_validar })
         .then((res) => {
           if (res.success) {
-            // Resetear flag en caso de éxito para permitir reintento
             setUsuario(res.data);
             setMensaje(res.message || "Cuenta validada exitosamente");
           } else {
@@ -37,117 +36,204 @@ const ConfirmarRegistro: React.FC = () => {
           setMensaje(err.message || "Error al validar la cuenta");
           validacionEjecutada.current = false;
         })
-        .finally(() => {
-          setCargando(false);
-        });
+        .finally(() => setCargando(false));
     } else {
-      // Resetear flag en caso de error para permitir reintento
-      
       setMensaje("Parámetros inválidos");
       setCargando(false);
     }
-  }, [location.search,navigate]);
+  }, [location.search, navigate]);
 
-  // Maneja la navegación asegurando que siempre se pasen id y cadena_validar
   const handleCrearContrasena = () => {
     let id = usuario.id;
     let cadena = usuario.cadena_validar;
     if (!cadena) {
       const params = new URLSearchParams(location.search);
-      cadena = params.get('cadena_validar') || '';
+      cadena = params.get("cadena_validar") || "";
     }
     if (!id || !cadena) {
-      alert('Faltan datos para crear la contraseña.');
+      alert("Faltan datos para crear la contraseña.");
       return;
     }
-    navigate('/CrearContrasena', { state: { id, cadena_validar: cadena } });
+    navigate("/CrearContrasena", { state: { id, cadena_validar: cadena } });
   };
 
+  // Configuración dinámica por estado
+  const estadoConfig = {
+    icono: cargando ? <AccessTime sx={{ fontSize: 36 }} /> : usuario ? <CheckCircle sx={{ fontSize: 36 }} /> : <ErrorOutline sx={{ fontSize: 36 }} />,
+    avatarBg: cargando ? "#f5f5f5" : usuario ? "#EAF3DE" : "#FCEBEB",
+    avatarColor: cargando ? "#888" : usuario ? "#3B6D11" : "#A32D2D",
+    etiqueta: cargando ? "" : usuario ? "Registro verificado" : "Error de validación",
+    titulo: cargando ? "Validando registro..." : usuario ? "Confirmación de registro" : "Cuenta ya validada",
+  };
+
+  // Filas de datos del usuario
+  const datosUsuario = usuario
+    ? [
+        { icono: <Person />, label: "Nombre completo", valor: `${usuario.nombres} ${usuario.apellido_primero} ${usuario.apellido_segundo}` },
+        { icono: <Email />, label: "Correo electrónico", valor: usuario.email },
+        { icono: <BadgeOutlined />, label: "CURP", valor: usuario.curp, mono: true },
+        { icono: <Phone />, label: "Teléfono", valor: usuario.telefono },
+      ]
+    : [];
+
   return (
-    <Box sx={{ py: 6, px: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(to right, #fff, #f5f5f5)' }}>
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "grey.100",
+        overflow: "auto",
+      }}
+    >
       <Card
         sx={{
-          maxWidth: 600,
-          borderRadius: 4,
-          boxShadow: 3,
-          overflow: 'hidden',
-          p: 3,
-          mt: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          width: "100%",
+          maxWidth: 620,
+          borderRadius: 3,
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.08)",
+          overflow: "hidden",
         }}
+        elevation={0}
       >
-        <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
+        {/* Header */}
+        <Box
+          sx={{
+            px: 4,
+            pt: 4,
+            pb: 3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.5,
+            textAlign: "center",
+          }}
+        >
           <Avatar
             sx={{
-              bgcolor: usuario ? '#000' : (cargando ? '#000' : 'error.light'),
-              color: usuario ? '#fff' : (cargando ? '#fff' : 'error.dark'),
-              width: 64,
-              height: 64,
-              mb: 2,
+              bgcolor: estadoConfig.avatarBg,
+              color: estadoConfig.avatarColor,
+              width: 72,
+              height: 72,
             }}
           >
-            {cargando ? <AccessTime fontSize="large" /> : usuario ? <CheckCircle fontSize="large" /> : <BadgeOutlined fontSize="large" />}
+            {estadoConfig.icono}
           </Avatar>
-          <Typography
-            variant="h5"
-            align="center"
-            color="text.primary"
-            fontWeight={600}
-            sx={{ color: usuario ? '#000' : (cargando ? '#000' : 'error.main') }}
-          >
-            {cargando ? 'Validando registro...' : usuario ? 'Confirmación de registro' : 'Cuenta ya validada'}
+
+          {estadoConfig.etiqueta && (
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "text.disabled",
+              }}
+            >
+              {estadoConfig.etiqueta}
+            </Typography>
+          )}
+
+          <Typography variant="h5" fontWeight={500} color="text.primary">
+            {estadoConfig.titulo}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            {cargando ? "Por favor espera..." : mensaje}
           </Typography>
         </Box>
-        <Typography
-          variant="body1"
-          align="center"
-          color="text.secondary"
-          sx={{ mb: 2 }}
-        >
-          {cargando ? 'Por favor espera...' : mensaje}
-        </Typography>
+
+        {/* Datos del usuario */}
         {usuario && (
-          <Box mb={2} width="100%">
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#000', mb: 1, textAlign: 'center' }}>Datos del usuario:</Typography>
-            <Divider sx={{ mb: 1 }} />
-            <Grid container spacing={1}>
-              <Grid size={12}>
-                <Typography variant="body2"><Person sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.nombres} {usuario.apellido_primero} {usuario.apellido_segundo}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><Email sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.email}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><BadgeOutlined sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.curp}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2"><Phone sx={{ verticalAlign: 'middle', mr: 1 }} /> {usuario.telefono}</Typography>
-              </Grid>
-            </Grid>
-          </Box>
+          <>
+            <Divider />
+            <Box sx={{ px: 4, py: 2.5 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  color: "text.disabled",
+                  display: "block",
+                  mb: 1.5,
+                }}
+              >
+                Datos del usuario
+              </Typography>
+
+              {datosUsuario.map((fila, i) => (
+                <React.Fragment key={i}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 1.5 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: "grey.100",
+                        color: "text.secondary",
+                        width: 36,
+                        height: 36,
+                        flexShrink: 0,
+                        "& .MuiSvgIcon-root": { fontSize: 18 },
+                      }}
+                    >
+                      {fila.icono}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body1" color="text.disabled" display="block" lineHeight={1.2}>
+                        {fila.label}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        fontWeight={500}
+                        color="text.primary"
+                        sx={fila.mono ? { fontFamily: "monospace" } : {}}
+                      >
+                        {fila.valor}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {i < datosUsuario.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </Box>
+          </>
         )}
-        <Box width="100%" mt={2} display="flex" flexDirection="column" gap={1}>
+
+        {/* Botón de acción */}
+        <Divider />
+        <Box sx={{ px: 4, py: 2.5 }}>
           {usuario ? (
             <Button
               variant="contained"
-              onClick={() => handleCrearContrasena()}
-              sx={{ borderRadius: 2, color: '#fff', backgroundColor: '#000', fontWeight: 600 }}
+              onClick={handleCrearContrasena}
               fullWidth
               size="large"
               startIcon={<KeyOutlined />}
+              sx={{
+                borderRadius: 2,
+                bgcolor: "#000",
+                color: "#fff",
+                fontWeight: 500,
+                py: 1.5,
+                "&:hover": { bgcolor: "#222" },
+              }}
             >
               Crear contraseña
             </Button>
-          ) : !cargando && (
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/')}
-              sx={{ borderRadius: 2, fontWeight: 600 }}
-              fullWidth
-              size="large"
-              startIcon={<HomeFilled />}
-            >
-              Ir al inicio
-            </Button>
+          ) : (
+            !cargando && (
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/")}
+                fullWidth
+                size="large"
+                startIcon={<HomeFilled />}
+                sx={{ borderRadius: 2, fontWeight: 500, py: 1.5 }}
+              >
+                Ir al inicio
+              </Button>
+            )
           )}
         </Box>
       </Card>

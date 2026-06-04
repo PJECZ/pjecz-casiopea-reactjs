@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Box, Button, TextField, Select, MenuItem, FormControl, InputLabel,
     Stack, Typography, InputAdornment, Alert, Card, 
@@ -23,7 +22,7 @@ import {
     getJuzgadosOrigen
 } from '../actions/CitasActions';
 import CitaConfirmadaDialog from './CitaConfirmadaDialog';
-
+import { set } from 'lodash';
 // ─── Tipos y Paleta ────────────────────────────────────────
 type Oficina = { 
     clave: string; 
@@ -81,7 +80,8 @@ const NewAppointment: React.FC = () => {
     const [distrito,    setDistrito]    = useState('');
     const [oficina,     setOficina]     = useState<Oficina | null>(null);
     const [tramite,     setTramite]     = useState('');
-    const [notas,       setNotas]       = useState('');
+    const [notas, setNotas] = useState('');
+    const [notasDebounced, setNotasDebounced] = useState('');
     const [expedientes, setExpedientes] = useState<ExpedienteRow[]>([]);
     const [juzgados,    setJuzgados]    = useState<JuzgadoOrigen[]>([]);
     const [expInput,    setExpInput]    = useState({expediente: '', juzgadoId: ''});
@@ -92,43 +92,62 @@ const NewAppointment: React.FC = () => {
     const [distritos, setDistritos] = useState<Distrito[]>([]);
     const [oficinas, setOficinas] = useState<Oficina[]>([]);
     const [tramites, setTramites] = useState<OficinaServicio[]>([]);
-    const [fechas, setFechas] = useState<string[]>([]);
-    const [horas, setHoras] = useState<string[]>([]);
+    const [remoteData, setRemoteData] = useState<{
+        fechas: string[];
+        horas: string[];
+        loadingStep: 'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null;
+    }>({ fechas: [], horas: [], loadingStep: null });
     
     // ─ Estados para el Diálogo de Confirmación ─
     const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
     
     // ─ Submit y Mensajes ─
-    const [loadingStep, setLoadingStep] = useState<'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null>(null);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const setAsyncField = useCallback((fields: Partial<typeof remoteData>) => {
+        setRemoteData(prev => ({ ...prev, ...fields }));
+    }, []);
 
     const isExpedientesTramite = useMemo(() => {
         const t = tramites.find(t => t.cit_servicio_clave === tramite);
         return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
     }, [tramites, tramite]);
 
-    const notasResumen = useMemo((): string | null => {
+    const notasResumen = useMemo(() => {
         if (isExpedientesTramite) {
-            if (expedientes.length === 0) return null;
             return expedientes.map(e => {
                 const j = juzgados.find(j => j.clave === e.juzgadoId);
                 return `${e.expediente} (${j?.descripcion ?? e.juzgadoId})`;
             }).join(', ');
         }
-        const n = notas.trim();
+        const n = notasDebounced.trim();
         return n.length > 0 ? n : null;
-    }, [isExpedientesTramite, expedientes, juzgados, notas]);
+    }, [isExpedientesTramite, expedientes, juzgados, notasDebounced]);
 
     const isFormComplete = useMemo(() => {
         const notasValidas = isExpedientesTramite 
             ? expedientes.length > 0    // si es expediente, debe tener al menos uno
-            : notas.trim().length > 0;   // si es notas, no debe estar vacío
+            : notasDebounced.trim().length > 0;   // si es notas, no debe estar vacío
         
         return !!(oficina && tramite && fecha && hora && notasValidas);
-    }, [oficina, tramite, fecha, hora,notas, isExpedientesTramite, expedientes]);
+    }, [oficina, tramite, fecha, hora, notasDebounced, isExpedientesTramite, expedientes]);
 
+    // Ref para tener los datos actualizados al momento de subir, evitando problemas de closure
+    const formRef = useRef<{
+        notas: string; tramite: string; fecha: Dayjs | null; hora: string;
+        oficina: Oficina | null; expedientes: ExpedienteRow[]; juzgados: JuzgadoOrigen[];
+        isExpedientesTramite: boolean; isFormComplete: boolean;
+    }>({ notas: '', tramite: '', fecha: null, hora: '', oficina: null, expedientes: [], juzgados: [], isExpedientesTramite: false, isFormComplete: false });
 
+    // fechaSet para optimizar validación de fechas en el calendario
+    const fechasSet = useMemo(() => new Set(remoteData.fechas), [remoteData.fechas]);
+
+    // Función para deshabilitar fechas en el calendario
+    const shouldDisableDate = useCallback(
+        (d: Dayjs) => !fechasSet.has(d.format('YYYY-MM-DD')),
+        [fechasSet]
+    );
     // ─ Handler para agregar expediente a la tabla ─
     const handleAddExpediente = useCallback(() => {
         const exp = expInput.expediente.trim();
@@ -150,6 +169,7 @@ const NewAppointment: React.FC = () => {
         setOficina(null); 
         setTramite(''); 
         setNotas('');
+        setNotasDebounced('');
         setExpedientes([]);
         setExpInput({ expediente: '', juzgadoId: '' }); 
         setFecha(null); 
@@ -160,6 +180,7 @@ const NewAppointment: React.FC = () => {
     }, []);
 
     const handleSubmit = useCallback(async () => {
+        const { notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete } = formRef.current;
         setError(null);
         if (!isFormComplete) return;
         setLoadingSubmit(true);
@@ -190,17 +211,22 @@ const NewAppointment: React.FC = () => {
                 setLoadingSubmit(false);
             }, 1500);
         } 
-    }, [isFormComplete, notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite]);
+    }, []);
 
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
+        formRef.current = { notas: notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete };
+    }, [notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete]);
+
+    // Cargar distritos al montar
+    useEffect(() => {
         const obtener = async () => {
-            setLoadingStep('distrito');
+            setAsyncField({ loadingStep: 'distrito' });
             try {
                 const res: Distrito[] = await getDistritos();
                 if (Array.isArray(res)) {
-                    const sorted = res.sort((a: Distrito, b: Distrito) => {
+                    const sorted = res.sort((a, b) => {
                         const PRIMERO = 'CIUDAD JUDICIAL DE SALTILLO';
                         if (a.nombre === PRIMERO) return -1;
                         if (b.nombre === PRIMERO) return 1;
@@ -215,62 +241,98 @@ const NewAppointment: React.FC = () => {
                 console.error('Error al obtener distritos:', e);
                 setError('No se pudieron cargar los distritos.');
             } finally {
-                setLoadingStep(null);
+                setAsyncField({ loadingStep: null });
             }
         };
         obtener();
     }, []);
 
-    // Cada que cambia el distrito, reseteamos los campos dependientes y cargamos las oficinas
+    // Cada que cambia el distrito
     useEffect(() => {
-        setOficina(null); setTramite(''); setFechas([]); setHoras([]);
+        setOficina(null);
+        setTramite('');
+        setExpedientes([]);
+        setExpInput({ expediente: '', juzgadoId: '' });
+        setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!distrito) return;
-        setLoadingStep('oficinas');
+        setAsyncField({ loadingStep: 'oficinas' });
         getOficinasFiltradas(distrito)
-        .then(res => setOficinas(res))
-        .catch(err => console.error(err))
-        .finally(() => setLoadingStep(null));
+            .then(res => setOficinas(Array.isArray(res) ? res : []))
+            .catch(err => console.error(err))
+            .finally(() => setAsyncField({ loadingStep: null }));
     }, [distrito]);
 
-    // Cada que cambia la oficina, reseteamos los campos dependientes y cargamos los trámites
+    // Cada que cambia la oficina
     useEffect(() => {
-        setTramite(''); setFechas([]); setHoras([]);
+        setTramite('');
+        setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina) return;
-        setLoadingStep('tramites');
+        setAsyncField({ loadingStep: 'tramites' });
         getServiciosPorOficina(oficina.clave)
-        .then(res => setTramites(res))
-        .catch(err => console.error(err))
-        .finally(() => setLoadingStep(null));
+            .then(res => setTramites(Array.isArray(res) ? res : []))
+            .catch(err => console.error(err))
+            .finally(() => setAsyncField({ loadingStep: null }));
     }, [oficina]);
 
-    // Cada que cambia el trámite, reseteamos los campos dependientes y cargamos las fechas
+    // Cada que cambia el trámite
     useEffect(() => {
-        setFecha(null); setFechas([]); setHoras([]);
+        setFecha(null);
+        setExpedientes([]);
+        setExpInput({ expediente: '', juzgadoId: '' });
+        setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina || !tramite) return;
-        setLoadingStep('fechas');
+        setAsyncField({ loadingStep: 'fechas' });
         getFechasDisponibles(oficina.clave, tramite)
-        .then(res => setFechas(res))
-        .catch(err => console.error(err))
-        .finally(() => setLoadingStep(null));
+            .then(res => setAsyncField({ fechas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .catch(err => {
+                console.error(err);
+                setAsyncField({ fechas: [], loadingStep: null });
+            });
     }, [oficina, tramite]);
 
-    // Cada que cambia la fecha, reseteamos el campo de hora y cargamos las horas disponibles
+    // Cada que cambia la fecha
     useEffect(() => {
-        setHora(''); setHoras([]);
+        setHora('');
+        setAsyncField({ horas: [], loadingStep: null });
         if (!oficina || !tramite || !fecha) return;
-        setLoadingStep('horas');
+        setAsyncField({ loadingStep: 'horas' });
         getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
-        .then(res => setHoras(res))
-        .catch(err => console.error(err))
-        .finally(() => setLoadingStep(null));
+            .then(res => setAsyncField({ horas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .catch(err => {
+                console.error(err);
+                setAsyncField({ horas: [], loadingStep: null });
+            });
     }, [oficina, tramite, fecha]);
-   
-    // cargar juzgados origen
+    
     useEffect(() => {
-        if(!isExpedientesTramite) return;
+        const timer = setTimeout(() => setNotasDebounced(notas), 300);
+        return () => clearTimeout(timer);
+    }, [notas]);
+    
+    useEffect(() => {
+        if(!isExpedientesTramite){
+            setExpedientes([]);
+            setExpInput({ expediente: '', juzgadoId: '' });
+            setJuzgados([]);
+            return;
+        } 
         getJuzgadosOrigen()
-            .then(data => setJuzgados(data))
-            .catch(err => console.error('Error al cargar juzgados origen:', err));
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setJuzgados(data);
+                } else if (data && typeof data === 'object' && Array.isArray((data as any).items)) {
+                    setJuzgados((data as any).items);
+                } else if (data && typeof data === 'object' && Array.isArray((data as any).data)) {
+                    setJuzgados((data as any).data);
+                } else {
+                    console.error('getJuzgadosOrigen no devolvió un array:', data);
+                    setJuzgados([]);
+                }
+            })
+            .catch(err => {
+                console.error('Error al cargar juzgados origen:', err);
+                setJuzgados([]);
+            });
     }, [isExpedientesTramite]);
     return (        
             <Container maxWidth="xl" sx={{ minHeight: '100vh', display: 'flex',alignContent: 'center', py: 16, px: { xs: 1, sm: 3, md: 5 } }}>
@@ -462,7 +524,7 @@ const NewAppointment: React.FC = () => {
                                                         <Box component="tbody">
                                                             {expedientes.length === 0 ? (
                                                                 <Box component="tr">
-                                                                    <Box component="td" colSpan={3} sx={{ p: 2, textAlign: 'center', color: 'text.disabled', fontStyle: 'italic' }}>
+                                                                    <Box component="td" colSpan={3} sx={{ p: 2, textAlign: 'center', color: 'text.disabled'}}>
                                                                         Sin expedientes agregados
                                                                     </Box>
                                                                 </Box>
@@ -519,8 +581,8 @@ const NewAppointment: React.FC = () => {
                                                 <DateCalendar
                                                     value={fecha}
                                                     onChange={val => setFecha(val)}
-                                                    shouldDisableDate={d => !fechas.includes(d.format('YYYY-MM-DD'))}
-                                                    disabled={!tramite || loadingStep === 'fechas'}
+                                                    shouldDisableDate={shouldDisableDate}
+                                                    disabled={!tramite || remoteData.loadingStep === 'fechas'}
                                                     sx={{
                                                         '& .MuiPickersDay-root.Mui-selected': {
                                                             backgroundColor: '#000 !important',
@@ -541,7 +603,7 @@ const NewAppointment: React.FC = () => {
                                     <Grid size={{ md: 6, xs: 12 }} >
                                         <Typography variant="caption" fontWeight={700} sx={{color:'#000'}}>HORAS DISPONIBLES</Typography>
                                         <Card variant="outlined" sx={{ mt: 1, height: 338, overflowY: 'auto' }}>
-                                            {loadingStep === 'horas' ? (
+                                            {remoteData.loadingStep === 'horas' ? (
                                             <Box 
                                                 display="flex" 
                                                 flexDirection="column" 
@@ -558,7 +620,7 @@ const NewAppointment: React.FC = () => {
                                         ) : (
                                             <List dense sx={{ p: 1 }}>
                                                 {/* Validación: Si no hay horas y ya se seleccionó una fecha */}
-                                                {horas.length === 0 && (
+                                                {remoteData.horas.length === 0 && (
                                                     <Box sx={{ py: 8, textAlign: 'center' }}>
                                                         <Typography variant="body2" sx={{ color: '#000', fontStyle: 'italic' }}>
                                                             {fecha ? 'No hay horas disponibles para este día' : 'Selecciona una fecha primero'}
@@ -567,7 +629,7 @@ const NewAppointment: React.FC = () => {
                                                 )}
 
                                                 {/* Mapeo de horas disponibles */}
-                                                {horas.map((h) => (
+                                                {remoteData.horas.map((h) => (
                                                     <ListItemButton
                                                         key={h}
                                                         selected={hora === h}
