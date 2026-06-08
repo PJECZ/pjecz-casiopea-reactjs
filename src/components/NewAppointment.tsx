@@ -184,7 +184,7 @@ const NewAppointment: React.FC = () => {
     }, []);
 
     const handleSubmit = useCallback(async () => {
-        const { notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete } = formRef.current;
+        const { notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial } = formRef.current;
         setError(null);
         if (!isFormComplete) return;
         setLoadingSubmit(true);
@@ -194,7 +194,7 @@ const NewAppointment: React.FC = () => {
             // Con juzgado: "123/2025 (Juzgado Primero Civil)"
             ? expedientes.map(e => 
                 `${e.expediente} (${juzgados.find(j => j.clave === e.juzgadoId)?.descripcion ?? e.juzgadoId})`
-            ).join('; ')
+            ).join(', ')
             // Sin juzgado: "1/2025; 3/2025" — limpio, sin paréntesis
             : expedientes.map(e => e.expediente).join('; ')
         : notas.trim() || 'Sin notas';
