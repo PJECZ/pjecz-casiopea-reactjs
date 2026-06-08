@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, CardActions, Stack, Chip, Tabs, Tab } from '@mui/material';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, Stack, Tabs, Tab, Tooltip } from '@mui/material';
 import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -98,6 +98,9 @@ if (loadingCitas) {
     </Box>
   );
 }
+
+  const esExpediente = (item: Cita) =>
+      item.cit_servicio_descripcion?.toLowerCase().includes('expediente') ?? false;
 
 
 // Componente para campos de información con iconos
@@ -310,18 +313,49 @@ return (
                         />
 
                         {/* NOTAS */}
-                        <InfoField
-                          icon={item.notas?.includes('(') ? DescriptionIcon : NoteAltIcon}
-                          label={item.notas?.includes('(') ? 'Expedientes' : 'Notas'}
-                          value={
-                            item.notas
-                              ? item.notas.length > 50
-                                ? item.notas.slice(0, 50) + '...'
-                                : item.notas
-                              : 'Sin notas'
-                          }
-                          compact
-                        />
+                        {(() => {
+                            const esExp = esExpediente(item);
+                            const textoCompleto = item.notas ?? 'Sin notas';
+                            const truncado = textoCompleto.length > 50;
+                            const textoMostrado = truncado ? textoCompleto.slice(0, 50) + '...' : textoCompleto;
+
+                            return (
+                                <Tooltip
+                                    title={truncado ? textoCompleto : ''}
+                                    placement="top"
+                                    arrow
+                                    disableHoverListener={!truncado}
+                                >
+                                    <Box sx={{
+                                        display: 'flex', alignItems: 'center', gap: 1.5,
+                                        p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa',
+                                        border: '1px solid #e9ecef', cursor: truncado ? 'help' : 'default'
+                                    }}>
+                                        <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+                                            {esExp
+                                                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+                                                : <NoteAltIcon sx={{ fontSize: 18, color: 'white' }} />
+                                            }
+                                        </Avatar>
+                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <Typography variant="caption" sx={{
+                                                color: '#6c757d', fontWeight: 600, textTransform: 'uppercase',
+                                                fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block'
+                                            }}>
+                                                {esExp ? 'Expedientes' : 'Notas'}
+                                            </Typography>
+                                            <Typography variant="body2" component="div" sx={{
+                                                color: '#000', fontWeight: 500, fontSize: '0.9rem',
+                                                lineHeight: 1.3, wordBreak: 'break-word'
+                                            }}>
+                                                {textoMostrado}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Tooltip>
+                            );
+                        })()}
+                       
                       </Stack>
 
                     {/* Solo tabs si tiene ambos */}
