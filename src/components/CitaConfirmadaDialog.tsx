@@ -288,38 +288,34 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
                       {esExpediente ? 'Expedientes' : 'Notas'}
                   </Typography>
 
-                  {(() => {
-                      if (!esExpediente) {
-                          return (
-                              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
-                                  {cita?.notas || 'Sin información adicional'}
-                              </Typography>
-                          );
-                      }
-                      const tieneJuzgado = !!(cita?.notas?.includes('(') && cita?.notas?.includes(')'));
-                      if (tieneJuzgado) {
-                          return (
-                              <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3 }}>
-                                  {cita!.notas!.split(/[;,]/).map((entry, i, arr) => {
-                                      const match = entry.trim().match(/^(.+?)\s*\((.+)\)$/);
-                                      const exp = match?.[1]?.trim() ?? entry.trim();
-                                      const juzgado = match?.[2]?.trim() ?? '';
-                                      return (
-                                          <span key={i}>
-                                              <strong>{exp}</strong>{juzgado ? ` (${juzgado})` : ''}
-                                              {i < arr.length - 1 ? ', ' : ''}
-                                          </span>
-                                      );
-                                  })}
-                              </Typography>
-                          );
-                      }
+                 {(() => {
+                  if (!esExpediente) {
                       return (
-                          <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3 }}>
-                              {cita?.notas || 'Sin expedientes'}
+                          <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                              {cita?.notas || 'Sin información adicional'}
                           </Typography>
                       );
-                  })()}
+                  }
+                  // Siempre parsear cuando es expediente (con o sin juzgado)
+                  return (
+                      <Typography variant="body2" component="div" sx={{ color: '#000', fontWeight: 500, fontSize: '0.9rem', lineHeight: 1.3 }}>
+                          {(cita?.notas || 'Sin expedientes')
+                            .split(/[;,](?![^(]*\))/)   // ← divide por coma solo si NO está dentro de paréntesis
+                            .map((entry, i, arr) => {
+                                const match = entry.trim().match(/^(.+?)\s*\((.+)\)$/);
+                                const exp = match?.[1]?.trim() ?? entry.trim();
+                                const juzgado = match?.[2]?.trim() ?? '';
+                                return (
+                                    <span key={i}>
+                                        <strong>{exp}</strong>{juzgado ? ` (${juzgado})` : ''}
+                                        {i < arr.length - 1 ? ', ' : ''}
+                                    </span>
+                                );
+                            })
+                        }
+                      </Typography>
+                  );
+              })()}
               </Box>
           </Box>
           
