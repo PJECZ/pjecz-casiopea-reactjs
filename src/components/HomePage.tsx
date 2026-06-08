@@ -314,47 +314,90 @@ return (
 
                         {/* NOTAS */}
                         {(() => {
-                            const esExp = esExpediente(item);
-                            const textoCompleto = item.notas ?? 'Sin notas';
-                            const truncado = textoCompleto.length > 50;
-                            const textoMostrado = truncado ? textoCompleto.slice(0, 50) + '...' : textoCompleto;
+                          const esExp = esExpediente(item);
+                          const notas = item.notas ?? '';
 
-                            return (
-                                <Tooltip
-                                    title={truncado ? textoCompleto : ''}
-                                    placement="top"
-                                    arrow
-                                    disableHoverListener={!truncado}
-                                >
-                                    <Box sx={{
-                                        display: 'flex', alignItems: 'center', gap: 1.5,
-                                        p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa',
-                                        border: '1px solid #e9ecef', cursor: truncado ? 'help' : 'default'
-                                    }}>
-                                        <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
-                                            {esExp
-                                                ? <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
-                                                : <NoteAltIcon sx={{ fontSize: 18, color: 'white' }} />
-                                            }
-                                        </Avatar>
-                                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                                            <Typography variant="caption" sx={{
-                                                color: '#6c757d', fontWeight: 600, textTransform: 'uppercase',
-                                                fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block'
-                                            }}>
-                                                {esExp ? 'Expedientes' : 'Notas'}
-                                            </Typography>
-                                            <Typography variant="body2" component="div" sx={{
-                                                color: '#000', fontWeight: 500, fontSize: '0.9rem',
-                                                lineHeight: 1.3, wordBreak: 'break-word'
-                                            }}>
-                                                {textoMostrado}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </Tooltip>
-                            );
-                        })()}
+                          if (esExp && notas) {
+                              // Parsear expedientes con o sin juzgado
+                              const entradas = notas.split(/[,]/).map(e => e.trim()).filter(Boolean);
+                              const contenido = entradas.map((entry, i, arr) => {
+                                  const match = entry.match(/^(.+?)\s*\((.+)\)$/);
+                                  const exp = match?.[1]?.trim() ?? entry;
+                                  const juzgado = match?.[2]?.trim() ?? '';
+                                  return (
+                                      <span key={i}>
+                                          <strong>{exp}</strong>{juzgado ? ` (${juzgado})` : ''}
+                                          {i < arr.length - 1 ? ', ' : ''}
+                                      </span>
+                                  );
+                              });
+
+                              // Para el tooltip también necesitamos el texto completo
+                              const textoCompleto = notas;
+                              const truncado = textoCompleto.length > 50;
+
+                              return (
+                                  <Tooltip title={truncado ? textoCompleto : ''} placement="top" arrow disableHoverListener={!truncado}>
+                                      <Box sx={{
+                                          display: 'flex', alignItems: 'center', gap: 1.5,
+                                          p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa',
+                                          border: '1px solid #e9ecef', cursor: truncado ? 'help' : 'default'
+                                      }}>
+                                          <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+                                              <DescriptionIcon sx={{ fontSize: 18, color: 'white' }} />
+                                          </Avatar>
+                                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                                              <Typography variant="caption" sx={{
+                                                  color: '#6c757d', fontWeight: 600, textTransform: 'uppercase',
+                                                  fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block'
+                                              }}>
+                                                  Expedientes
+                                              </Typography>
+                                              <Typography variant="body2" component="div" sx={{
+                                                  color: '#000', fontWeight: 500, fontSize: '0.9rem',
+                                                  lineHeight: 1.3, wordBreak: 'break-word'
+                                              }}>
+                                                  {contenido}
+                                              </Typography>
+                                          </Box>
+                                      </Box>
+                                  </Tooltip>
+                              );
+                          }
+
+                          // Notas normales (no expediente)
+                          const textoCompleto = notas || 'Sin notas';
+                          const truncado = textoCompleto.length > 50;
+                          const textoMostrado = truncado ? textoCompleto.slice(0, 50) + '...' : textoCompleto;
+
+                          return (
+                              <Tooltip title={truncado ? textoCompleto : ''} placement="top" arrow disableHoverListener={!truncado}>
+                                  <Box sx={{
+                                      display: 'flex', alignItems: 'center', gap: 1.5,
+                                      p: 1.5, borderRadius: 2, bgcolor: '#f8f9fa',
+                                      border: '1px solid #e9ecef', cursor: truncado ? 'help' : 'default'
+                                  }}>
+                                      <Avatar sx={{ bgcolor: '#000', width: 36, height: 36 }}>
+                                          <NoteAltIcon sx={{ fontSize: 18, color: 'white' }} />
+                                      </Avatar>
+                                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                                          <Typography variant="caption" sx={{
+                                              color: '#6c757d', fontWeight: 600, textTransform: 'uppercase',
+                                              fontSize: '0.65rem', letterSpacing: '0.5px', display: 'block'
+                                          }}>
+                                              Notas
+                                          </Typography>
+                                          <Typography variant="body2" component="div" sx={{
+                                              color: '#000', fontWeight: 500, fontSize: '0.9rem',
+                                              lineHeight: 1.3, wordBreak: 'break-word'
+                                          }}>
+                                              {textoMostrado}
+                                          </Typography>
+                                      </Box>
+                                  </Box>
+                              </Tooltip>
+                          );
+                      })()}
                        
                       </Stack>
 
