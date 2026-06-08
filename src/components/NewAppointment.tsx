@@ -109,21 +109,25 @@ const NewAppointment: React.FC = () => {
         setRemoteData(prev => ({ ...prev, ...fields }));
     }, []);
 
+    const isCiudadJudicial = useMemo(() => distrito === 'DSAL-CJ', [distrito]);
+
     const isExpedientesTramite = useMemo(() => {
         const t = tramites.find(t => t.cit_servicio_clave === tramite);
         return t?.cit_servicio_descripcion.toLowerCase().includes('expediente') ?? false;
     }, [tramites, tramite]);
 
+    // Si el trámite es de expedientes, el resumen muestra los expedientes en lugar de las notas. Si además es Ciudad Judicial, muestra también el juzgado entre paréntesis. En caso contrario, muestra las notas normales.
     const notasResumen = useMemo(() => {
         if (isExpedientesTramite) {
             return expedientes.map(e => {
+                if (!isCiudadJudicial) return e.expediente;
                 const j = juzgados.find(j => j.clave === e.juzgadoId);
                 return `${e.expediente} (${j?.descripcion ?? e.juzgadoId})`;
             }).join(', ');
         }
         const n = notasDebounced.trim();
         return n.length > 0 ? n : null;
-    }, [isExpedientesTramite, expedientes, juzgados, notasDebounced]);
+    }, [isExpedientesTramite, isCiudadJudicial, expedientes, juzgados, notasDebounced]);
 
     const isFormComplete = useMemo(() => {
         const notasValidas = isExpedientesTramite 
@@ -137,8 +141,8 @@ const NewAppointment: React.FC = () => {
     const formRef = useRef<{
         notas: string; tramite: string; fecha: Dayjs | null; hora: string;
         oficina: Oficina | null; expedientes: ExpedienteRow[]; juzgados: JuzgadoOrigen[];
-        isExpedientesTramite: boolean; isFormComplete: boolean;
-    }>({ notas: '', tramite: '', fecha: null, hora: '', oficina: null, expedientes: [], juzgados: [], isExpedientesTramite: false, isFormComplete: false });
+        isExpedientesTramite: boolean; isFormComplete: boolean;  isCiudadJudicial: boolean;
+    }>({ notas: '', tramite: '', fecha: null, hora: '', oficina: null, expedientes: [], juzgados: [], isExpedientesTramite: false, isFormComplete: false, isCiudadJudicial: false });
 
     // fechaSet para optimizar validación de fechas en el calendario
     const fechasSet = useMemo(() => new Set(remoteData.fechas), [remoteData.fechas]);
@@ -186,8 +190,14 @@ const NewAppointment: React.FC = () => {
         setLoadingSubmit(true);
 
         const finalNotas = isExpedientesTramite
-            ? expedientes.map(e => `${e.expediente} (${juzgados.find(j => j.clave === e.juzgadoId)?.descripcion ?? e.juzgadoId})`).join('; ')
-            : notas.trim() || 'Sin notas';
+        ? isCiudadJudicial
+            // Con juzgado: "123/2025 (Juzgado Primero Civil)"
+            ? expedientes.map(e => 
+                `${e.expediente} (${juzgados.find(j => j.clave === e.juzgadoId)?.descripcion ?? e.juzgadoId})`
+            ).join('; ')
+            // Sin juzgado: "1/2025; 3/2025" — limpio, sin paréntesis
+            : expedientes.map(e => e.expediente).join('; ')
+        : notas.trim() || 'Sin notas';
 
         try {
             const res =  await createCita({
@@ -216,8 +226,8 @@ const NewAppointment: React.FC = () => {
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
-        formRef.current = { notas: notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete };
-    }, [notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete]);
+        formRef.current = { notas: notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial };
+    }, [notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial]);
 
     // Cargar distritos al montar
     useEffect(() => {
@@ -442,16 +452,136 @@ const NewAppointment: React.FC = () => {
 
                                     <Grid size={{ md: 6, xs: 12 }}>
                                         {isExpedientesTramite ? (
-                                            <Box>
-                                                <Stack spacing={1} mb={1}>
-                                                {/* ── Inputs para agregar ── */}
+                                            isCiudadJudicial ? (
+                                                <Box>
+                                                    <Stack spacing={1} mb={1}>
+                                                    {/* ── Inputs para agregar ── */}
+                                                        <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                                                            <TextField
+                                                                size="small"
+                                                                label="Expediente"
+                                                                value={expInput.expediente}
+                                                                onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
+                                                                onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
+                                                                placeholder="Ej. 123/2026"
+                                                                disabled={expedientes.length >= 5}
+                                                                fullWidth
+                                                                slotProps={{
+                                                                    input: {
+                                                                        startAdornment: (
+                                                                            <InputAdornment position="start">
+                                                                                <DescriptionIcon fontSize="small" sx={{ color: '#9e9e9e' }} />
+                                                                            </InputAdornment>
+                                                                        ),
+                                                                    },
+                                                                }}
+                                                            />
+
+                                                            <FormControl size="small" fullWidth>
+                                                                <InputLabel shrink id="juzgado-label">Juzgado</InputLabel>
+                                                                <Select
+                                                                    value={expInput.juzgadoId}
+                                                                    label="Juzgado"
+                                                                    onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
+                                                                    disabled={expedientes.length >= 5}
+                                                                    displayEmpty
+                                                                    renderValue={(selected) => {
+                                                                        if (!selected) {
+                                                                            return <span style={{ color: '#9e9e9e' }}>Selecciona un juzgado</span>;
+                                                                        }
+                                                                        return juzgados.find(j => j.clave === selected)?.descripcion || '';
+                                                                    }}
+
+                                                                >
+                                                                    <MenuItem value="" disabled>Selecciona un juzgado</MenuItem>
+                                                                    {juzgados.map(j => (
+                                                                        <MenuItem key={j.clave} value={j.clave}>
+                                                                            {j.descripcion}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+
+                                                            <Button
+                                                                variant="contained"
+                                                                onClick={handleAddExpediente}
+                                                                disabled={!expInput.expediente.trim() || !expInput.juzgadoId || expedientes.length >= 5}
+                                                                sx={{ bgcolor: C.dark, minWidth: 40, px: 1.5, height: 40, flexShrink: 0 }}
+                                                            >
+                                                                <Typography fontWeight={700} fontSize={20} lineHeight={1}>+</Typography>
+                                                            </Button>
+                                                        </Stack>
+                                                    </Stack>
+                                                    {expedientes.length >= 5 && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            Límite máximo de 5 expedientes alcanzado.
+                                                        </Typography>
+                                                    )}
+
+                                                    {/* ── Tabla ── */}
+                                                    <Card variant="outlined" sx={{ mt: 1 }}>
+                                                        <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                                            <Box component="thead">
+                                                                <Box component="tr" sx={{ bgcolor: '#000', color: 'white' }}>
+                                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700, width: '45%' }}>
+                                                                        Expediente
+                                                                    </Box>
+                                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700 }}>
+                                                                        Juzgado
+                                                                    </Box>
+                                                                    <Box component="th" sx={{ p: 1, width: 32, borderBottom: '1px solid', borderColor: 'divider' }} />
+                                                                </Box>
+                                                            </Box>
+                                                            <Box component="tbody">
+                                                                {expedientes.length === 0 ? (
+                                                                    <Box component="tr">
+                                                                        <Box component="td" colSpan={3} sx={{ p: 2, textAlign: 'center', color: 'text.disabled'}}>
+                                                                            Sin expedientes agregados
+                                                                        </Box>
+                                                                    </Box>
+                                                                ) : (
+                                                                    expedientes.map((row, i) => {
+                                                                        const juzgado = juzgados.find(j => j.clave === row.juzgadoId);
+                                                                        return (
+                                                                            <Box component="tr" key={i} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
+                                                                                <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider', fontWeight: 600 }}>
+                                                                                    {row.expediente}
+                                                                                </Box>
+                                                                                <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                                                                                    {juzgado?.descripcion ?? row.juzgadoId}
+                                                                                </Box>
+                                                                                <Box component="td" sx={{ p: 0.5, borderBottom: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+                                                                                    <Button
+                                                                                        size="small"
+                                                                                        onClick={() => handleRemoveExpediente(i)}
+                                                                                        sx={{ minWidth: 28, p: 0.25, color: 'error.main' }}
+                                                                                    >
+                                                                                        ✕
+                                                                                    </Button>
+                                                                                </Box>
+                                                                            </Box>
+                                                                        );
+                                                                    })
+                                                                )}
+                                                            </Box>
+                                                        </Box>
+                                                    </Card>
+                                                </Box>
+                                        ) : (
+                                                // ── Modo simple: solo input de expediente + tabla sin juzgado ──
+                                                <Box>
                                                     <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                                                         <TextField
                                                             size="small"
                                                             label="Expediente"
                                                             value={expInput.expediente}
                                                             onChange={e => setExpInput(prev => ({ ...prev, expediente: e.target.value }))}
-                                                            onKeyDown={e => e.key === 'Enter' && handleAddExpediente()}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && expInput.expediente.trim()) {
+                                                                    setExpedientes(prev => [...prev, { expediente: expInput.expediente.trim(), juzgadoId: '' }]);
+                                                                    setExpInput({ expediente: '', juzgadoId: '' });
+                                                                }
+                                                            }}
                                                             placeholder="Ej. 123/2026"
                                                             disabled={expedientes.length >= 5}
                                                             fullWidth
@@ -465,79 +595,50 @@ const NewAppointment: React.FC = () => {
                                                                 },
                                                             }}
                                                         />
-
-                                                        <FormControl size="small" fullWidth>
-                                                            <InputLabel shrink id="juzgado-label">Juzgado</InputLabel>
-                                                            <Select
-                                                                value={expInput.juzgadoId}
-                                                                label="Juzgado"
-                                                                onChange={e => setExpInput(prev => ({ ...prev, juzgadoId: e.target.value }))}
-                                                                disabled={expedientes.length >= 5}
-                                                                displayEmpty
-                                                                renderValue={(selected) => {
-                                                                    if (!selected) {
-                                                                        return <span style={{ color: '#9e9e9e' }}>Selecciona un juzgado</span>;
-                                                                    }
-                                                                    return juzgados.find(j => j.clave === selected)?.descripcion || '';
-                                                                }}
-
-                                                            >
-                                                                <MenuItem value="" disabled>Selecciona un juzgado</MenuItem>
-                                                                {juzgados.map(j => (
-                                                                    <MenuItem key={j.clave} value={j.clave}>
-                                                                        {j.descripcion}
-                                                                    </MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                        </FormControl>
-
                                                         <Button
                                                             variant="contained"
-                                                            onClick={handleAddExpediente}
-                                                            disabled={!expInput.expediente.trim() || !expInput.juzgadoId || expedientes.length >= 5}
+                                                            onClick={() => {
+                                                                const exp = expInput.expediente.trim();
+                                                                if (!exp || expedientes.length >= 5) return;
+                                                                setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: '' }]);
+                                                                setExpInput({ expediente: '', juzgadoId: '' });
+                                                            }}
+                                                            disabled={!expInput.expediente.trim() || expedientes.length >= 5}
                                                             sx={{ bgcolor: C.dark, minWidth: 40, px: 1.5, height: 40, flexShrink: 0 }}
                                                         >
                                                             <Typography fontWeight={700} fontSize={20} lineHeight={1}>+</Typography>
                                                         </Button>
                                                     </Stack>
-                                                </Stack>
-                                                {expedientes.length >= 5 && (
-                                                    <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
-                                                        Límite máximo de 5 expedientes alcanzado.
-                                                    </Typography>
-                                                )}
 
-                                                {/* ── Tabla ── */}
-                                                <Card variant="outlined" sx={{ mt: 1 }}>
-                                                    <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                                                        <Box component="thead">
-                                                            <Box component="tr" sx={{ bgcolor: '#000', color: 'white' }}>
-                                                                <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700, width: '45%' }}>
-                                                                    Expediente
-                                                                </Box>
-                                                                <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700 }}>
-                                                                    Juzgado
-                                                                </Box>
-                                                                <Box component="th" sx={{ p: 1, width: 32, borderBottom: '1px solid', borderColor: 'divider' }} />
-                                                            </Box>
-                                                        </Box>
-                                                        <Box component="tbody">
-                                                            {expedientes.length === 0 ? (
-                                                                <Box component="tr">
-                                                                    <Box component="td" colSpan={3} sx={{ p: 2, textAlign: 'center', color: 'text.disabled'}}>
-                                                                        Sin expedientes agregados
+                                                    {expedientes.length >= 5 && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            Límite máximo de 5 expedientes alcanzado.
+                                                        </Typography>
+                                                    )}
+
+                                                    {/* Tabla sin columna de Juzgado */}
+                                                    <Card variant="outlined" sx={{ mt: 1 }}>
+                                                        <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                                            <Box component="thead">
+                                                                <Box component="tr" sx={{ bgcolor: '#000', color: 'white' }}>
+                                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', borderBottom: '1px solid', borderColor: 'divider', fontWeight: 700 }}>
+                                                                        Expediente
                                                                     </Box>
+                                                                    <Box component="th" sx={{ p: 1, width: 32, borderBottom: '1px solid', borderColor: 'divider' }} />
                                                                 </Box>
-                                                            ) : (
-                                                                expedientes.map((row, i) => {
-                                                                    const juzgado = juzgados.find(j => j.clave === row.juzgadoId);
-                                                                    return (
+                                                            </Box>
+                                                            <Box component="tbody">
+                                                                {expedientes.length === 0 ? (
+                                                                    <Box component="tr">
+                                                                        <Box component="td" colSpan={2} sx={{ p: 2, textAlign: 'center', color: 'text.disabled' }}>
+                                                                            Sin expedientes agregados
+                                                                        </Box>
+                                                                    </Box>
+                                                                ) : (
+                                                                    expedientes.map((row, i) => (
                                                                         <Box component="tr" key={i} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
                                                                             <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider', fontWeight: 600 }}>
                                                                                 {row.expediente}
-                                                                            </Box>
-                                                                            <Box component="td" sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-                                                                                {juzgado?.descripcion ?? row.juzgadoId}
                                                                             </Box>
                                                                             <Box component="td" sx={{ p: 0.5, borderBottom: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
                                                                                 <Button
@@ -549,14 +650,13 @@ const NewAppointment: React.FC = () => {
                                                                                 </Button>
                                                                             </Box>
                                                                         </Box>
-                                                                    );
-                                                                })
-                                                            )}
+                                                                    ))
+                                                                )}
+                                                            </Box>
                                                         </Box>
-                                                    </Box>
-                                                </Card>
-                                            </Box>
-                                        ) : (
+                                                    </Card>
+                                                </Box>
+                                            )) : (
                                             <TextField
                                                 fullWidth multiline label="Notas" value={notas}
                                                 onChange={e => setNotas(e.target.value)}
