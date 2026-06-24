@@ -206,11 +206,11 @@ export async function getServiciosPorOficina(oficinaClave: string): Promise<Ofic
 }
 
 // --- Obtener fechas disponibles ---
-export async function getFechasDisponibles(oficinaClave: string, tramiteClave: string) {
+export async function getFechasDisponibles(oficinaClave: string, servicioClave: string) {
   const API_BASE = await getApiBase();
   const token = getToken();
   const res = await authFetch(
-    `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&tramite=${tramiteClave}`,
+    `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&cit_servicio_clave=${servicioClave}`,
     {
       headers: { 
         Authorization: `Bearer ${token}`,
