@@ -22,7 +22,7 @@ import {
     getJuzgadosOrigen
 } from '../actions/CitasActions';
 import CitaConfirmadaDialog from './CitaConfirmadaDialog';
-import { set } from 'lodash';
+import { get, set } from 'lodash';
 // ─── Tipos y Paleta ────────────────────────────────────────
 type Oficina = { 
     clave: string; 
@@ -293,7 +293,21 @@ const NewAppointment: React.FC = () => {
         if (!oficina || !tramite) return;
         setAsyncField({ loadingStep: 'fechas' });
         getFechasDisponibles(oficina.clave, tramite)
-            .then(res => setAsyncField({ fechas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .then(async (res) => {
+                const fechasDisponibles: string[] = Array.isArray(res) ? res : [];
+
+                const fechaConHora = (await Promise.all(
+                    fechasDisponibles.map(async (fechaStr) => {
+                        try{
+                            const horas = await getHorasDisponibles(oficina.clave, tramite, fechaStr);
+                            return Array.isArray(horas) && horas.length > 0 ? fechaStr : null;
+                        } catch (error) {
+                            return null;
+                        }
+                    })
+                )).filter((f): f is string => f !== null);
+                setAsyncField({ fechas: fechaConHora, loadingStep: null })
+            })
             .catch(err => {
                 console.error(err);
                 setAsyncField({ fechas: [], loadingStep: null });
