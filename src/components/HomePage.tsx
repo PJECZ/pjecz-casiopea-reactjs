@@ -28,7 +28,9 @@ const HomePage: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [tabsActivas, setTabsActivas] = useState<Record<string, string>>({});
-  const getTab = (id: string) => tabsActivas[id] ?? 'qr';
+
+ 
+  const getTab = (id: string, defaultAsistio = false) => tabsActivas[id] ?? (defaultAsistio ? 'qr' : 'barras');
   const setTab = (id: string, value: string) => 
     setTabsActivas(prev => ({ ...prev, [id]: value }));
 
@@ -167,7 +169,11 @@ return (
       {/* Grid de citas */}
       <Grid container spacing={2} rowSpacing={4} mb={4} px={4}>
         {citasOrdenadas.length > 0 ? (
-          citasOrdenadas.map((item: Cita) => (
+          citasOrdenadas.map((item: Cita) => {
+            const asistio = item.estado?.toUpperCase() === 'ASISTIO';
+            const mostrarQr = asistio && !!item.codigo_acceso_url;
+            const mostrarBarras = !!item.codigo_barras_url;
+            return (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
               <Grid
                 size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
@@ -175,6 +181,7 @@ return (
                 justifyContent="center"
                 alignItems="flex-start"
               >
+                  
                 {/* <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}> */}
                 {/* <Box justifyItems={'center'} alignItems={'center'}> */}
                   {/* DISEÑO ORIGINAL  CARD RESTAURADO */}
@@ -191,7 +198,7 @@ return (
                     {/* HEADER */}
                     <Box
                       sx={{
-                        background: item.estado?.toLowerCase()  === 'asistio'
+                        background: item.estado?.toUpperCase()  === 'ASISTIO'
                         ? 'linear-gradient(135deg,  #1b5e20 0%, #2e7d32 50%, #1b5e20 100%)' 
                         : 'linear-gradient(135deg, #000000 0%, #111111 35%, #1c1c1c 60%, #050505 100%)',
                         color: 'white',
@@ -208,7 +215,7 @@ return (
                           mb: 1
                         }}
                       >
-                        {item.estado?.toLowerCase()  === 'asistio' 
+                        {item.estado?.toUpperCase()  === 'ASISTIO' 
                           ? <CheckCircleIcon sx={{ fontSize: 28, color: 'white' }} />
                           : <CalendarMonthIcon sx={{ fontSize: 28 }} />
                         }
@@ -401,8 +408,8 @@ return (
                        
                       </Stack>
 
-                    {/* Solo tabs si tiene ambos */}
-                    {item.codigo_acceso_url && item.codigo_barras_url ? (
+                    {/*Solo tabs si tiene ambos,  Tabs solo si hay QR (asistio) y código de barras */}
+                    {mostrarQr && mostrarBarras ? (
                       <Box sx={{ mt: 1, width: '100%' }}>
                         <Tabs
                           value={getTab(item.id)}
@@ -412,115 +419,89 @@ return (
                             mb: 2,
                             '& .MuiTab-root': {
                               fontWeight: 600,
-                              fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.62rem' }, 
-                              minWidth: 0, 
+                              fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.62rem' },
+                              minWidth: 0,
                               px: { xs: 0.5, sm: 1.5 },
-                              letterSpacing: 0, 
+                              letterSpacing: 0,
                             },
                             '& .Mui-selected': { color: '#0e0e0eff' },
                             '& .MuiTabs-indicator': { backgroundColor: '#000' },
                           }}
                         >
-                          <Tab label="Código acceso" value="qr" />
                           <Tab label="Código asistencia" value="barras" />
+                          <Tab label="Código acceso" value="qr" />
                         </Tabs>
-
-                        {getTab(item.id) === 'qr' && (
-                          <Box
-                            sx={{
-                              p: 2,
-                              bgcolor: '#f8f9fa',
-                              borderRadius: 2,
-                              border: '1px solid #dee2e6',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',   // ← centra horizontalmente
-                              justifyContent: 'center', // ← centra verticalmente
-                              width: '100%',           // ← ocupa todo el ancho disponible
-                              boxSizing: 'border-box',
-                            }}
-                          >
-                            <img
-                              alt="qr"
-                              src={item.codigo_acceso_url}
-                              style={{
-                                width: '60%',          // ← responsivo en lugar de width fijo
-                                maxWidth: 200,
-                                borderRadius: 8,
-                                display: 'block',
+                          {getTab(item.id) === 'barras' && (
+                            <Box
+                              sx={{
+                                p: 3, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                justifyContent: 'center', width: '100%', boxSizing: 'border-box',
                               }}
-                            />
-                          </Box>
-                        )}
-
-                        {getTab(item.id) === 'barras' && (
-                          <Box
-                            sx={{
-                              p: 3,
-                              bgcolor: '#f8f9fa',
-                              borderRadius: 2,
-                              border: '1px solid #dee2e6',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',    // ← centra horizontalmente
-                              justifyContent: 'center',
-                              width: '100%',
-                              boxSizing: 'border-box',
-                            }}
-                          >
-                            <img
-                              alt="barras"
-                              src={item.codigo_barras_url}
-                              style={{
-                                width: '80%',           // ← el código de barras es más ancho
-                                maxWidth: 200,
-                                borderRadius: 8,
-                                display: 'block',
+                            >
+                              <img
+                                alt="barras"
+                                src={item.codigo_barras_url}
+                                style={{ width: '80%', maxWidth: 200, borderRadius: 8, display: 'block' }}
+                              />
+                            </Box>
+                          )}
+                          {getTab(item.id) === 'qr' && (
+                            <Box
+                              sx={{
+                                p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                justifyContent: 'center', width: '100%', boxSizing: 'border-box',
                               }}
-                            />
-                          </Box>
-                        )}
+                            >
+                              <img
+                                alt="qr"
+                                src={item.codigo_acceso_url}
+                                style={{ width: '60%', maxWidth: 200, borderRadius: 8, display: 'block' }}
+                              />
+                            </Box>
+                          )}
                       </Box>
-
-                    ) : item.codigo_acceso_url ? (
-                      // Solo QR — sin tabs
+                    ) : mostrarBarras ? (
+                      // Solo código de barras — aún no asiste, sin tabs
                       <Box
                         sx={{
-                          mt: 2,
-                          p: 2,
-                          bgcolor: '#f8f9fa',
-                          borderRadius: 2,
-                          border: '1px solid #dee2e6',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          width: '100%',
-                          boxSizing: 'border-box',
+                          mt: 2, p: 3, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center',
+                          width: '100%', boxSizing: 'border-box',
                         }}
                       >
                         <Typography
                           variant="caption"
-                          sx={{
-                            color: '#6c757d',
-                            fontWeight: 600,
-                            mb: 1,
-                            textTransform: 'uppercase',
-                            fontSize: '0.65rem',
-                            display: 'block',
-                            textAlign: 'center', // ← texto centrado
-                          }}
+                          sx={{ color: '#6c757d', fontWeight: 600, mb: 1, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', textAlign: 'center' }}
+                        >
+                          Código de asistencia
+                        </Typography>
+                        <img
+                          alt="barras"
+                          src={item.codigo_barras_url}
+                          style={{ width: '80%', maxWidth: 200, borderRadius: 8, display: 'block' }}
+                        />
+                      </Box>
+                    ) : mostrarQr ? (
+                      // Solo QR (caso raro: asistió pero no hay código de barras)
+                      <Box
+                        sx={{
+                          mt: 2, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center',
+                          width: '100%', boxSizing: 'border-box',
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ color: '#6c757d', fontWeight: 600, mb: 1, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', textAlign: 'center' }}
                         >
                           Código de acceso
                         </Typography>
                         <img
                           alt="qr"
                           src={item.codigo_acceso_url}
-                          style={{
-                            width: '60%',
-                            maxWidth: 200,
-                            borderRadius: 8,
-                            display: 'block',
-                          }}
+                          style={{ width: '60%', maxWidth: 200, borderRadius: 8, display: 'block' }}
                         />
                       </Box>
                     ) : null}
@@ -549,7 +530,7 @@ return (
                 {/* </Box> */}
               </Grid>
             </Grow>
-          ))
+          )})
         ) : (
           /* Estado vacío: se muestra cuando no hay citas */
           <Box width="100%" height={500} textAlign="center" py={6} alignContent={'center'}>

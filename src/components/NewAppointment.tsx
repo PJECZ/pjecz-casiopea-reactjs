@@ -97,6 +97,9 @@ const NewAppointment: React.FC = () => {
         horas: string[];
         loadingStep: 'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null;
     }>({ fechas: [], horas: [], loadingStep: null });
+
+
+    const EXPEDIENTE_REGEX = /^\d{1,5}\/\d{4}$/;
     
     // ─ Estados para el Diálogo de Confirmación ─
     const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
@@ -160,9 +163,16 @@ const NewAppointment: React.FC = () => {
             return;
         }
         if (!exp || !expInput.juzgadoId) return;
+        if(!EXPEDIENTE_REGEX.test(exp)) {
+            setError('El expediente debe tener el formato NNNNN/AAAA (hasta 5 dígitos, /, 4 dígitos de año).');
+            return;
+        }
+        setError(null);
         setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: expInput.juzgadoId }]);
         setExpInput({ expediente: '', juzgadoId: '' });
     }, [expInput, expedientes]);
+
+
 
     const handleRemoveExpediente = useCallback((index: number) => {
         setExpedientes(prev => prev.filter((_, i) => i !== index));
@@ -585,6 +595,7 @@ const NewAppointment: React.FC = () => {
                                                 // ── Modo simple: solo input de expediente + tabla sin juzgado ──
                                                 <Box>
                                                     <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                                                        {/* ── Input de expediente ──*/}
                                                         <TextField
                                                             size="small"
                                                             label="Expediente"
