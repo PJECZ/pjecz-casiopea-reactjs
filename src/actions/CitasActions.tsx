@@ -103,6 +103,7 @@ export type Cita = {
   codigo_asistencia: string;
   codigo_acceso_url: string;
   creado: string;
+  codigo_acceso_url_whatsapp: string;
   puede_cancelarse: boolean;
   codigo_barras_url: string;
 };
