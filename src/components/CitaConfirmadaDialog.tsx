@@ -322,60 +322,11 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
 
         </Stack>
         
-        {/* Tabs si tiene ambos */}
-        {cita?.codigo_acceso_url && cita?.codigo_barras_url ? (
-          <Box sx={{ mt: 2.5 }}>
-            <Tabs
-              value={tabCodigo}
-              onChange={(_, v) => setTabCodigo(v)}
-              centered
-              sx={{
-                mb: 2,
-                '& .MuiTab-root': { fontWeight: 600, fontSize: '0.75rem' },
-                '& .Mui-selected': { color: '#000' },
-                '& .MuiTabs-indicator': { backgroundColor: '#000' },
-              }}
-            >
-              <Tab label="Código de acceso" value="qr" />
-              <Tab label="Código de asistencia" value="barras" />
-            </Tabs>
-
-            {tabCodigo === 'qr' && (
-              <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
-                <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
-                  {cita?.id}
-                </Typography>
-              </Box>
-            )}
-
-            {tabCodigo === 'barras' && (
-              <Box sx={{ p: 7, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <img alt="barras" src={cita.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
-                <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
-                  {cita?.id}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-
-        ) : cita?.codigo_acceso_url ? (
-          // Solo QR — sin tabs
-          <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-              Código de acceso
-            </Typography>
-            <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
-            <Typography variant="caption" display="block" mt={15} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem', alignItems: '' }}>
-              {cita?.id}
-            </Typography>
-          </Box>
-
-        ) : cita?.codigo_barras_url ? (
+        {cita?.codigo_barras_url ? (
           // Solo barras — sin tabs
           <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
             <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-              Código de barras
+              Código de asistencia
             </Typography>
             <img alt="barras" src={cita.codigo_barras_url} width={200} style={{ borderRadius: 8 }} />
           </Box>

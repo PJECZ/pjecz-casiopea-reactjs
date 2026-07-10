@@ -107,6 +107,7 @@ const NewAppointment: React.FC = () => {
     // ─ Submit y Mensajes ─
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [errorExpediente, setErrorExpediente] = useState<string | null>(null);
 
     const setAsyncField = useCallback((fields: Partial<typeof remoteData>) => {
         setRemoteData(prev => ({ ...prev, ...fields }));
@@ -157,17 +158,16 @@ const NewAppointment: React.FC = () => {
     );
     // ─ Handler para agregar expediente a la tabla ─
     const handleAddExpediente = useCallback(() => {
+        setErrorExpediente(null);
+
         const exp = expInput.expediente.trim();
-        if(expedientes.length >= 5) {
-            setError('No puedes agregar más de 5 expedientes.');
-            return;
-        }
+      
         if (!exp || !expInput.juzgadoId) return;
+
         if(!EXPEDIENTE_REGEX.test(exp)) {
-            setError('El expediente debe tener el formato NNNNN/AAAA (hasta 5 dígitos, /, 4 dígitos de año).');
+            setErrorExpediente('El expediente debe tener el formato "123/2026" (hasta 5 dígitos, /, 4 dígitos de año).');
             return;
         }
-        setError(null);
         setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: expInput.juzgadoId }]);
         setExpInput({ expediente: '', juzgadoId: '' });
     }, [expInput, expedientes]);
@@ -542,6 +542,12 @@ const NewAppointment: React.FC = () => {
                                                         </Typography>
                                                     )}
 
+                                                    {errorExpediente && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            {errorExpediente}
+                                                        </Typography>
+                                                    )}
+
                                                     {/* ── Tabla ── */}
                                                     <Card variant="outlined" sx={{ mt: 1 }}>
                                                         <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -638,6 +644,12 @@ const NewAppointment: React.FC = () => {
                                                     {expedientes.length >= 5 && (
                                                         <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
                                                             Límite máximo de 5 expedientes alcanzado.
+                                                        </Typography>
+                                                    )}
+
+                                                    {errorExpediente && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            {errorExpediente}
                                                         </Typography>
                                                     )}
 
