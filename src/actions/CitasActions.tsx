@@ -244,7 +244,9 @@ export async function getHorasDisponibles(oficinaClave: string, servicioClave: s
 export async function getCitas(): Promise<Cita[]> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await authFetch(`${API_BASE}/api/v5/cit_citas`, {
+  // La API pagina (25 por omisión, máximo 100) y ordena de la más lejana a la más cercana;
+  // se piden 100 para no perder las citas más próximas de usuarios con muchas citas
+  const res = await authFetch(`${API_BASE}/api/v5/cit_citas?limit=100`, {
     headers: { 
       Authorization: `Bearer ${token}`,
     },

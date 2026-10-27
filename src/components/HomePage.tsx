@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, Stack, Tabs, Tab, Tooltip } from '@mui/material';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Container, Box, Card, DialogContent, DialogTitle, Dialog, Typography, Button, IconButton, DialogActions, Divider, Grow, CircularProgress, Avatar, Grid, Stack, /* Tabs, Tab, */ Tooltip, Alert } from '@mui/material';
 import { AccessTime, EventBusy, SvgIconComponent} from '@mui/icons-material';
 import { getCitas, cancelarCita, Cita } from '../actions/CitasActions';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -18,6 +18,9 @@ type InfoFieldProps = {
   compact?: boolean;
 };
 
+// Citas que se muestran antes de "Ver todas" (8 = 2 filas completas en pantallas grandes)
+const CITAS_INICIALES = 8;
+
 // ══════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════════════════════════
@@ -27,17 +30,25 @@ const HomePage: React.FC = () => {
   const [citas, setCitas] = useState<Cita[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
-  const [tabsActivas, setTabsActivas] = useState<Record<string, string>>({});
-
- 
-  const getTab = (id: string, defaultAsistio = false) => tabsActivas[id] ?? (defaultAsistio ? 'qr' : 'barras');
-  const setTab = (id: string, value: string) => 
-    setTabsActivas(prev => ({ ...prev, [id]: value }));
+  const [errorCancelar, setErrorCancelar] = useState<string | null>(null); // mensaje si falla la cancelación
+  const [errorCitas, setErrorCitas] = useState<string | null>(null); // mensaje si falla la carga de citas
+  const [verTodas, setVerTodas] = useState(false); // muestra todas las citas o solo las primeras CITAS_INICIALES
+  // Pestañas QR / código de barras desactivadas temporalmente: solo se muestra el QR (ver bloque comentado en la card)
+  // const [tabsActivas, setTabsActivas] = useState<Record<string, string>>({});
+  // const getTab = (id: string, defaultAsistio = false) => tabsActivas[id] ?? (defaultAsistio ? 'qr' : 'barras');
+  // const setTab = (id: string, value: string) =>
+  //   setTabsActivas(prev => ({ ...prev, [id]: value }));
 
  // Memorizar el ordenamiento para evitar cálculos innecesarios en cada render
   const citasOrdenadas = useMemo(() => {
     return [...citas].sort((a, b) => Date.parse(a.inicio) - Date.parse(b.inicio));
   }, [citas]);
+
+  // Citas en pantalla: las más próximas primero, todas solo si se pidió "Ver todas"
+  const citasVisibles = useMemo(
+    () => (verTodas ? citasOrdenadas : citasOrdenadas.slice(0, CITAS_INICIALES)),
+    [citasOrdenadas, verTodas]
+  );
 
   // const formatDate = (inicio) => moment(inicio).format("DD/MM/YYYY");
    // Add type annotation for parameter
@@ -47,12 +58,14 @@ const HomePage: React.FC = () => {
   // Prepara la interfaz para la cancelación: guarda la referencia de la cita seleccionada y muestra el modal de confirmación.
   const handleOpenDialog = (id: string) => {
     setSelectedAppointmentId(id); // Guarda el ID de la cita seleccionada
+    setErrorCancelar(null);
     setOpenDialog(true); // Abre el diálogo de confirmación
   };
 
   // Cierra el diálogo de confirmación y restaura el foco al cuerpo del documento tras la animación para mantener la accesibilidad.
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setErrorCancelar(null);
     setTimeout(() => {
       if (document.body) {
         document.body.focus();
@@ -65,33 +78,39 @@ const HomePage: React.FC = () => {
 const handleCancelAppointment = async (id: string) => {
   if(!selectedAppointmentId) return; // Asegura que hay una cita seleccionada antes de proceder
   setLoadingConfirm(true); // Indica que se está procesando la cancelación
+  setErrorCancelar(null);
   try {
       const token = localStorage.getItem('access_token');
       if (!token) throw new Error('No hay token de autenticación');
       await cancelarCita(id);
       setCitas(prev => prev.filter(cita => cita.id !== id));
       setOpenDialog(false);
-  } catch (error) {
+      setSelectedAppointmentId(null);
+  } catch (error: any) {
       console.error('Error al cancelar la cita:', error);
+      setErrorCancelar(error?.message || 'No se pudo cancelar la cita. Intenta de nuevo.');
   }
   setLoadingConfirm(false);
-  setSelectedAppointmentId(null);
 };
 
-useEffect(() => {
-  async function Obtener() {
-    setLoadingCitas(true);
-    try{
-      const res = await getCitas();
-      setCitas(res);
-    } catch (error) {
-      console.error('Error al obtener las citas:', error);
-    } finally {
-      setLoadingCitas(false);
-    }
+// Carga las citas del usuario; se usa al montar y desde el botón "Reintentar"
+const cargarCitas = useCallback(async () => {
+  setLoadingCitas(true);
+  setErrorCitas(null);
+  try {
+    const res = await getCitas();
+    setCitas(res);
+  } catch (error) {
+    console.error('Error al obtener las citas:', error);
+    setErrorCitas('No se pudieron cargar tus citas. Revisa tu conexión e intenta de nuevo.');
+  } finally {
+    setLoadingCitas(false);
   }
-  Obtener();
 }, []);
+
+useEffect(() => {
+  cargarCitas();
+}, [cargarCitas]);
 
 if (loadingCitas) {
   return (
@@ -162,17 +181,34 @@ return (
       {/* Barra de título */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight={700} sx={{ color: '#000' }}>
-          Mis Citas Agendadas
+          Mis Citas Agendadas{citasOrdenadas.length > 0 ? ` (${citasOrdenadas.length})` : ''}
         </Typography>
       </Box>
 
       {/* Grid de citas */}
       <Grid container spacing={2} rowSpacing={4} mb={4} px={4}>
-        {citasOrdenadas.length > 0 ? (
-          citasOrdenadas.map((item: Cita) => {
-            const asistio = item.estado?.toUpperCase() === 'ASISTIO';
-            const mostrarQr = asistio && !!item.codigo_acceso_url;
-            const mostrarBarras = !!item.codigo_barras_url;
+        {errorCitas ? (
+          /* Estado de error: no se pudieron cargar las citas */
+          <Box width="100%" height={500} textAlign="center" py={6} alignContent={'center'}>
+            <Avatar sx={{ bgcolor: '#000', width: 56, height: 56, margin: '0 auto' }}>
+              <WarningAmberIcon sx={{ color: 'white' }} />
+            </Avatar>
+            <Typography variant="h6" mt={2}>
+              No se pudieron cargar tus citas
+            </Typography>
+            <Typography variant="body1" color="text.secondary" mb={2}>
+              {errorCitas}
+            </Typography>
+            <Button variant="contained" onClick={cargarCitas} sx={{ backgroundColor: '#000', '&:hover': { backgroundColor: '#000' } }}>
+              Reintentar
+            </Button>
+          </Box>
+        ) : citasOrdenadas.length > 0 ? (
+          citasVisibles.map((item: Cita) => {
+            // Regla de QR solo con asistencia y código de barras desactivada temporalmente: solo se muestra el QR
+            // const asistio = item.estado?.toUpperCase() === 'ASISTIO';
+            // const mostrarQr = asistio && !!item.codigo_acceso_url;
+            // const mostrarBarras = !!item.codigo_barras_url;
             return (
             <Grow key={item.id} in style={{ transformOrigin: '0 0 0' }} {...({ timeout: 1000 })}>
               <Grid
@@ -408,7 +444,8 @@ return (
                        
                       </Stack>
 
-                    {/*Solo tabs si tiene ambos,  Tabs solo si hay QR (asistio) y código de barras */}
+                    {/* Código de barras y pestañas desactivados temporalmente: solo se muestra el QR
+                    Solo tabs si tiene ambos,  Tabs solo si hay QR (asistio) y código de barras
                     {mostrarQr && mostrarBarras ? (
                       <Box sx={{ mt: 1, width: '100%' }}>
                         <Tabs
@@ -505,6 +542,30 @@ return (
                         />
                       </Box>
                     ) : null}
+                    */}
+
+                    {/* Solo QR */}
+                    {item.codigo_acceso_url && (
+                      <Box
+                        sx={{
+                          mt: 2, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center',
+                          width: '100%', boxSizing: 'border-box',
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ color: '#6c757d', fontWeight: 600, mb: 1, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', textAlign: 'center' }}
+                        >
+                          Código de acceso
+                        </Typography>
+                        <img
+                          alt="qr"
+                          src={item.codigo_acceso_url}
+                          style={{ width: '60%', maxWidth: 200, borderRadius: 8, display: 'block' }}
+                        />
+                      </Box>
+                    )}
 
                       {/* BOTÓN */}
                       <Box>
@@ -547,6 +608,22 @@ return (
         )}
       </Grid>
 
+      {/* Ver todas / ver menos: solo si hay más citas de las que se muestran al inicio */}
+      {!errorCitas && citasOrdenadas.length > CITAS_INICIALES && (
+        <Box textAlign="center" mb={6}>
+          <Typography variant="body2" color="text.secondary" mb={1.5}>
+            Mostrando {citasVisibles.length} de {citasOrdenadas.length} citas
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => setVerTodas(v => !v)}
+            sx={{ bgcolor: '#000', py: 1.5, fontWeight: 700 }}
+          >
+            {verTodas ? 'Ver menos' : `Ver todas las citas (${citasOrdenadas.length})`}
+          </Button>
+        </Box>
+      )}
+
       {/* DIÁLOGO DE CONFIRMACIÓN */}
       <Dialog open={openDialog} onClose={loadingConfirm ? undefined : handleCloseDialog} fullWidth maxWidth="xs">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -563,6 +640,11 @@ return (
             <Typography align="center" variant="subtitle1" fontWeight={500}>
               ¿Estás seguro que deseas cancelar tu cita?
             </Typography>
+            {errorCancelar && (
+              <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+                {errorCancelar}
+              </Alert>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>

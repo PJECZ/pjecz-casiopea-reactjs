@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React /* , { useState } */ from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -13,8 +13,8 @@ import {
   Fade,
   Grid,
   SvgIconProps,
-  Tabs,
-  Tab
+  // Tabs,
+  // Tab
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -127,7 +127,8 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
   isSuccess,
 }) => {
   const navigate = useNavigate();
-  const [tabCodigo, setTabCodigo] = useState<'qr' | 'barras'>('qr');
+  // Pestañas QR / código de barras desactivadas temporalmente: solo se muestra el QR
+  // const [tabCodigo, setTabCodigo] = useState<'qr' | 'barras'>('qr');
 
   if (!open) return null;
 
@@ -322,6 +323,7 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
 
         </Stack>
         
+        {/* Código de barras desactivado temporalmente: solo se muestra el QR
         {cita?.codigo_barras_url ? (
           // Solo barras — sin tabs
           <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', textAlign: 'center' }}>
@@ -332,6 +334,20 @@ const CitaConfirmadaDialog: React.FC<CitaConfirmadaDialogProps> = ({
           </Box>
 
         ) : null}
+        */}
+
+        {/* Solo QR */}
+        {cita?.codigo_acceso_url && (
+          <Box sx={{ mt: 2.5, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: '#6c757d', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+              Código de acceso
+            </Typography>
+            <img alt="qr" src={cita.codigo_acceso_url} width={200} style={{ borderRadius: 8 }} />
+            <Typography variant="caption" display="block" mt={1.5} sx={{ color: '#000', fontWeight: 600, fontSize: '0.75rem' }}>
+              {cita?.id}
+            </Typography>
+          </Box>
+        )}
         
       <Box
         sx={{
