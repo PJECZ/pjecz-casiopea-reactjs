@@ -136,10 +136,10 @@ const NewAppointment: React.FC = () => {
     const isFormComplete = useMemo(() => {
         const notasValidas = isExpedientesTramite 
             ? expedientes.length > 0    // si es expediente, debe tener al menos uno
-            : notasDebounced.trim().length > 0;   // si es notas, no debe estar vacío
-        
+            : notas.trim().length > 0;   // si es notas, no debe estar vacío
+
         return !!(oficina && tramite && fecha && hora && notasValidas);
-    }, [oficina, tramite, fecha, hora, notasDebounced, isExpedientesTramite, expedientes]);
+    }, [oficina, tramite, fecha, hora, notas, isExpedientesTramite, expedientes]);
 
     // Ref para tener los datos actualizados al momento de subir, evitando problemas de closure
     const formRef = useRef<{
@@ -236,8 +236,8 @@ const NewAppointment: React.FC = () => {
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
-        formRef.current = { notas: notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial };
-    }, [notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial]);
+        formRef.current = { notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial };
+    }, [notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial]);
 
     // Cargar distritos al montar
     useEffect(() => {
@@ -271,27 +271,34 @@ const NewAppointment: React.FC = () => {
     useEffect(() => {
         setOficina(null);
         setTramite('');
+        setOficinas([]);
+        setTramites([]);
         setExpedientes([]);
         setExpInput({ expediente: '', juzgadoId: '' });
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!distrito) return;
+        let cancelado = false; // evita que una respuesta de una selección anterior pise la actual
         setAsyncField({ loadingStep: 'oficinas' });
         getOficinasFiltradas(distrito)
-            .then(res => setOficinas(Array.isArray(res) ? res : []))
+            .then(res => { if (!cancelado) setOficinas(Array.isArray(res) ? res : []); })
             .catch(err => console.error(err))
-            .finally(() => setAsyncField({ loadingStep: null }));
+            .finally(() => { if (!cancelado) setAsyncField({ loadingStep: null }); });
+        return () => { cancelado = true; };
     }, [distrito]);
 
     // Cada que cambia la oficina
     useEffect(() => {
         setTramite('');
+        setTramites([]);
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'tramites' });
         getServiciosPorOficina(oficina.clave)
-            .then(res => setTramites(Array.isArray(res) ? res : []))
+            .then(res => { if (!cancelado) setTramites(Array.isArray(res) ? res : []); })
             .catch(err => console.error(err))
-            .finally(() => setAsyncField({ loadingStep: null }));
+            .finally(() => { if (!cancelado) setAsyncField({ loadingStep: null }); });
+        return () => { cancelado = true; };
     }, [oficina]);
 
     // Cada que cambia el trámite
@@ -301,9 +308,11 @@ const NewAppointment: React.FC = () => {
         setExpInput({ expediente: '', juzgadoId: '' });
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina || !tramite) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'fechas' });
         getFechasDisponibles(oficina.clave, tramite)
             .then(async (res) => {
+                if (cancelado) return; // ya cambió la selección: no pedir horas de cada fecha
                 const fechasDisponibles: string[] = Array.isArray(res) ? res : [];
 
                 const fechaConHora = (await Promise.all(
@@ -316,12 +325,13 @@ const NewAppointment: React.FC = () => {
                         }
                     })
                 )).filter((f): f is string => f !== null);
-                setAsyncField({ fechas: fechaConHora, loadingStep: null })
+                if (!cancelado) setAsyncField({ fechas: fechaConHora, loadingStep: null });
             })
             .catch(err => {
                 console.error(err);
-                setAsyncField({ fechas: [], loadingStep: null });
+                if (!cancelado) setAsyncField({ fechas: [], loadingStep: null });
             });
+        return () => { cancelado = true; };
     }, [oficina, tramite]);
 
     // Cada que cambia la fecha
@@ -329,13 +339,15 @@ const NewAppointment: React.FC = () => {
         setHora('');
         setAsyncField({ horas: [], loadingStep: null });
         if (!oficina || !tramite || !fecha) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'horas' });
         getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
-            .then(res => setAsyncField({ horas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .then(res => { if (!cancelado) setAsyncField({ horas: Array.isArray(res) ? res : [], loadingStep: null }); })
             .catch(err => {
                 console.error(err);
-                setAsyncField({ horas: [], loadingStep: null });
+                if (!cancelado) setAsyncField({ horas: [], loadingStep: null });
             });
+        return () => { cancelado = true; };
     }, [oficina, tramite, fecha]);
     
     useEffect(() => {
