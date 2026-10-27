@@ -103,6 +103,7 @@ export type Cita = {
   codigo_asistencia: string;
   codigo_acceso_url: string;
   creado: string;
+  codigo_acceso_url_whatsapp: string;
   puede_cancelarse: boolean;
   codigo_barras_url: string;
 };
@@ -206,11 +207,11 @@ export async function getServiciosPorOficina(oficinaClave: string): Promise<Ofic
 }
 
 // --- Obtener fechas disponibles ---
-export async function getFechasDisponibles(oficinaClave: string, tramiteClave: string) {
+export async function getFechasDisponibles(oficinaClave: string, servicioClave: string) {
   const API_BASE = await getApiBase();
   const token = getToken();
   const res = await authFetch(
-    `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&tramite=${tramiteClave}`,
+    `${API_BASE}/api/v5/cit_dias_disponibles?oficina=${oficinaClave}&cit_servicio_clave=${servicioClave}`,
     {
       headers: { 
         Authorization: `Bearer ${token}`,
@@ -243,7 +244,9 @@ export async function getHorasDisponibles(oficinaClave: string, servicioClave: s
 export async function getCitas(): Promise<Cita[]> {
   const API_BASE = await getApiBase();
   const token = getToken();
-  const res = await authFetch(`${API_BASE}/api/v5/cit_citas`, {
+  // La API pagina (25 por omisión, máximo 100) y ordena de la más lejana a la más cercana;
+  // se piden 100 para no perder las citas más próximas de usuarios con muchas citas
+  const res = await authFetch(`${API_BASE}/api/v5/cit_citas?limit=100`, {
     headers: { 
       Authorization: `Bearer ${token}`,
     },

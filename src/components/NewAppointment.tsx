@@ -22,7 +22,7 @@ import {
     getJuzgadosOrigen
 } from '../actions/CitasActions';
 import CitaConfirmadaDialog from './CitaConfirmadaDialog';
-import { set } from 'lodash';
+import { get, set } from 'lodash';
 // ─── Tipos y Paleta ────────────────────────────────────────
 type Oficina = { 
     clave: string; 
@@ -97,6 +97,9 @@ const NewAppointment: React.FC = () => {
         horas: string[];
         loadingStep: 'distrito' | 'oficinas' | 'tramites' | 'fechas' | 'horas' | null;
     }>({ fechas: [], horas: [], loadingStep: null });
+
+
+    const EXPEDIENTE_REGEX = /^\d{1,5}\/\d{4}$/;
     
     // ─ Estados para el Diálogo de Confirmación ─
     const [dialog, setDialog] = useState<{ open: boolean, cita: any | null, isSuccess: boolean}>({ open: false, cita: null, isSuccess: false });
@@ -104,6 +107,7 @@ const NewAppointment: React.FC = () => {
     // ─ Submit y Mensajes ─
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [errorExpediente, setErrorExpediente] = useState<string | null>(null);
 
     const setAsyncField = useCallback((fields: Partial<typeof remoteData>) => {
         setRemoteData(prev => ({ ...prev, ...fields }));
@@ -132,10 +136,10 @@ const NewAppointment: React.FC = () => {
     const isFormComplete = useMemo(() => {
         const notasValidas = isExpedientesTramite 
             ? expedientes.length > 0    // si es expediente, debe tener al menos uno
-            : notasDebounced.trim().length > 0;   // si es notas, no debe estar vacío
-        
+            : notas.trim().length > 0;   // si es notas, no debe estar vacío
+
         return !!(oficina && tramite && fecha && hora && notasValidas);
-    }, [oficina, tramite, fecha, hora, notasDebounced, isExpedientesTramite, expedientes]);
+    }, [oficina, tramite, fecha, hora, notas, isExpedientesTramite, expedientes]);
 
     // Ref para tener los datos actualizados al momento de subir, evitando problemas de closure
     const formRef = useRef<{
@@ -154,15 +158,21 @@ const NewAppointment: React.FC = () => {
     );
     // ─ Handler para agregar expediente a la tabla ─
     const handleAddExpediente = useCallback(() => {
+        setErrorExpediente(null);
+
         const exp = expInput.expediente.trim();
-        if(expedientes.length >= 5) {
-            setError('No puedes agregar más de 5 expedientes.');
+      
+        if (!exp || !expInput.juzgadoId) return;
+
+        if(!EXPEDIENTE_REGEX.test(exp)) {
+            setErrorExpediente('El expediente debe tener el formato "123/2026" (hasta 5 dígitos, /, 4 dígitos de año).');
             return;
         }
-        if (!exp || !expInput.juzgadoId) return;
         setExpedientes(prev => [...prev, { expediente: exp, juzgadoId: expInput.juzgadoId }]);
         setExpInput({ expediente: '', juzgadoId: '' });
     }, [expInput, expedientes]);
+
+
 
     const handleRemoveExpediente = useCallback((index: number) => {
         setExpedientes(prev => prev.filter((_, i) => i !== index));
@@ -226,8 +236,8 @@ const NewAppointment: React.FC = () => {
 
     // ─── Lógica de Efectos ────────────────────────────────
     useEffect(() => {
-        formRef.current = { notas: notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial };
-    }, [notasDebounced, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial]);
+        formRef.current = { notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial };
+    }, [notas, tramite, fecha, hora, oficina, expedientes, juzgados, isExpedientesTramite, isFormComplete, isCiudadJudicial]);
 
     // Cargar distritos al montar
     useEffect(() => {
@@ -261,27 +271,34 @@ const NewAppointment: React.FC = () => {
     useEffect(() => {
         setOficina(null);
         setTramite('');
+        setOficinas([]);
+        setTramites([]);
         setExpedientes([]);
         setExpInput({ expediente: '', juzgadoId: '' });
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!distrito) return;
+        let cancelado = false; // evita que una respuesta de una selección anterior pise la actual
         setAsyncField({ loadingStep: 'oficinas' });
         getOficinasFiltradas(distrito)
-            .then(res => setOficinas(Array.isArray(res) ? res : []))
+            .then(res => { if (!cancelado) setOficinas(Array.isArray(res) ? res : []); })
             .catch(err => console.error(err))
-            .finally(() => setAsyncField({ loadingStep: null }));
+            .finally(() => { if (!cancelado) setAsyncField({ loadingStep: null }); });
+        return () => { cancelado = true; };
     }, [distrito]);
 
     // Cada que cambia la oficina
     useEffect(() => {
         setTramite('');
+        setTramites([]);
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'tramites' });
         getServiciosPorOficina(oficina.clave)
-            .then(res => setTramites(Array.isArray(res) ? res : []))
+            .then(res => { if (!cancelado) setTramites(Array.isArray(res) ? res : []); })
             .catch(err => console.error(err))
-            .finally(() => setAsyncField({ loadingStep: null }));
+            .finally(() => { if (!cancelado) setAsyncField({ loadingStep: null }); });
+        return () => { cancelado = true; };
     }, [oficina]);
 
     // Cada que cambia el trámite
@@ -291,13 +308,30 @@ const NewAppointment: React.FC = () => {
         setExpInput({ expediente: '', juzgadoId: '' });
         setAsyncField({ fechas: [], horas: [], loadingStep: null });
         if (!oficina || !tramite) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'fechas' });
         getFechasDisponibles(oficina.clave, tramite)
-            .then(res => setAsyncField({ fechas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .then(async (res) => {
+                if (cancelado) return; // ya cambió la selección: no pedir horas de cada fecha
+                const fechasDisponibles: string[] = Array.isArray(res) ? res : [];
+
+                const fechaConHora = (await Promise.all(
+                    fechasDisponibles.map(async (fechaStr) => {
+                        try{
+                            const horas = await getHorasDisponibles(oficina.clave, tramite, fechaStr);
+                            return Array.isArray(horas) && horas.length > 0 ? fechaStr : null;
+                        } catch (error) {
+                            return null;
+                        }
+                    })
+                )).filter((f): f is string => f !== null);
+                if (!cancelado) setAsyncField({ fechas: fechaConHora, loadingStep: null });
+            })
             .catch(err => {
                 console.error(err);
-                setAsyncField({ fechas: [], loadingStep: null });
+                if (!cancelado) setAsyncField({ fechas: [], loadingStep: null });
             });
+        return () => { cancelado = true; };
     }, [oficina, tramite]);
 
     // Cada que cambia la fecha
@@ -305,13 +339,15 @@ const NewAppointment: React.FC = () => {
         setHora('');
         setAsyncField({ horas: [], loadingStep: null });
         if (!oficina || !tramite || !fecha) return;
+        let cancelado = false;
         setAsyncField({ loadingStep: 'horas' });
         getHorasDisponibles(oficina.clave, tramite, fecha.format('YYYY-MM-DD'))
-            .then(res => setAsyncField({ horas: Array.isArray(res) ? res : [], loadingStep: null }))
+            .then(res => { if (!cancelado) setAsyncField({ horas: Array.isArray(res) ? res : [], loadingStep: null }); })
             .catch(err => {
                 console.error(err);
-                setAsyncField({ horas: [], loadingStep: null });
+                if (!cancelado) setAsyncField({ horas: [], loadingStep: null });
             });
+        return () => { cancelado = true; };
     }, [oficina, tramite, fecha]);
     
     useEffect(() => {
@@ -518,6 +554,12 @@ const NewAppointment: React.FC = () => {
                                                         </Typography>
                                                     )}
 
+                                                    {errorExpediente && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            {errorExpediente}
+                                                        </Typography>
+                                                    )}
+
                                                     {/* ── Tabla ── */}
                                                     <Card variant="outlined" sx={{ mt: 1 }}>
                                                         <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -571,6 +613,7 @@ const NewAppointment: React.FC = () => {
                                                 // ── Modo simple: solo input de expediente + tabla sin juzgado ──
                                                 <Box>
                                                     <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                                                        {/* ── Input de expediente ──*/}
                                                         <TextField
                                                             size="small"
                                                             label="Expediente"
@@ -613,6 +656,12 @@ const NewAppointment: React.FC = () => {
                                                     {expedientes.length >= 5 && (
                                                         <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
                                                             Límite máximo de 5 expedientes alcanzado.
+                                                        </Typography>
+                                                    )}
+
+                                                    {errorExpediente && (
+                                                        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                            {errorExpediente}
                                                         </Typography>
                                                     )}
 
